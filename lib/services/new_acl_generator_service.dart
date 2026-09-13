@@ -29,7 +29,11 @@ class NewAclGeneratorService {
 
     for (var user in users) {
       final groupName = 'group:${normalizeUserName(user.name)}';
-      groups[groupName] = [user.name];
+      final members = <String>{user.name};
+      if (user.email != null && user.email!.isNotEmpty) {
+        members.add(user.email!);
+      }
+      groups[groupName] = members.toList();
 
       final baseTag = 'tag:${normalizeUserName(user.name)}-client';
       if (!tagOwners.containsKey(baseTag)) {

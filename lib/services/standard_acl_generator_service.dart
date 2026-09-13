@@ -28,7 +28,11 @@ class StandardAclGeneratorService {
 
     for (var user in users) {
       final groupName = 'group:${normalizeUserName(user.name)}';
-      groups[groupName] = [user.name];
+      final members = <String>{user.name};
+      if (user.email != null && user.email!.isNotEmpty) {
+        members.add(user.email!);
+      }
+      groups[groupName] = members.toList();
 
       // Define standard tags for this user
       final normalizedUser = normalizeUserName(user.name);

@@ -20,7 +20,11 @@ class PolicyInfrastructureBuilder {
 
     for (var user in users) {
       final groupName = 'group:${normalizeUserName(user.name)}';
-      groups[groupName] = [user.name];
+      final members = <String>{user.name};
+      if (user.email != null && user.email!.isNotEmpty) {
+        members.add(user.email!);
+      }
+      groups[groupName] = members.toList();
 
       final normalizedUser = normalizeUserName(user.name);
       _addTagOwner(tagOwners, 'tag:$normalizedUser-client', groupName);

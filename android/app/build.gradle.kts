@@ -32,7 +32,7 @@ android {
     defaultConfig {
         applicationId = "com.dkstudio.headscalemanager"
         minSdk = flutter.minSdkVersion
-        targetSdk = 35 // It is best practice to keep targetSdk a bit behind compileSdk
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -66,6 +66,8 @@ flutter {
 }
 
 dependencies {
+    // Required for enableEdgeToEdge() in MainActivity (Android 15+ Play compliance).
+    implementation("androidx.activity:activity-ktx:1.10.1")
     // Dependency for core library desugaring
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

@@ -31,11 +31,24 @@ extension StringUtils on String {
   }
 }
 
-/// Normalise un nom d'utilisateur en supprimant le domaine de l'e-mail et en le mettant en minuscule.
+/// Normalise un nom d'utilisateur en supprimant le domaine de l'e-mail,
+/// en le mettant en minuscules et en remplaçant les caractères non-alphanumériques (dont '.') par des tirets.
+/// Conforme aux exigences de nommage des tags et groupes Headscale/Tailscale.
 ///
-/// Par exemple: 'User@example.com' -> 'user'
+/// Par exemple:
+/// - 'User@example.com' -> 'user'
+/// - 'marine.leclerc.pro@gmail.com' -> 'marine-leclerc-pro'
+/// - 'Jean.Dupont@synology.me' -> 'jean-dupont'
 String normalizeUserName(String userName) {
-  return userName.split('@').first.toLowerCase();
+  final localPart =
+      userName.contains('@') ? userName.split('@').first : userName;
+  var sanitized = localPart.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '-');
+  sanitized = sanitized.replaceAll(RegExp(r'-+'), '-');
+  if (sanitized.startsWith('-')) sanitized = sanitized.substring(1);
+  if (sanitized.endsWith('-')) {
+    sanitized = sanitized.substring(0, sanitized.length - 1);
+  }
+  return sanitized.isEmpty ? 'user' : sanitized;
 }
 
 /// Validation RFC 1123 pour les sous-domaines DNS.

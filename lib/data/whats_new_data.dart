@@ -14,6 +14,42 @@ class WhatsNewVersion {
   static List<WhatsNewVersion> getVersions(bool isFr) {
     return [
       WhatsNewVersion(
+        version: '2.1.7',
+        title: isFr
+            ? 'Release 2.1.7 — Normalisation des tags OIDC'
+            : 'Release 2.1.7 — OIDC Tag Normalization',
+        description: isFr
+            ? 'Correction de l\'initialisation des tags pour les utilisateurs OIDC : normalisation automatique des noms contenant des points ou caractères spéciaux (conformité Tailscale/Headscale) et auto-résolution des permissions tagOwners.'
+            : 'Fixed tag initialization for OIDC users: automatic normalization of names containing dots or special characters (Tailscale/Headscale compliance) and auto-resolution of tagOwners permissions.',
+        verification: isFr
+            ? 'Utilisateur OIDC > Détails > Initialiser le Tag > Sauvegarder'
+            : 'OIDC User > Details > Initialize Tag > Save',
+      ),
+      WhatsNewVersion(
+        version: '2.1.6',
+        title: isFr
+            ? 'Release 2.1.6 — Affichage bord à bord'
+            : 'Release 2.1.6 — Edge-to-edge display',
+        description: isFr
+            ? 'Conformité Android 15+ : affichage bord à bord (edge-to-edge) avec gestion correcte des encarts système (barre de statut et navigation).'
+            : 'Android 15+ compliance: edge-to-edge display with proper system inset handling (status and navigation bars).',
+        verification: isFr
+            ? 'Play Console > affichage bord à bord'
+            : 'Play Console > edge-to-edge display',
+      ),
+      WhatsNewVersion(
+        version: '2.1.5',
+        title: isFr
+            ? 'Release 2.1.5 — Cible Android 16'
+            : 'Release 2.1.5 — Android 16 target',
+        description: isFr
+            ? 'Mise à jour du niveau d\'API cible vers Android 16 (API 36) pour rester conforme aux exigences Google Play Store.'
+            : 'Updated target API level to Android 16 (API 36) to meet Google Play Store requirements.',
+        verification: isFr
+            ? 'Play Console > conformité niveau d\'API cible'
+            : 'Play Console > target API level compliance',
+      ),
+      WhatsNewVersion(
         version: '2.1.3',
         title: isFr
             ? 'Release 2.1.3 — Puzzle & persistance'

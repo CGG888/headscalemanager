@@ -168,12 +168,46 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
   }
 
   Future<void> _handleSave() async {
-    final apiService = context.read<AppProvider>().apiService;
-    final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+    final appProvider = context.read<AppProvider>();
+    final apiService = appProvider.apiService;
+    final isFr = appProvider.locale.languageCode == 'fr';
 
     try {
-      // Save tags first
-      await apiService.setTags(widget.node.id, _currentTags);
+      // Tenter d'enregistrer les tags directement
+      try {
+        await apiService.setTags(widget.node.id, _currentTags);
+      } catch (tagError) {
+        final errStr = tagError.toString().toLowerCase();
+        // Si Headscale rejette car le tag n'est pas encore dans tagOwners de l'ACL active
+        if (errStr.contains('not permitted')) {
+          final serverId = appProvider.activeServer?.id;
+          if (serverId != null) {
+            final allUsers = await apiService.getUsers();
+            final allNodes = await apiService.getNodes();
+            final tempRules =
+                await appProvider.storageService.getTemporaryRules(serverId);
+
+            final aclOrchestrator = AclPolicyOrchestrator();
+            final newPolicyMap = aclOrchestrator.generatePolicy(
+              engineMode: appProvider.aclEngineMode,
+              users: allUsers,
+              nodes: allNodes,
+              temporaryRules: tempRules,
+              taildriveShares: appProvider.taildriveShares,
+              serverVersion: appProvider.serverVersion,
+            );
+
+            await apiService.setAclPolicy(jsonEncode(newPolicyMap));
+            // Retenter l'assignation des tags maintenant que tagOwners est à jour
+            await apiService.setTags(widget.node.id, _currentTags);
+          } else {
+            rethrow;
+          }
+        } else {
+          rethrow;
+        }
+      }
+
       if (!mounted) return;
       showSafeSnackBar(context, isFr ? 'Tags mis à jour.' : 'Tags updated.');
 
@@ -210,7 +244,6 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
         if (updateAcls == true && mounted) {
           showSafeSnackBar(
               context, isFr ? 'Mise à jour des ACLs...' : 'Updating ACLs...');
-          final appProvider = context.read<AppProvider>();
           final allUsers = await apiService.getUsers();
           final allNodes = await apiService.getNodes();
           final serverId = appProvider.activeServer?.id;
