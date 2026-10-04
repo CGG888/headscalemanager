@@ -136,13 +136,27 @@ jobs:
           "$BT/apksigner" sign \
             --ks "$SIGN_KS" --ks-pass "pass:$SIGN_STORE_PASS" \
             --key-pass "pass:$SIGN_KEY_PASS" --ks-key-alias "$SIGN_ALIAS" \
+            --min-sdk-version 21 \
             --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
             --out "$APK" "$APK.aligned"
           rm -f "$APK.aligned"
-          OUT="$("$BT/apksigner" verify --verbose --print-certs "$APK" 2>&1 || true)"
+
+          # 硬判据：APK 里到底有没有 v1(JAR) 签名文件。
+          # 安装器报「安装包没有签名文件」找的就是 META-INF/*.RSA 这类文件。
+          echo "--- APK 内 META-INF 内容 ---"
+          unzip -l "$APK" | grep -iE 'META-INF/' || echo "(无 META-INF 条目)"
+          V1_FILES="$(unzip -l "$APK" | grep -icE 'META-INF/.*\.(RSA|DSA|EC)' || true)"
+          echo "v1 签名文件数: $V1_FILES"
+
+          # 注意：apksigner verify 默认按 APK 自身的 minSdkVersion 校验，minSdk>=24 时
+          # 它不会检查 v1，一律显示 v1=false —— 那不是「缺 v1」。这里强制按 API 21 校验。
+          OUT="$("$BT/apksigner" verify --verbose --print-certs --min-sdk-version 21 "$APK" 2>&1 || true)"
           echo "$OUT"
+
+          [ "$V1_FILES" -ge 1 ] \
+            || { echo "::error::APK 中没有 v1(JAR) 签名文件，部分安装器会报『安装包没有签名文件』"; exit 1; }
           echo "$OUT" | grep -q "Verified using v1 scheme (JAR signing): true" \
-            || { echo "::error::重签后仍缺 v1(JAR) 签名"; exit 1; }
+            || { echo "::error::v1 签名文件存在但按 API 21 校验未通过"; exit 1; }
           echo "$OUT" | grep -qE "Verified using v(2|3) scheme.*: true" \
             || { echo "::error::重签后仍缺 v2/v3 签名"; exit 1; }
 
