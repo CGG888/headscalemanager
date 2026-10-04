@@ -116,7 +116,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-              child: Text(l10n.t('Appareils', 'Devices'),
+              child: Text(l10n.t('Appareils', 'Devices', '设备'),
                   style: theme.textTheme.headlineSmall
                       ?.copyWith(fontWeight: FontWeight.bold)),
             ),
@@ -126,7 +126,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showTailscaleUpCommandDialog(context, widget.user),
-        label: Text(l10n.t('Nouvel Appareil', 'New Device'),
+        label: Text(l10n.t('Nouvel Appareil', 'New Device', '新设备'),
             style: theme.textTheme.labelLarge
                 ?.copyWith(color: theme.colorScheme.onPrimary)),
         icon:
@@ -226,7 +226,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                             color: theme.colorScheme.onPrimary
                                 .withValues(alpha: 0.6))),
                     Text(
-                        '${l10n.t('Créé le', 'Created on')}: ${widget.user.createdAt?.toLocal() ?? 'N/A'}',
+                        '${l10n.t('Créé le', 'Created on', '创建于')}: ${widget.user.createdAt?.toLocal() ?? 'N/A'}',
                         style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onPrimary
                                 .withValues(alpha: 0.6))),
@@ -265,7 +265,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                   color: theme.colorScheme.onPrimary, size: 20),
               const SizedBox(width: 8),
               Text(
-                l10n.t('Mémos d\'administration', 'Admin Notes'),
+                l10n.t('Mémos d\'administration', 'Admin Notes', '管理备忘'),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onPrimary,
@@ -282,7 +282,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                               color: Colors.greenAccent.withValues(alpha: 0.8), size: 14),
                           const SizedBox(width: 4),
                           Text(
-                            l10n.t('Enregistré', 'Saved'),
+                            l10n.t('Enregistré', 'Saved', '已保存'),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
                               fontSize: 10,
@@ -303,7 +303,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            l10n.t('Enregistrement...', 'Saving...'),
+                            l10n.t('Enregistrement...', 'Saving...', '保存中……'),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
                               fontSize: 10,
@@ -324,7 +324,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               color: theme.colorScheme.onPrimary,
             ),
             decoration: InputDecoration(
-              hintText: l10n.t('Ajouter des notes d\'administration pour cet utilisateur...', 'Add administration notes for this user...'),
+              hintText: l10n.t('Ajouter des notes d\'administration pour cet utilisateur...', 'Add administration notes for this user...', '为此用户添加管理备注……'),
               hintStyle: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onPrimary.withValues(alpha: 0.5),
               ),
@@ -368,13 +368,13 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               debugPrint(
                   'Erreur lors du chargement des nœuds : ${snapshot.error}');
               return Center(
-                  child: Text('${l10n.t('Erreur', 'Error')}: ${snapshot.error}',
+                  child: Text('${l10n.t('Erreur', 'Error', '错误')}: ${snapshot.error}',
                       style: theme.textTheme.bodyMedium));
             }
             if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return Center(
                   child: Text(
-                      l10n.t('Aucun appareil trouvé.', 'No devices found.'),
+                      l10n.t('Aucun appareil trouvé.', 'No devices found.', '未找到设备。'),
                       style: theme.textTheme.bodyMedium));
             }
 
@@ -388,7 +388,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             if (userNodes.isEmpty) {
               return Center(
                   child: Text(
-                      l10n.t('Aucun appareil trouvé pour cet utilisateur.', 'No devices found for this user.'),
+                      l10n.t('Aucun appareil trouvé pour cet utilisateur.', 'No devices found for this user.', '未找到该用户的设备。'),
                       style: theme.textTheme.bodyMedium));
             }
 
@@ -443,7 +443,7 @@ class _NodeCard extends StatelessWidget {
       onNodeUpdate();
     } catch (e) {
       debugPrint('Action échouée : $e');
-      showSafeSnackBar(context, '${l10n.t('Erreur', 'Error')}: $e');
+      showSafeSnackBar(context, '${l10n.t('Erreur', 'Error', '错误')}: $e');
     }
   }
 
@@ -491,7 +491,7 @@ class _NodeCard extends StatelessWidget {
                     Icon(Icons.circle, color: onlineColor, size: 8),
                     const SizedBox(width: 4),
                     Text(
-                      node.online ? (l10n.t('En ligne', 'Online')) : (l10n.t('Hors ligne', 'Offline')),
+                      node.online ? (l10n.t('En ligne', 'Online', '在线')) : (l10n.t('Hors ligne', 'Offline', '离线')),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onPrimary.withValues(alpha: 0.8),
                         fontSize: 9,
@@ -528,7 +528,7 @@ class _NodeCard extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.warning_amber_rounded,
                         color: Colors.orange, size: 16),
-                    tooltip: l10n.t('Nom invalide (v0.27+)', 'Invalid name (v0.27+)'),
+                    tooltip: l10n.t('Nom invalide (v0.27+)', 'Invalid name (v0.27+)', '名称无效（v0.27+）'),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     onPressed: () {
@@ -584,7 +584,7 @@ class _NodeCard extends StatelessWidget {
                 ),
               ),
             const Expanded(child: SizedBox(height: 4)),
-            Text(l10n.t('Dernière connexion:', 'Last seen:'),
+            Text(l10n.t('Dernière connexion:', 'Last seen:', '上次连接：'),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -624,7 +624,7 @@ class _NodeCard extends StatelessWidget {
             if (moved == true && context.mounted) {
               showSafeSnackBar(
                 context,
-                l10n.t('Appareil déplacé. Redémarrage de Headscale recommandé.', 'Device moved. Headscale restart recommended.'),
+                l10n.t('Appareil déplacé. Redémarrage de Headscale recommandé.', 'Device moved. Headscale restart recommended.', '设备已移动。建议重启 Headscale。'),
               );
             }
             break;
@@ -635,18 +635,18 @@ class _NodeCard extends StatelessWidget {
             showDialog(
               context: context,
               builder: (dialogContext) => AlertDialog(
-                title: Text(l10n.t('Supprimer l\'appareil ?', 'Delete device?'),
+                title: Text(l10n.t('Supprimer l\'appareil ?', 'Delete device?', '删除设备？'),
                     style: theme.textTheme.titleLarge),
                 content: Text(
-                    l10n.t('Êtes-vous sûr de vouloir supprimer ${node.name} ?', 'Are you sure you want to delete ${node.name}?'),
+                    l10n.t('Êtes-vous sûr de vouloir supprimer ${node.name} ?', 'Are you sure you want to delete ${node.name}?', '确定要删除 ${node.name} 吗？'),
                     style: theme.textTheme.bodyMedium),
                 actions: <Widget>[
                   TextButton(
-                      child: Text(l10n.t('Annuler', 'Cancel'),
+                      child: Text(l10n.t('Annuler', 'Cancel', '取消'),
                           style: theme.textTheme.labelLarge),
                       onPressed: () => Navigator.of(dialogContext).pop()),
                   TextButton(
-                    child: Text(l10n.t('Confirmer', 'Confirm'),
+                    child: Text(l10n.t('Confirmer', 'Confirm', '确认'),
                         style: theme.textTheme.labelLarge
                             ?.copyWith(color: Colors.red)),
                     onPressed: () {
@@ -654,7 +654,7 @@ class _NodeCard extends StatelessWidget {
                       _runAction(
                           context,
                           () => provider.apiService.deleteNode(node.id),
-                          l10n.t('Appareil supprimé.', 'Device deleted.'));
+                          l10n.t('Appareil supprimé.', 'Device deleted.', '设备已删除。'));
                     },
                   ),
                 ],
@@ -666,24 +666,24 @@ class _NodeCard extends StatelessWidget {
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         PopupMenuItem<String>(
             value: 'rename',
-            child: Text(l10n.t('Renommer', 'Rename'),
+            child: Text(l10n.t('Renommer', 'Rename', '重命名'),
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(color: theme.colorScheme.onSurface))),
         if (!VersionInfo.checkVersionAtLeast(provider.serverVersion, '0.28.0'))
           PopupMenuItem<String>(
               value: 'move',
-              child: Text(l10n.t('Changer d\'utilisateur', 'Change user'),
+              child: Text(l10n.t('Changer d\'utilisateur', 'Change user', '切换用户'),
                   style: theme.textTheme.bodyMedium
                       ?.copyWith(color: theme.colorScheme.onSurface))),
         PopupMenuItem<String>(
             value: 'edit_tags',
-            child: Text(l10n.t('Modifier les tags', 'Edit tags'),
+            child: Text(l10n.t('Modifier les tags', 'Edit tags', '编辑标签'),
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(color: theme.colorScheme.onSurface))),
         const PopupMenuDivider(),
         PopupMenuItem<String>(
             value: 'delete_device',
-            child: Text(l10n.t('Supprimer', 'Delete'),
+            child: Text(l10n.t('Supprimer', 'Delete', '删除'),
                 style:
                     theme.textTheme.bodyMedium?.copyWith(color: Colors.red))),
       ],

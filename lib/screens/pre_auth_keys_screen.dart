@@ -44,7 +44,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-            l10n.t('Clés de Pré-authentification', 'Pre-authentication Keys'),
+            l10n.t('Clés de Pré-authentification', 'Pre-authentication Keys', '预认证密钥'),
             style: theme.appBarTheme.titleTextStyle),
         backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
@@ -60,13 +60,13 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
           }
           if (snapshot.hasError) {
             return Center(
-                child: Text('${l10n.t('Erreur', 'Error')}: ${snapshot.error}',
+                child: Text('${l10n.t('Erreur', 'Error', '错误')}: ${snapshot.error}',
                     style: theme.textTheme.bodyMedium));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
                 child: Text(
-                    l10n.t('Aucune clé de pré-authentification trouvée.', 'No pre-authentication keys found.'),
+                    l10n.t('Aucune clé de pré-authentification trouvée.', 'No pre-authentication keys found.', '未找到预认证密钥。'),
                     style: theme.textTheme.bodyMedium));
           }
 
@@ -80,7 +80,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
           if (activeKeys.isEmpty) {
             return Center(
                 child: Text(
-                    l10n.t('Aucune clé de pré-authentification active.', 'No active pre-authentication keys.'),
+                    l10n.t('Aucune clé de pré-authentification active.', 'No active pre-authentication keys.', '无活动的预认证密钥。'),
                     style: theme.textTheme.bodyMedium));
           }
 
@@ -100,7 +100,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createNewKey,
-        tooltip: l10n.t('Créer une clé de pré-authentification', 'Create a pre-authentication key'),
+        tooltip: l10n.t('Créer une clé de pré-authentification', 'Create a pre-authentication key', '创建预认证密钥'),
         backgroundColor: theme.colorScheme.primary,
         child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
       ),
@@ -119,7 +119,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
       _refreshData();
       showSafeSnackBar(
           context,
-          l10n.t('Clé de pré-authentification créée.', 'Pre-authentication key created.'));
+          l10n.t('Clé de pré-authentification créée.', 'Pre-authentication key created.', '预认证密钥已创建。'));
       final appProvider = context.read<AppProvider>();
       final serverUrl = appProvider.activeServer?.url;
       final String loginServer = serverUrl?.endsWith('/') == true
@@ -140,14 +140,14 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-            l10n.t('Commande d\'enregistrement', 'Registration Command'),
+            l10n.t('Commande d\'enregistrement', 'Registration Command', '注册命令'),
             style: theme.textTheme.titleLarge),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                l10n.t('Copiez et exécutez cette commande sur votre appareil pour vous connecter.', 'Copy and run this command on your device to connect.'),
+                l10n.t('Copiez et exécutez cette commande sur votre appareil pour vous connecter.', 'Copy and run this command on your device to connect.', '在你的设备上复制并运行此命令即可连接。'),
                 style: theme.textTheme.bodyMedium),
             const SizedBox(height: 16),
             SelectableText(fullCommand,
@@ -157,7 +157,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
         ),
         actions: [
           TextButton(
-            child: Text(l10n.t('Expirer la clé', 'Expire Key'),
+            child: Text(l10n.t('Expirer la clé', 'Expire Key', '使密钥过期'),
                 style: theme.textTheme.labelLarge?.copyWith(color: Colors.red)),
             onPressed: () async {
               try {
@@ -168,10 +168,10 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
                 Navigator.of(context).pop();
                 showSafeSnackBar(
                     context,
-                    l10n.t('Clé expirée avec succès.', 'Key expired successfully.'));
+                    l10n.t('Clé expirée avec succès.', 'Key expired successfully.', '密钥已成功过期。'));
               } catch (e) {
                 showSafeSnackBar(context,
-                    '${l10n.t('Erreur lors de l\'expiration de la clé', 'Error expiring key')}: $e');
+                    '${l10n.t('Erreur lors de l\'expiration de la clé', 'Error expiring key', '密钥过期时出错')}: $e');
               }
             },
           ),
@@ -190,7 +190,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
           ),
           ElevatedButton.icon(
             icon: Icon(Icons.copy, color: theme.colorScheme.onPrimary),
-            label: Text(l10n.t('Copier', 'Copy'),
+            label: Text(l10n.t('Copier', 'Copy', '复制'),
                 style: theme.textTheme.labelLarge
                     ?.copyWith(color: theme.colorScheme.onPrimary)),
             onPressed: () async {
@@ -198,7 +198,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
               if (!context.mounted) return;
               showSafeSnackBar(
                   context,
-                  l10n.t('Commande copiée dans le presse-papiers !', 'Command copied to clipboard!'));
+                  l10n.t('Commande copiée dans le presse-papiers !', 'Command copied to clipboard!', '命令已复制到剪贴板！'));
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary),
@@ -215,7 +215,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.t('QR Code pour la commande', 'QR Code for command'),
+        title: Text(l10n.t('QR Code pour la commande', 'QR Code for command', '命令二维码'),
             style: theme.textTheme.titleLarge),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -245,14 +245,14 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-                l10n.t('Scannez ce QR code avec votre appareil mobile pour obtenir la commande.', 'Scan this QR code with your mobile device to get the command.'),
+                l10n.t('Scannez ce QR code avec votre appareil mobile pour obtenir la commande.', 'Scan this QR code with your mobile device to get the command.', '用移动设备扫描此二维码即可获取命令。'),
                 style: theme.textTheme.bodyMedium),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.t('Fermer', 'Close'),
+            child: Text(l10n.t('Fermer', 'Close', '关闭'),
                 style: theme.textTheme.labelLarge),
           ),
         ],
@@ -289,7 +289,7 @@ class _PreAuthKeyCard extends StatelessWidget {
         title: Text(
             apiKey.key.startsWith('hskey-auth-')
                 ? 'Prefix: ${apiKey.key}'
-                : '${l10n.t('Clé', 'Key')}: ...${apiKey.key.length > 6 ? apiKey.key.substring(apiKey.key.length - 6) : apiKey.key}',
+                : '${l10n.t('Clé', 'Key', '密钥')}: ...${apiKey.key.length > 6 ? apiKey.key.substring(apiKey.key.length - 6) : apiKey.key}',
             style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w500, fontFamily: 'monospace')),
         subtitle: Column(
@@ -297,19 +297,19 @@ class _PreAuthKeyCard extends StatelessWidget {
           children: [
             const SizedBox(height: 4),
             Text(
-                '${l10n.t('Utilisateur', 'User')}: ${apiKey.user?.name ?? 'N/A'}',
+                '${l10n.t('Utilisateur', 'User', '用户')}: ${apiKey.user?.name ?? 'N/A'}',
                 style: theme.textTheme.bodyMedium),
             Text(
-                '${l10n.t('Expiration', 'Expiration')}: ${apiKey.expiration?.toLocal() ?? (l10n.t('Jamais', 'Never'))}',
+                '${l10n.t('Expiration', 'Expiration', '有效期')}: ${apiKey.expiration?.toLocal() ?? (l10n.t('Jamais', 'Never', '从未'))}',
                 style: theme.textTheme.bodyMedium),
             Row(
               children: [
                 Text(
-                    '${l10n.t('Réutilisable', 'Reusable')}: ${apiKey.reusable ? (l10n.t('Oui', 'Yes')) : (l10n.t('Non', 'No'))}',
+                    '${l10n.t('Réutilisable', 'Reusable', '可复用')}: ${apiKey.reusable ? (l10n.t('Oui', 'Yes', '是')) : (l10n.t('Non', 'No', '否'))}',
                     style: theme.textTheme.bodyMedium),
                 const SizedBox(width: 8),
                 Text(
-                    '${l10n.t('Éphémère', 'Ephemeral')}: ${apiKey.ephemeral ? (l10n.t('Oui', 'Yes')) : (l10n.t('Non', 'No'))}',
+                    '${l10n.t('Éphémère', 'Ephemeral', '临时')}: ${apiKey.ephemeral ? (l10n.t('Oui', 'Yes', '是')) : (l10n.t('Non', 'No', '否'))}',
                     style: theme.textTheme.bodyMedium),
               ],
             ),
@@ -317,7 +317,7 @@ class _PreAuthKeyCard extends StatelessWidget {
         ),
         trailing: IconButton(
           icon: const Icon(Icons.timer_off, color: Colors.redAccent),
-          tooltip: l10n.t('Expirer la clé', 'Expire key'),
+          tooltip: l10n.t('Expirer la clé', 'Expire key', '使密钥过期'),
           onPressed: () => _expireKey(context),
         ),
         onTap: () => _handleTap(context),
@@ -332,19 +332,19 @@ class _PreAuthKeyCard extends StatelessWidget {
     final confirm = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(l10n.t('Expirer la clé ?', 'Expire key?'),
+            title: Text(l10n.t('Expirer la clé ?', 'Expire key?', '使密钥过期？'),
                 style: theme.textTheme.titleLarge),
             content: Text(
-                l10n.t('Voulez-vous vraiment faire expirer cette clé ? L\'action est irréversible.', 'Do you really want to expire this key? The action is irreversible.'),
+                l10n.t('Voulez-vous vraiment faire expirer cette clé ? L\'action est irréversible.', 'Do you really want to expire this key? The action is irreversible.', '确定要让此密钥过期吗？该操作不可撤销。'),
                 style: theme.textTheme.bodyMedium),
             actions: [
               TextButton(
                   onPressed: () => Navigator.of(ctx).pop(false),
-                  child: Text(l10n.t('Annuler', 'Cancel'),
+                  child: Text(l10n.t('Annuler', 'Cancel', '取消'),
                       style: theme.textTheme.labelLarge)),
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(l10n.t('Expirer', 'Expire'),
+                child: Text(l10n.t('Expirer', 'Expire', '设为过期'),
                     style: theme.textTheme.labelLarge
                         ?.copyWith(color: Colors.red)),
               ),
@@ -360,11 +360,11 @@ class _PreAuthKeyCard extends StatelessWidget {
             serverVersion: provider.serverVersion, keyId: apiKey.id);
         if (!context.mounted) return;
         showSafeSnackBar(context,
-            l10n.t('Clé expirée avec succès.', 'Key expired successfully.'));
+            l10n.t('Clé expirée avec succès.', 'Key expired successfully.', '密钥已成功过期。'));
         onAction(); // This will trigger the refresh
       } catch (e) {
         showSafeSnackBar(context,
-            '${l10n.t('Erreur lors de l\'expiration de la clé', 'Error expiring key')}: $e');
+            '${l10n.t('Erreur lors de l\'expiration de la clé', 'Error expiring key', '密钥过期时出错')}: $e');
       }
     }
   }
@@ -385,7 +385,7 @@ class _PreAuthKeyCard extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-            l10n.t('Commande d\'enregistrement', 'Registration Command'),
+            l10n.t('Commande d\'enregistrement', 'Registration Command', '注册命令'),
             style: theme.textTheme.titleLarge),
         content: SelectableText(fullCommand,
             style:
@@ -405,21 +405,21 @@ class _PreAuthKeyCard extends StatelessWidget {
           ),
           ElevatedButton.icon(
             icon: Icon(Icons.copy, color: theme.colorScheme.onPrimary),
-            label: Text(l10n.t('Copier', 'Copy'),
+            label: Text(l10n.t('Copier', 'Copy', '复制'),
                 style: theme.textTheme.labelLarge
                     ?.copyWith(color: theme.colorScheme.onPrimary)),
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: fullCommand));
               if (!context.mounted) return;
               showSafeSnackBar(
-                  context, l10n.t('Commande copiée !', 'Command copied!'));
+                  context, l10n.t('Commande copiée !', 'Command copied!', '命令已复制！'));
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.t('Fermer', 'Close'),
+            child: Text(l10n.t('Fermer', 'Close', '关闭'),
                 style: theme.textTheme.labelLarge),
           ),
         ],

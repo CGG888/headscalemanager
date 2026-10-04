@@ -46,8 +46,8 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
       appBar: AppBar(
         title: Text(
           isEditing
-              ? (l10n.t('Modifier le serveur', 'Edit Server'))
-              : (l10n.t('Ajouter un serveur', 'Add Server')),
+              ? (l10n.t('Modifier le serveur', 'Edit Server', '编辑服务器'))
+              : (l10n.t('Ajouter un serveur', 'Add Server', '添加服务器')),
         ),
       ),
       body: Form(
@@ -59,11 +59,11 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: l10n.t('Nom du serveur', 'Server Name'),
+                  labelText: l10n.t('Nom du serveur', 'Server Name', '服务器名称'),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return l10n.t('Veuillez entrer un nom', 'Please enter a name');
+                    return l10n.t('Veuillez entrer un nom', 'Please enter a name', '请输入名称');
                   }
                   return null;
                 },
@@ -72,13 +72,13 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
               TextFormField(
                 controller: _urlController,
                 decoration: InputDecoration(
-                  labelText: l10n.t('URL du serveur', 'Server URL'),
+                  labelText: l10n.t('URL du serveur', 'Server URL', '服务器 URL'),
                 ),
                 validator: (value) {
                   if (value == null ||
                       value.isEmpty ||
                       !Uri.parse(value).isAbsolute) {
-                    return l10n.t('Veuillez entrer une URL valide', 'Please enter a valid URL');
+                    return l10n.t('Veuillez entrer une URL valide', 'Please enter a valid URL', '请输入有效的 URL');
                   }
                   return null;
                 },
@@ -88,7 +88,7 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
                 controller: _apiKeyController,
                 obscureText: _obscureApiKey,
                 decoration: InputDecoration(
-                  labelText: l10n.t('Clé API', 'API Key'),
+                  labelText: l10n.t('Clé API', 'API Key', 'API 密钥'),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureApiKey ? Icons.visibility_off : Icons.visibility,
@@ -102,7 +102,7 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return l10n.t('Veuillez entrer une clé API', 'Please enter an API key');
+                    return l10n.t('Veuillez entrer une clé API', 'Please enter an API key', '请输入 API 密钥');
                   }
                   return null;
                 },
@@ -110,7 +110,7 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _saveServer,
-                child: Text(l10n.t('Enregistrer', 'Save')),
+                child: Text(l10n.t('Enregistrer', 'Save', '保存')),
               ),
             ],
           ),

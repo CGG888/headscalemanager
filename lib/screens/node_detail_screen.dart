@@ -104,7 +104,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
         setState(() => _isPingingContinuously = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(l10n.t('Aucune adresse IPv4 trouvée pour ce nœud.', 'No IPv4 address found for this node.'))),
+              content: Text(l10n.t('Aucune adresse IPv4 trouvée pour ce nœud.', 'No IPv4 address found for this node.', '未找到此节点的 IPv4 地址。'))),
         );
         return;
       }
@@ -170,7 +170,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       if (context.mounted) {
         showSafeSnackBar(
           context,
-          l10n.t('Grant ajouté et policy mise à jour sur le serveur.', 'Grant added and policy updated on server.'),
+          l10n.t('Grant ajouté et policy mise à jour sur le serveur.', 'Grant added and policy updated on server.', '已添加授权并更新服务器上的策略。'),
         );
       }
     } catch (e) {
@@ -201,7 +201,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
           if (showComposer)
             IconButton(
               icon: const Icon(Icons.auto_fix_high),
-              tooltip: l10n.t('Composer une règle', 'Compose a rule'),
+              tooltip: l10n.t('Composer une règle', 'Compose a rule', '编写规则'),
               onPressed: () => _openGrantComposer(context),
             ),
         ],
@@ -247,8 +247,8 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
               const SizedBox(width: 8),
               Text(
                   _currentNode.online
-                      ? (l10n.t('En ligne', 'Online'))
-                      : (l10n.t('Hors ligne', 'Offline')),
+                      ? (l10n.t('En ligne', 'Online', '在线'))
+                      : (l10n.t('Hors ligne', 'Offline', '离线')),
                   style: theme.textTheme.bodyMedium?.copyWith(
                       color: _currentNode.online
                           ? Colors.green
@@ -281,7 +281,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                     ),
                   ),
                   child: Tooltip(
-                    message: l10n.t('Changer le type d\'appareil', 'Change device type'),
+                    message: l10n.t('Changer le type d\'appareil', 'Change device type', '更改设备类型'),
                     child: Icon(
                       context.watch<AppProvider>().getDeviceIcon(_currentNode),
                       color: theme.colorScheme.onPrimary,
@@ -303,7 +303,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                   child: IconButton(
                     icon: const Icon(Icons.warning_amber_rounded,
                         color: Colors.orange, size: 24),
-                    tooltip: l10n.t('Nom invalide (v0.27+)', 'Invalid name (v0.27+)'),
+                    tooltip: l10n.t('Nom invalide (v0.27+)', 'Invalid name (v0.27+)', '名称无效（v0.27+）'),
                     onPressed: () {
                       showDialog(
                           context: context,
@@ -325,12 +325,12 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
             ],
           ),
           const SizedBox(height: 4),
-          Text('${l10n.t('Utilisateur', 'User')}: ${_currentNode.user}',
+          Text('${l10n.t('Utilisateur', 'User', '用户')}: ${_currentNode.user}',
               style: theme.textTheme.titleMedium
                   ?.copyWith(color: theme.colorScheme.onPrimary)),
           const SizedBox(height: 8),
           Text(
-              '${l10n.t('Dernière connexion', 'Last seen')}: ${_currentNode.lastSeen.toLocal()}',
+              '${l10n.t('Dernière connexion', 'Last seen', '最后在线')}: ${_currentNode.lastSeen.toLocal()}',
               style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onPrimary.withValues(alpha: 0.7))),
         ],
@@ -355,7 +355,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  l10n.t('Sélectionner le type d\'appareil', 'Select Device Type'),
+                  l10n.t('Sélectionner le type d\'appareil', 'Select Device Type', '选择设备类型'),
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -428,7 +428,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                 const SizedBox(height: 12),
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: Text(l10n.t('Annuler', 'Cancel')),
+                  child: Text(l10n.t('Annuler', 'Cancel', '取消')),
                 ),
               ],
             ),
@@ -444,11 +444,11 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
 
     return _SectionCard(
       child: SwitchListTile(
-        title: Text(l10n.t('Surveiller le statut', 'Monitor Status'),
+        title: Text(l10n.t('Surveiller le statut', 'Monitor Status', '监控状态'),
             style: theme.textTheme.titleMedium
                 ?.copyWith(color: theme.colorScheme.onPrimary)),
         subtitle: Text(
-            l10n.t('Recevoir une notification si le nœud se connecte ou se déconnecte.', 'Receive a notification if the node goes online or offline.'),
+            l10n.t('Recevoir une notification si le nœud se connecte ou se déconnecte.', 'Receive a notification if the node goes online or offline.', '节点上线或离线时接收通知。'),
             style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onPrimary.withValues(alpha: 0.7))),
         value: _isMonitoringEnabled,
@@ -466,7 +466,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.t('Adresses IP', 'IP Addresses'),
+          Text(l10n.t('Adresses IP', 'IP Addresses', 'IP 地址'),
               style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onPrimary)),
@@ -488,7 +488,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.t('Identifiants', 'Identifiers'),
+          Text(l10n.t('Identifiants', 'Identifiers', '标识符'),
               style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onPrimary)),
@@ -496,9 +496,9 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
               height: 20,
               color: theme.colorScheme.onPrimary.withValues(alpha: 0.5)),
           _DetailRowWithCopy(
-              label: l10n.t('ID Nœud', 'Node ID'), value: _currentNode.id),
+              label: l10n.t('ID Nœud', 'Node ID', '节点 ID'), value: _currentNode.id),
           _DetailRowWithCopy(
-              label: l10n.t('Clé Machine', 'Machine Key'),
+              label: l10n.t('Clé Machine', 'Machine Key', '设备密钥'),
               value: _currentNode.machineKey),
           _DetailRowWithCopy(label: 'FQDN', value: _currentNode.fqdn),
         ],
@@ -522,7 +522,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.t('Gestion des Routes', 'Route Management'),
+          Text(l10n.t('Gestion des Routes', 'Route Management', '路由管理'),
               style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onPrimary)),
@@ -530,7 +530,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
               height: 20,
               color: theme.colorScheme.onPrimary.withValues(alpha: 0.5)),
           Text(
-              l10n.t('Cochez les routes que vous souhaitez approuver pour ce nœud.', 'Check the routes you want to approve for this node.'),
+              l10n.t('Cochez les routes que vous souhaitez approuver pour ce nœud.', 'Check the routes you want to approve for this node.', '勾选要为此节点批准的路由。'),
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: theme.colorScheme.onPrimary)),
           const SizedBox(height: 10),
@@ -571,7 +571,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
-              child: Text(l10n.t('Appliquer les changements', 'Apply Changes'),
+              child: Text(l10n.t('Appliquer les changements', 'Apply Changes', '应用更改'),
                   style: theme.textTheme.labelLarge
                       ?.copyWith(color: theme.colorScheme.primary)),
             ),
@@ -605,7 +605,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
             spacing: 8.0,
             children: _currentNode.tags.isEmpty
                 ? [
-                    Text(l10n.t('Aucun tag', 'No tags'),
+                    Text(l10n.t('Aucun tag', 'No tags', '无标签'),
                         style: theme.textTheme.bodyMedium
                             ?.copyWith(color: theme.colorScheme.onPrimary))
                   ]
@@ -656,12 +656,12 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text(l10n.t('Conflit Détecté', 'Conflict Detected')),
+                title: Text(l10n.t('Conflit Détecté', 'Conflict Detected', '检测到冲突')),
                 content: Text(l10n.isFr ? 'Impossible d\'approuver les routes suivantes car elles sont déjà utilisées par d\'autres utilisateurs :\n\n• ${conflictRoutes.join('\n• ')}\n\nVeuillez décocher ces routes avant de continuer.'
                     : 'Cannot approve the following routes as they are already used by other users:\n\n• ${conflictRoutes.join('\n• ')}\n\nPlease uncheck these routes before continuing.'),
                 actions: <Widget>[
                   TextButton(
-                    child: Text(l10n.t('Compris', 'Understood')),
+                    child: Text(l10n.t('Compris', 'Understood', '知道了')),
                     onPressed: () {
                       Navigator.of(context).pop();
                       // Décocher automatiquement les routes en conflit
@@ -683,13 +683,13 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       // Procéder à la sauvegarde si aucun conflit
       if (!mounted) return;
       showSafeSnackBar(
-          context, l10n.t('Mise à jour des routes...', 'Updating routes...'));
+          context, l10n.t('Mise à jour des routes...', 'Updating routes...', '正在更新路由……'));
       await apiService.setNodeRoutes(_currentNode.id, _selectedRoutes.toList());
 
       // Régénérer et appliquer les ACLs
       if (!mounted) return;
       showSafeSnackBar(
-          context, l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
+          context, l10n.t('Mise à jour des ACLs...', 'Updating ACLs...', '正在更新 ACL……'));
       final allUsers = await apiService.getUsers();
       final updatedNodes = await apiService.getNodes(); // Re-fetch nodes
       final serverId = appProvider.activeServer?.id;
@@ -697,7 +697,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
         if (!mounted) return;
         showSafeSnackBar(
             context,
-            l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.'));
+            l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.', '未选择活动服务器。'));
         return;
       }
       final tempRules =
@@ -721,7 +721,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       if (mounted) {
         showSafeSnackBar(
             context,
-            l10n.t('Routes et ACLs mises à jour avec succès !', 'Routes and ACLs updated successfully!'));
+            l10n.t('Routes et ACLs mises à jour avec succès !', 'Routes and ACLs updated successfully!', '路由与 ACL 更新成功！'));
 
         // Rafraîchir l'état local
         final freshlyUpdatedNode =
@@ -734,7 +734,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${l10n.t('Erreur', 'Error')}: $e')));
+            SnackBar(content: Text('${l10n.t('Erreur', 'Error', '错误')}: $e')));
       }
     }
   }
@@ -748,7 +748,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       color: theme.colorScheme.primary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: ExpansionTile(
-        title: Text(l10n.t('Outils de diagnostic', 'Diagnostic Tools'),
+        title: Text(l10n.t('Outils de diagnostic', 'Diagnostic Tools', '诊断工具'),
             style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.onPrimary)),
@@ -759,7 +759,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
               children: [
                 Row(
                   children: [
-                    Text(l10n.t("Ping en continu", "Continuous Ping"),
+                    Text(l10n.t("Ping en continu", "Continuous Ping", '持续 ping'),
                         style: theme.textTheme.bodyMedium
                             ?.copyWith(color: theme.colorScheme.onPrimary)),
                     const Spacer(),
@@ -785,7 +785,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            l10n.t("Seuil d'alerte latence", "Latency alert threshold"),
+                            l10n.t("Seuil d'alerte latence", "Latency alert threshold", '延迟告警阈值'),
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,
@@ -863,17 +863,17 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-            "${l10n.t('Latence moyenne', 'Average latency')}: ${avgLatency.toStringAsFixed(2)} ms",
+            "${l10n.t('Latence moyenne', 'Average latency', '平均延迟')}: ${avgLatency.toStringAsFixed(2)} ms",
             style: theme.textTheme.bodyMedium
                 ?.copyWith(color: theme.colorScheme.onPrimary)),
         Text(
-            "${l10n.t('Paquets perdus', 'Packet loss')}: ${loss.toStringAsFixed(0)}% ($received/$transmitted ${l10n.t('reçus', 'received')})",
+            "${l10n.t('Paquets perdus', 'Packet loss', '丢包')}: ${loss.toStringAsFixed(0)}% ($received/$transmitted ${l10n.t('reçus', 'received', '已接收')})",
             style: theme.textTheme.bodyMedium
                 ?.copyWith(color: theme.colorScheme.onPrimary)),
         const SizedBox(height: 20),
         _buildPingChart(context),
         const SizedBox(height: 20),
-        Text(l10n.t("Journal du ping:", "Ping Log:"),
+        Text(l10n.t("Journal du ping:", "Ping Log:", 'Ping 日志：'),
             style: theme.textTheme.bodyMedium
                 ?.copyWith(color: theme.colorScheme.onPrimary)),
         Container(
@@ -895,14 +895,14 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                 final latency = data.response!.time?.inMilliseconds ?? 0;
                 final isExceeded = latency > threshold;
                 return Text(
-                    "${l10n.t('Réponse de', 'Reply from')} ${data.response!.ip}: ${l10n.t('temps', 'time')}=${latency}ms${isExceeded ? ' (⚠️)' : ''}",
+                    "${l10n.t('Réponse de', 'Reply from', '来自')} ${data.response!.ip}: ${l10n.t('temps', 'time', '时间')}=${latency}ms${isExceeded ? ' (⚠️)' : ''}",
                     style: theme.textTheme.bodySmall?.copyWith(
                         fontFamily: 'monospace',
                         fontWeight: isExceeded ? FontWeight.bold : FontWeight.normal,
                         color: isExceeded ? Colors.orangeAccent : theme.colorScheme.onPrimary));
               } else if (data.error != null) {
                 return Text(
-                    "${l10n.t('Erreur', 'Error')}: ${data.error!.error.toString()}",
+                    "${l10n.t('Erreur', 'Error', '错误')}: ${data.error!.error.toString()}",
                     style: theme.textTheme.bodySmall
                         ?.copyWith(color: Colors.red, fontFamily: 'monospace'));
               }
@@ -934,7 +934,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
           height: 150,
           child: Center(
               child: Text(
-                  l10n.t("En attente de données de ping...", "Waiting for ping data..."),
+                  l10n.t("En attente de données de ping...", "Waiting for ping data...", '正在等待 ping 数据……'),
                   style: theme.textTheme.bodyMedium)));
     }
 
@@ -1111,13 +1111,13 @@ class _DetailRowWithCopy extends StatelessWidget {
           IconButton(
             icon:
                 Icon(Icons.copy, size: 18, color: theme.colorScheme.onPrimary),
-            tooltip: l10n.t('Copier', 'Copy'),
+            tooltip: l10n.t('Copier', 'Copy', '复制'),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: value));
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content: Text(
-                        l10n.t('Copié dans le presse-papiers', 'Copied to clipboard'),
+                        l10n.t('Copié dans le presse-papiers', 'Copied to clipboard', '已复制到剪贴板'),
                         style: theme.textTheme.bodyMedium
                             ?.copyWith(color: theme.colorScheme.primary)),
                     backgroundColor: theme.colorScheme.onPrimary),

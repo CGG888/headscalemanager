@@ -34,7 +34,7 @@ class PolicyDiffDialog extends StatelessWidget {
     final grants = (policy['grants'] as List?)?.length ?? 0;
     final acls = (policy['acls'] as List?)?.length ?? 0;
     final groups = (policy['groups'] as Map?)?.length ?? 0;
-    return l10n.t('$grants grants, $acls acls, $groups groupes', '$grants grants, $acls acls, $groups groups');
+    return l10n.t('$grants grants, $acls acls, $groups groupes', '$grants grants, $acls acls, $groups groups', '$grants 条授权，$acls 条 ACL，$groups 个组');
   }
 
   @override
@@ -43,7 +43,7 @@ class PolicyDiffDialog extends StatelessWidget {
     final changed = encoder.convert(currentPolicy) != encoder.convert(newPolicy);
 
     return AlertDialog(
-      title: Text(l10n.t('Aperçu des changements', 'Change preview')),
+      title: Text(l10n.t('Aperçu des changements', 'Change preview', '变更预览')),
       content: SizedBox(
         width: double.maxFinite,
         child: SingleChildScrollView(
@@ -51,18 +51,18 @@ class PolicyDiffDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(l10n.t('Politique actuelle :', 'Current policy:'),
+              Text(l10n.t('Politique actuelle :', 'Current policy:', '当前策略：'),
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               Text(_summarize(currentPolicy)),
               const SizedBox(height: 12),
-              Text(l10n.t('Nouvelle politique :', 'New policy:'),
+              Text(l10n.t('Nouvelle politique :', 'New policy:', '新策略：'),
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               Text(_summarize(newPolicy)),
               const SizedBox(height: 12),
               Text(
                 changed
-                    ? (l10n.t('Le JSON sera modifié avant export.', 'JSON will be modified before export.'))
-                    : (l10n.t('Aucune différence détectée.', 'No difference detected.')),
+                    ? (l10n.t('Le JSON sera modifié avant export.', 'JSON will be modified before export.', '导出前将修改 JSON。'))
+                    : (l10n.t('Aucune différence détectée.', 'No difference detected.', '未检测到差异。')),
                 style: TextStyle(
                   color: changed ? Colors.orange : Colors.green,
                   fontWeight: FontWeight.w600,
@@ -75,11 +75,11 @@ class PolicyDiffDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
         ),
         ElevatedButton(
           onPressed: changed ? () => Navigator.pop(context, true) : null,
-          child: Text(l10n.t('Confirmer export', 'Confirm export')),
+          child: Text(l10n.t('Confirmer export', 'Confirm export', '确认导出')),
         ),
       ],
     );

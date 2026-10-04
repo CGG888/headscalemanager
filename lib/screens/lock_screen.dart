@@ -35,7 +35,7 @@ class _LockScreenState extends State<LockScreen> {
     final l10n = L10n(context.watch<AppProvider>().locale);
     if (_message.isEmpty) {
       setState(() {
-        _message = l10n.t('Entrez votre code PIN', 'Enter your PIN');
+        _message = l10n.t('Entrez votre code PIN', 'Enter your PIN', '输入你的 PIN 码');
       });
     }
   }
@@ -44,7 +44,7 @@ class _LockScreenState extends State<LockScreen> {
     final l10n = L10n(context.read<AppProvider>().locale);
     final biometricsEnabled = await _securityService.isBiometricsEnabled();
     if (biometricsEnabled) {
-      final isAuthenticated = await _securityService.authenticate(l10n.t('Veuillez vous authentifier pour déverrouiller', 'Please authenticate to unlock'));
+      final isAuthenticated = await _securityService.authenticate(l10n.t('Veuillez vous authentifier pour déverrouiller', 'Please authenticate to unlock', '请先完成认证以解锁'));
       if (mounted && isAuthenticated) {
         _unlockApp();
       }
@@ -85,7 +85,7 @@ class _LockScreenState extends State<LockScreen> {
       final l10n = L10n(context.read<AppProvider>().locale);
       setState(() {
         _enteredPin = '';
-        _message = l10n.t('Code PIN incorrect', 'Incorrect PIN');
+        _message = l10n.t('Code PIN incorrect', 'Incorrect PIN', 'PIN 码不正确');
         _isAuthenticating = false;
       });
     }

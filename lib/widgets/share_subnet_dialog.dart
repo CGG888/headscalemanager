@@ -46,26 +46,26 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
 
     return AlertDialog(
       title:
-          Text(l10n.t('Partager le sous-réseau local', 'Share Local Subnet')),
+          Text(l10n.t('Partager le sous-réseau local', 'Share Local Subnet', '共享本地子网')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(l10n.t('Entrez le sous-réseau à annoncer (par exemple, 192.168.1.0/24).\n\nNote : L\'appareil doit être configuré pour annoncer cette route.', 'Enter the subnet to advertise (e.g., 192.168.1.0/24).\n\nNote: The device must be configured to advertise this route.')),
+            Text(l10n.t('Entrez le sous-réseau à annoncer (par exemple, 192.168.1.0/24).\n\nNote : L\'appareil doit être configuré pour annoncer cette route.', 'Enter the subnet to advertise (e.g., 192.168.1.0/24).\n\nNote: The device must be configured to advertise this route.', '输入要通告的子网（例如 192.168.1.0/24）。\n\n注意：设备必须配置为通告此路由。')),
             const SizedBox(height: 16),
             Form(
               key: _formKey,
               child: TextFormField(
                 controller: _subnetController,
                 decoration: InputDecoration(
-                    labelText: l10n.t('Sous-réseau (format CIDR)', 'Subnet (CIDR format)')),
+                    labelText: l10n.t('Sous-réseau (format CIDR)', 'Subnet (CIDR format)', '子网（CIDR 格式）')),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return l10n.t('Veuillez entrer un sous-réseau', 'Please enter a subnet');
+                    return l10n.t('Veuillez entrer un sous-réseau', 'Please enter a subnet', '请输入子网');
                   }
                   final regex = RegExp(r'^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}');
                   if (!regex.hasMatch(value)) {
-                    return l10n.t('Format CIDR invalide', 'Invalid CIDR format');
+                    return l10n.t('Format CIDR invalide', 'Invalid CIDR format', 'CIDR 格式无效');
                   }
                   return null;
                 },
@@ -76,11 +76,11 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
       ),
       actions: <Widget>[
         TextButton(
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(l10n.t('Partager', 'Share')),
+          child: Text(l10n.t('Partager', 'Share', '分享')),
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
               final String newSubnet = _subnetController.text;
@@ -149,7 +149,7 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
                 if (aclMode) {
                   if (context.mounted) {
                     showSafeSnackBar(context,
-                        l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
+                        l10n.t('Mise à jour des ACLs...', 'Updating ACLs...', '正在更新 ACL……'));
                   }
                   // Regenerate Policy
                   final allUsers = await appProvider.apiService.getUsers();
@@ -178,7 +178,7 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
                 if (context.mounted) {
                   showSafeSnackBar(
                       context,
-                      l10n.t('Route de sous-réseau activée.', 'Subnet route enabled.'));
+                      l10n.t('Route de sous-réseau activée.', 'Subnet route enabled.', '子网路由已启用。'));
                 }
                 widget.onSubnetShared();
 
@@ -194,12 +194,12 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
                 showDialog(
                   context: context,
                   builder: (ctx) => SubnetCommandDialog(
-                    title: l10n.t('Sur le client : Configurer le routage de sous-réseau', 'On the client: Configure subnet routing'),
+                    title: l10n.t('Sur le client : Configurer le routage de sous-réseau', 'On the client: Configure subnet routing', '在客户端：配置子网路由'),
                     tailscaleCommand:
                         'tailscale up --advertise-routes=$newSubnet --login-server=$loginServer',
-                    linuxInstructions: l10n.t('Sur votre appareil Linux, activez le transfert IP et le NAT, puis exécutez la commande Tailscale :', 'On your Linux device, enable IP forwarding and NAT, then run the Tailscale command:'),
-                    windowsInstructions: l10n.t('Sur votre appareil Windows, activez le transfert IP et le NAT (partage de connexion Internet), puis exécutez la commande Tailscale :', 'On your Windows device, enable IP forwarding and NAT (Internet Connection Sharing), then run the Tailscale command:'),
-                    mobileInstructions: l10n.t('Sur votre appareil mobile (Android/iOS), allez dans les paramètres du client Tailscale et activez l\'option "Allow LAN access".', 'On your mobile device (Android/iOS), go to the Tailscale client settings and enable the "Allow LAN access" option.'),
+                    linuxInstructions: l10n.t('Sur votre appareil Linux, activez le transfert IP et le NAT, puis exécutez la commande Tailscale :', 'On your Linux device, enable IP forwarding and NAT, then run the Tailscale command:', '在 Linux 设备上启用 IP 转发和 NAT，然后执行 Tailscale 命令：'),
+                    windowsInstructions: l10n.t('Sur votre appareil Windows, activez le transfert IP et le NAT (partage de connexion Internet), puis exécutez la commande Tailscale :', 'On your Windows device, enable IP forwarding and NAT (Internet Connection Sharing), then run the Tailscale command:', '在 Windows 设备上启用 IP 转发和 NAT（Internet 连接共享），然后执行 Tailscale 命令：'),
+                    mobileInstructions: l10n.t('Sur votre appareil mobile (Android/iOS), allez dans les paramètres du client Tailscale et activez l\'option "Allow LAN access".', 'On your mobile device (Android/iOS), go to the Tailscale client settings and enable the "Allow LAN access" option.', '在移动设备（Android/iOS）上，进入 Tailscale 客户端设置并启用「Allow LAN access」选项。'),
                   ),
                 );
               } catch (e) {
@@ -209,7 +209,7 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
                 Navigator.of(context).pop();
                 showSafeSnackBar(
                     context,
-                    l10n.t('Échec de l\'activation de la route de sous-réseau : $e', 'Failed to enable subnet route: $e'));
+                    l10n.t('Échec de l\'activation de la route de sous-réseau : $e', 'Failed to enable subnet route: $e', '启用子网路由失败：$e'));
               }
             }
           },

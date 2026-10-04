@@ -67,7 +67,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${l10n.t('Erreur lors du rafraîchissement', 'Refresh error')}: $e')),
+                  '${l10n.t('Erreur lors du rafraîchissement', 'Refresh error', '刷新出错')}: $e')),
         );
       }
     } finally {
@@ -106,7 +106,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-                '${l10n.t('Erreur lors de la récupération des nœuds', 'Error fetching nodes')}: $e')),
+                '${l10n.t('Erreur lors de la récupération des nœuds', 'Error fetching nodes', '获取节点出错')}: $e')),
       );
     }
   }
@@ -130,7 +130,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${l10n.t('Erreur de récupération de l\'IP publique', 'Error fetching public IP')}: $e')),
+                  '${l10n.t('Erreur de récupération de l\'IP publique', 'Error fetching public IP', '获取公网 IP 出错')}: $e')),
         );
       }
     }
@@ -273,7 +273,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
     final l10n = L10n(locale);
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.t('Vue d\'ensemble du réseau', 'Network Overview')),
+        title: Text(l10n.t('Vue d\'ensemble du réseau', 'Network Overview', '网络概览')),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -335,7 +335,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
         child: Column(
           children: [
             Text(
-              l10n.t('Visualisation du chemin réseau', 'Network Path Visualization'),
+              l10n.t('Visualisation du chemin réseau', 'Network Path Visualization', '网络路径可视化'),
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
@@ -347,9 +347,9 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
               children: [
                 _buildVisualizerNode(
                     context,
-                    l10n.t('Mon Appareil', 'My Device'),
+                    l10n.t('Mon Appareil', 'My Device', '我的设备'),
                     Icons.phone_iphone,
-                    _selectedNode?.name ?? (l10n.t('N/A', 'N/A'))),
+                    _selectedNode?.name ?? (l10n.t('N/A', 'N/A', '不适用'))),
                 if (_exitNodeInUse != null) ...[
                   Icon(Icons.arrow_forward,
                       color: Theme.of(context).textTheme.bodyMedium?.color),
@@ -367,14 +367,14 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
               CircularProgressIndicator(
                   color: Theme.of(context).colorScheme.primary),
               Text(
-                  l10n.t('Traceroute en cours...', 'Traceroute in progress...'),
+                  l10n.t('Traceroute en cours...', 'Traceroute in progress...', 'Traceroute 进行中……'),
                   style: Theme.of(context).textTheme.bodyMedium),
             ],
             if (_traceRouteHops.isNotEmpty) ...[
               const SizedBox(height: 16),
               ExpansionTile(
                 title: Text(
-                    l10n.t('Détails du traceroute', 'Traceroute Details'),
+                    l10n.t('Détails du traceroute', 'Traceroute Details', '路由追踪详情'),
                     style: Theme.of(context).textTheme.titleMedium),
                 children: _traceRouteHops.map((hop) {
                   String nodeName = '';
@@ -422,7 +422,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
       padding: const EdgeInsets.all(8.0),
       child: DropdownButton<Node>(
         value: _selectedNode,
-        hint: Text(l10n.t('Sélectionnez un nœud', 'Select a node'),
+        hint: Text(l10n.t('Sélectionnez un nœud', 'Select a node', '选择节点'),
             style: Theme.of(context).textTheme.bodyMedium),
         isExpanded: true,
         onChanged: (Node? newValue) {

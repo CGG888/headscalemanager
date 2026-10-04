@@ -150,7 +150,7 @@ class CommandCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      l10n.t('DYNAMIQUE', 'DYNAMIC'),
+                      l10n.t('DYNAMIQUE', 'DYNAMIC', '动态'),
                       style: const TextStyle(
                         color: Colors.purple,
                         fontSize: 11,
@@ -167,7 +167,7 @@ class CommandCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      l10n.t('N/A Windows', 'N/A Windows'),
+                      l10n.t('N/A Windows', 'N/A Windows', 'Windows 不适用'),
                       style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 11,
@@ -227,7 +227,7 @@ class CommandCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       SelectableText(
                         isDynamic
-                            ? (l10n.t('La commande sera générée...', 'Command will be generated...'))
+                            ? (l10n.t('La commande sera générée...', 'Command will be generated...', '将生成命令……'))
                             : platformCommand,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontFamily: 'monospace',
@@ -268,7 +268,7 @@ class CommandCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              l10n.t('Notes:', 'Notes:'),
+                              l10n.t('Notes:', 'Notes:', '备注：'),
                               style: Theme.of(context)
                                   .textTheme
                                   .labelMedium
@@ -301,7 +301,7 @@ class CommandCard extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: () => onConfigure(command),
                       icon: const Icon(Icons.settings, size: 16),
-                      label: Text(l10n.t('Configurer et voir la commande', 'Configure & View Command')),
+                      label: Text(l10n.t('Configurer et voir la commande', 'Configure & View Command', '配置并查看命令')),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Colors.white,
@@ -317,7 +317,7 @@ class CommandCard extends StatelessWidget {
                               ? null
                               : () => onCopy(platformCommand),
                           icon: const Icon(Icons.copy, size: 16),
-                          label: Text(l10n.t('Copier', 'Copy')),
+                          label: Text(l10n.t('Copier', 'Copy', '复制')),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 Theme.of(context).colorScheme.primary,
@@ -331,7 +331,7 @@ class CommandCard extends StatelessWidget {
                           onPressed:
                               isLinuxSpecific ? null : () => onShare(command),
                           icon: const Icon(Icons.share, size: 16),
-                          label: Text(l10n.t('Partager', 'Share')),
+                          label: Text(l10n.t('Partager', 'Share', '分享')),
                         ),
                       ),
                     ],

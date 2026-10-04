@@ -54,7 +54,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.t('Partages Taildrive', 'Taildrive Shares')),
+        title: Text(l10n.t('Partages Taildrive', 'Taildrive Shares', 'Taildrive 分享')),
       ),
       body: Column(
         children: [
@@ -77,7 +77,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l10n.t('Version de Headscale incompatible', 'Incompatible Headscale Version'),
+                          l10n.t('Version de Headscale incompatible', 'Incompatible Headscale Version', 'Headscale 版本不兼容'),
                           style: const TextStyle(
                             color: Colors.redAccent,
                             fontWeight: FontWeight.bold,
@@ -86,7 +86,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          l10n.t('Votre serveur tourne sous la version ${appProvider.serverVersion}. Les partages Taildrive nécessitent Headscale 0.29.0+ pour fonctionner. Les règles d\'accès ACL ne seront pas appliquées.', 'Your server is running version ${appProvider.serverVersion}. Taildrive shares require Headscale 0.29.0+ to function. Access rules will not be active on the server.'),
+                          l10n.t('Votre serveur tourne sous la version ${appProvider.serverVersion}. Les partages Taildrive nécessitent Headscale 0.29.0+ pour fonctionner. Les règles d\'accès ACL ne seront pas appliquées.', 'Your server is running version ${appProvider.serverVersion}. Taildrive shares require Headscale 0.29.0+ to function. Access rules will not be active on the server.', '你的服务器运行的是版本 ${appProvider.serverVersion}。Taildrive 分享需要 Headscale 0.29.0+ 才能正常工作。ACL 访问规则将不会被应用。'),
                           style: TextStyle(
                             color: Colors.red.shade100,
                             fontSize: 12,
@@ -113,7 +113,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                               id: '',
                               machineKey: '',
                               hostname: '',
-                              name: l10n.t('Nœud inconnu', 'Unknown Node'),
+                              name: l10n.t('Nœud inconnu', 'Unknown Node', '未知节点'),
                               user: '',
                               userId: '',
                               ipAddresses: [],
@@ -186,8 +186,8 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                                                 ),
                                                 child: Text(
                                                   share.accessMode == TaildriveAccessMode.rw 
-                                                      ? (l10n.t('Lecture/Écriture', 'Read/Write'))
-                                                      : (l10n.t('Lecture seule', 'Read-only')),
+                                                      ? (l10n.t('Lecture/Écriture', 'Read/Write', '读写'))
+                                                      : (l10n.t('Lecture seule', 'Read-only', '只读')),
                                                   style: TextStyle(
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.bold,
@@ -209,25 +209,25 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                                       const SizedBox(height: 12),
                                       _buildDetailRow(
                                         icon: Icons.computer,
-                                        label: l10n.t('Machine Source', 'Source Machine'),
+                                        label: l10n.t('Machine Source', 'Source Machine', '源设备'),
                                         value: sourceNode.name,
                                       ),
                                       const SizedBox(height: 6),
                                       _buildDetailRow(
                                         icon: Icons.person_outline,
-                                        label: l10n.t('Bénéficiaire', 'Recipient'),
+                                        label: l10n.t('Bénéficiaire', 'Recipient', '接收者'),
                                         value: share.recipient,
                                       ),
                                       const SizedBox(height: 6),
                                       _buildDetailRow(
                                         icon: Icons.folder_open_outlined,
-                                        label: l10n.t('Dossier partagé', 'Shared folder'),
+                                        label: l10n.t('Dossier partagé', 'Shared folder', '共享文件夹'),
                                         value: share.localPath,
                                         isPath: true,
                                       ),
                                       const Divider(height: 24, thickness: 1),
                                       Text(
-                                        l10n.t('1. Lancer ce partage sur la machine Windows/Linux/Mac :', '1. Start this share on the Windows/Linux/Mac machine:'),
+                                        l10n.t('1. Lancer ce partage sur la machine Windows/Linux/Mac :', '1. Start this share on the Windows/Linux/Mac machine:', '1. 在 Windows/Linux/Mac 设备上启动此共享：'),
                                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
                                       ),
                                       const SizedBox(height: 6),
@@ -235,11 +235,11 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                                         context: context,
                                         text: hostCommand,
                                         l10n: l10n,
-                                        snackbarMsg: l10n.t('Commande de partage copiée !', 'Share command copied!'),
+                                        snackbarMsg: l10n.t('Commande de partage copiée !', 'Share command copied!', '分享命令已复制！'),
                                       ),
                                       const SizedBox(height: 14),
                                       Text(
-                                        l10n.t('2. URL de connexion WebDAV pour les clients (Android, VLC...) :', '2. WebDAV connection URL for clients (Android, VLC...):'),
+                                        l10n.t('2. URL de connexion WebDAV pour les clients (Android, VLC...) :', '2. WebDAV connection URL for clients (Android, VLC...):', '2. 客户端（Android、VLC……）的 WebDAV 连接 URL：'),
                                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
                                       ),
                                       const SizedBox(height: 6),
@@ -248,7 +248,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                                         text: clientUrl,
                                         l10n: l10n,
                                         isLink: true,
-                                        snackbarMsg: l10n.t('URL de connexion WebDAV copiée !', 'WebDAV connection URL copied!'),
+                                        snackbarMsg: l10n.t('URL de connexion WebDAV copiée !', 'WebDAV connection URL copied!', 'WebDAV 连接 URL 已复制！'),
                                       ),
                                     ],
                                   ),
@@ -276,14 +276,14 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
           const Icon(Icons.folder_off_outlined, size: 64, color: Colors.grey),
           const SizedBox(height: 16),
           Text(
-            l10n.t('Aucun partage configuré', 'No shares configured'),
+            l10n.t('Aucun partage configuré', 'No shares configured', '未配置分享'),
             style: const TextStyle(fontSize: 18, color: Colors.grey),
           ),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              l10n.t('Cliquez sur + pour créer votre premier partage de dossiers sécurisé.', 'Click + to create your first secure folder share.'),
+              l10n.t('Cliquez sur + pour créer votre premier partage de dossiers sécurisé.', 'Click + to create your first secure folder share.', '点击 + 创建你的第一个安全文件夹分享。'),
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey),
             ),
@@ -297,16 +297,16 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.t('Supprimer le partage', 'Delete Share')),
-        content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer ce partage ?', 'Are you sure you want to delete this share?')),
+        title: Text(l10n.t('Supprimer le partage', 'Delete Share', '删除分享')),
+        content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer ce partage ?', 'Are you sure you want to delete this share?', '确定要删除此分享吗？')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.t('Annuler', 'Cancel')),
+            child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.t('Supprimer', 'Delete'),
+            child: Text(l10n.t('Supprimer', 'Delete', '删除'),
                 style: const TextStyle(color: Colors.red)),
           ),
         ],
@@ -398,7 +398,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
             constraints: const BoxConstraints(),
             padding: EdgeInsets.zero,
             icon: const Icon(Icons.copy, size: 18, color: Colors.lightGreenAccent),
-            tooltip: l10n.t('Copier', 'Copy'),
+            tooltip: l10n.t('Copier', 'Copy', '复制'),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: text));
               ScaffoldMessenger.of(context).showSnackBar(
@@ -598,7 +598,7 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.l10n.t('Ajouter un partage', 'Add Share')),
+      title: Text(widget.l10n.t('Ajouter un partage', 'Add Share', '添加共享')),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -608,7 +608,7 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
               DropdownButtonFormField<Node>(
                 initialValue: _selectedSourceNode,
                 decoration: InputDecoration(
-                  labelText: widget.l10n.t('Nœud Source', 'Source Node'),
+                  labelText: widget.l10n.t('Nœud Source', 'Source Node', '源节点'),
                 ),
                 items: widget.allNodes.map((n) {
                   return DropdownMenuItem(value: n, child: Text(n.name));
@@ -621,7 +621,7 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
                   });
                 },
                 validator: (val) => val == null
-                    ? (widget.l10n.t('Obligatoire', 'Required'))
+                    ? (widget.l10n.t('Obligatoire', 'Required', '必填'))
                     : null,
               ),
               const SizedBox(height: 16),
@@ -629,57 +629,57 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
                 DropdownButtonFormField<String>(
                   initialValue: _selectedRecipient,
                   decoration: InputDecoration(
-                    labelText: widget.l10n.t('Bénéficiaire', 'Recipient'),
-                    helperText: widget.l10n.t('Utilisateurs autorisés à voir le partage', 'Users allowed to see the share'),
+                    labelText: widget.l10n.t('Bénéficiaire', 'Recipient', '接收者'),
+                    helperText: widget.l10n.t('Utilisateurs autorisés à voir le partage', 'Users allowed to see the share', '允许查看该分享的用户'),
                   ),
                   items: _filteredRecipients.map((u) {
                     final isSameUser = normalizeUserName(u) == _selectedSourceNode!.getNormalizedOwner();
                     return DropdownMenuItem(
                       value: u,
-                      child: Text(isSameUser ? '$u (${widget.l10n.t('Propriétaire', 'Owner')})' : u),
+                      child: Text(isSameUser ? '$u (${widget.l10n.t('Propriétaire', 'Owner', '所有者')})' : u),
                     );
                   }).toList(),
                   onChanged: (val) => setState(() => _selectedRecipient = val),
                   validator: (val) => val == null
-                      ? (widget.l10n.t('Obligatoire', 'Required'))
+                      ? (widget.l10n.t('Obligatoire', 'Required', '必填'))
                       : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(
-                    labelText: widget.l10n.t('Nom du partage', 'Share Name'),
+                    labelText: widget.l10n.t('Nom du partage', 'Share Name', '分享名称'),
                     hintText: 'ex: Documents',
                   ),
                   validator: (val) => val == null || val.isEmpty
-                      ? (widget.l10n.t('Obligatoire', 'Required'))
+                      ? (widget.l10n.t('Obligatoire', 'Required', '必填'))
                       : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _pathController,
                   decoration: InputDecoration(
-                    labelText: widget.l10n.t('Chemin local', 'Local Path'),
+                    labelText: widget.l10n.t('Chemin local', 'Local Path', '本地路径'),
                     hintText: 'ex: /home/user/docs or C:\\Data',
                   ),
                   validator: (val) => val == null || val.isEmpty
-                      ? (widget.l10n.t('Obligatoire', 'Required'))
+                      ? (widget.l10n.t('Obligatoire', 'Required', '必填'))
                       : null,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<TaildriveAccessMode>(
                   initialValue: _accessMode,
                   decoration: InputDecoration(
-                    labelText: widget.l10n.t('Permissions', 'Permissions'),
+                    labelText: widget.l10n.t('Permissions', 'Permissions', '权限'),
                   ),
                   items: [
                     DropdownMenuItem(
                       value: TaildriveAccessMode.ro,
-                      child: Text(widget.l10n.t('Lecture seule', 'Read-only')),
+                      child: Text(widget.l10n.t('Lecture seule', 'Read-only', '只读')),
                     ),
                     DropdownMenuItem(
                       value: TaildriveAccessMode.rw,
-                      child: Text(widget.l10n.t('Lecture/Écriture', 'Read/Write')),
+                      child: Text(widget.l10n.t('Lecture/Écriture', 'Read/Write', '读写')),
                     ),
                   ],
                   onChanged: (val) => setState(() => _accessMode = val!),
@@ -692,11 +692,11 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(widget.l10n.t('Annuler', 'Cancel')),
+          child: Text(widget.l10n.t('Annuler', 'Cancel', '取消')),
         ),
         ElevatedButton(
           onPressed: _selectedSourceNode == null ? null : _handleSave,
-          child: Text(widget.l10n.t('Ajouter', 'Add')),
+          child: Text(widget.l10n.t('Ajouter', 'Add', '添加')),
         ),
       ],
     );
@@ -717,9 +717,9 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.l10n.t('Partage ajouté. N\'oubliez pas de régénérer la politique ACL.', 'Share added. Don\'t forget to regenerate the ACL policy.')),
+          content: Text(widget.l10n.t('Partage ajouté. N\'oubliez pas de régénérer la politique ACL.', 'Share added. Don\'t forget to regenerate the ACL policy.', '已添加分享。别忘了重新生成 ACL 策略。')),
           action: SnackBarAction(
-            label: widget.l10n.t('ACL', 'ACL'),
+            label: widget.l10n.t('ACL', 'ACL', 'ACL'),
             onPressed: () {
               // Navigation already handled by stack
             },

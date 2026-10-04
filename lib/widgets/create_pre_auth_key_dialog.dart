@@ -37,7 +37,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
     final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(l10n.t('Créer une clé de pré-authentification', 'Create Pre-Auth Key')),
+      title: Text(l10n.t('Créer une clé de pré-authentification', 'Create Pre-Auth Key', '创建预认证密钥')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -70,7 +70,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
                   },
                   decoration: InputDecoration(
                     labelText:
-                        l10n.t('Sélectionner un utilisateur', 'Select a user'),
+                        l10n.t('Sélectionner un utilisateur', 'Select a user', '选择用户'),
                     border: const OutlineInputBorder(),
                   ),
                 );
@@ -78,7 +78,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
             ),
             // Option pour rendre la clé réutilisable.
             CheckboxListTile(
-              title: Text(l10n.t('Réutilisable', 'Reusable')),
+              title: Text(l10n.t('Réutilisable', 'Reusable', '可复用')),
               value: _isReusable,
               onChanged: (value) {
                 setState(() {
@@ -88,7 +88,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
             ),
             // Option pour rendre la clé éphémère.
             CheckboxListTile(
-              title: Text(l10n.t('Éphémère', 'Ephemeral')),
+              title: Text(l10n.t('Éphémère', 'Ephemeral', '临时')),
               value: _isEphemeral,
               onChanged: (value) {
                 setState(() {
@@ -100,16 +100,16 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
             TextFormField(
               controller: _expirationController,
               decoration: InputDecoration(
-                labelText: l10n.t('Expiration en jours (facultatif)', 'Expiration in days (optional)'),
+                labelText: l10n.t('Expiration en jours (facultatif)', 'Expiration in days (optional)', '有效期天数（选填）'),
               ),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
-            Text(l10n.t('Tags ACL (Nouveau)', 'ACL Tags (New)'),
+            Text(l10n.t('Tags ACL (Nouveau)', 'ACL Tags (New)', 'ACL 标签（新）'),
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             CheckboxListTile(
               title: const Text('Exit Node'),
-              subtitle: Text(l10n.t('Autoriser ce nœud à être une sortie internet.', 'Allow this node to be an internet exit.')),
+              subtitle: Text(l10n.t('Autoriser ce nœud à être une sortie internet.', 'Allow this node to be an internet exit.', '允许此节点作为互联网出口。')),
               value: _isExitNode,
               onChanged: (value) {
                 setState(() {
@@ -119,7 +119,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
             ),
             CheckboxListTile(
               title: const Text('LAN Sharer'),
-              subtitle: Text(l10n.t('Autoriser ce nœud à partager son réseau local.', 'Allow this node to share its local network.')),
+              subtitle: Text(l10n.t('Autoriser ce nœud à partager son réseau local.', 'Allow this node to share its local network.', '允许此节点共享其局域网。')),
               value: _isLanSharer,
               onChanged: (value) {
                 setState(() {
@@ -132,11 +132,11 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
       ),
       actions: [
         TextButton(
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(l10n.t('Créer', 'Create')),
+          child: Text(l10n.t('Créer', 'Create', '创建')),
           onPressed: () async {
             if (_selectedUser != null) {
               final expirationText = _expirationController.text.trim();
@@ -180,7 +180,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
                 debugPrint('Erreur lors de la création de la clé : $e');
                 showSafeSnackBar(
                     context,
-                    l10n.t('Échec de la création de la clé : $e', 'Failed to create key: $e'));
+                    l10n.t('Échec de la création de la clé : $e', 'Failed to create key: $e', '创建密钥失败：$e'));
                 Navigator.of(context).pop(); // Pop the dialog on error
               }
             }

@@ -38,7 +38,7 @@ class CommandsList extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              l10n.t('Aucune commande trouvée', 'No commands found'),
+              l10n.t('Aucune commande trouvée', 'No commands found', '未找到命令'),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Theme.of(context)
                         .colorScheme
@@ -48,7 +48,7 @@ class CommandsList extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              l10n.t('Essayez de modifier vos critères de recherche', 'Try adjusting your search criteria'),
+              l10n.t('Essayez de modifier vos critères de recherche', 'Try adjusting your search criteria', '试着调整搜索条件'),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context)
                         .colorScheme

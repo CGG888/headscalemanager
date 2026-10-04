@@ -77,15 +77,15 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
         final bool? updateAcls = await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: Text(l10n.t('Mettre à jour les ACLs ?', 'Update ACLs?')),
-            content: Text(l10n.t('Voulez-vous aussi régénérer la politique ACL pour refléter ce changement ?', 'Do you also want to regenerate the ACL policy to reflect this change?')),
+            title: Text(l10n.t('Mettre à jour les ACLs ?', 'Update ACLs?', '更新 ACL？')),
+            content: Text(l10n.t('Voulez-vous aussi régénérer la politique ACL pour refléter ce changement ?', 'Do you also want to regenerate the ACL policy to reflect this change?', '要同时重新生成 ACL 策略以反映此更改吗？')),
             actions: [
               TextButton(
-                child: Text(l10n.t('Non', 'No')),
+                child: Text(l10n.t('Non', 'No', '否')),
                 onPressed: () => Navigator.of(dialogContext).pop(false),
               ),
               TextButton(
-                child: Text(l10n.t('Oui', 'Yes')),
+                child: Text(l10n.t('Oui', 'Yes', '是')),
                 onPressed: () => Navigator.of(dialogContext).pop(true),
               ),
             ],
@@ -94,7 +94,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
 
         if (updateAcls == true && mounted) {
           showSafeSnackBar(
-              context, l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
+              context, l10n.t('Mise à jour des ACLs...', 'Updating ACLs...', '正在更新 ACL……'));
 
           final allUsers = await provider.apiService.getUsers();
           final allNodes = await provider.apiService.getNodes();
@@ -103,7 +103,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
             if (!mounted) return;
             showSafeSnackBar(
                 context,
-                l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.'));
+                l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.', '未选择活动服务器。'));
             return;
           }
           final tempRules =
@@ -122,7 +122,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
 
           if (!mounted) return;
           showSafeSnackBar(
-              context, l10n.t('ACLs mises à jour !', 'ACLs updated!'));
+              context, l10n.t('ACLs mises à jour !', 'ACLs updated!', 'ACL 已更新！'));
         }
       }
 
@@ -134,7 +134,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
       if (mounted) {
         // Show error and then pop
         showSafeSnackBar(
-            context, l10n.t('Échec du déplacement: $e', 'Failed to move: $e'));
+            context, l10n.t('Échec du déplacement: $e', 'Failed to move: $e', '移动失败：$e'));
         Navigator.of(context).pop(false);
       }
     }
@@ -145,7 +145,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
     final l10n = L10n(context.watch<AppProvider>().locale);
 
     return AlertDialog(
-      title: Text(l10n.t('Déplacer l\'appareil', 'Move Device')),
+      title: Text(l10n.t('Déplacer l\'appareil', 'Move Device', '移动设备')),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,7 +164,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    l10n.t('Attention : Cette fonctionnalité est incompatible avec Headscale v0.26+ (commande supprimée).', 'Warning: This feature is incompatible with Headscale v0.26+ (command removed).'),
+                    l10n.t('Attention : Cette fonctionnalité est incompatible avec Headscale v0.26+ (commande supprimée).', 'Warning: This feature is incompatible with Headscale v0.26+ (command removed).', '警告：此功能与 Headscale v0.26+ 不兼容（命令已移除）。'),
                     style: const TextStyle(color: Colors.orange, fontSize: 13),
                   ),
                 ),
@@ -182,7 +182,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
                   );
                 }
                 if (snapshot.hasError) {
-                  return Text(l10n.t('Échec du chargement des utilisateurs : ${snapshot.error}', 'Failed to load users: ${snapshot.error}'));
+                  return Text(l10n.t('Échec du chargement des utilisateurs : ${snapshot.error}', 'Failed to load users: ${snapshot.error}', '加载用户失败：${snapshot.error}'));
                 }
                 final users = snapshot.data ?? [];
                 final selectedOwner = widget.node.getNormalizedOwner();
@@ -191,7 +191,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
                     .toList();
 
                 if (otherUsers.isEmpty) {
-                  return Text(l10n.t('Aucun autre utilisateur disponible.', 'No other users available.'));
+                  return Text(l10n.t('Aucun autre utilisateur disponible.', 'No other users available.', '无其他可用用户。'));
                 }
 
                 _selectedUser ??= otherUsers.first;
@@ -212,7 +212,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
                   },
                   decoration: InputDecoration(
                     labelText:
-                        l10n.t('Sélectionner un utilisateur', 'Select a user'),
+                        l10n.t('Sélectionner un utilisateur', 'Select a user', '选择用户'),
                     border: const OutlineInputBorder(),
                   ),
                 );
@@ -223,12 +223,12 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
       ),
       actions: <Widget>[
         TextButton(
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
           onPressed: _handleMove,
-          child: Text(l10n.t('Déplacer', 'Move')),
+          child: Text(l10n.t('Déplacer', 'Move', '移动')),
         ),
       ],
     );

@@ -35,7 +35,7 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(l10n.t('Clés API', 'API Keys'),
+        title: Text(l10n.t('Clés API', 'API Keys', 'API 密钥'),
             style: Theme.of(context).appBarTheme.titleTextStyle),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
@@ -49,12 +49,12 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
           }
           if (snapshot.hasError) {
             return Center(
-                child: Text('${l10n.t('Erreur', 'Error')}: ${snapshot.error}'));
+                child: Text('${l10n.t('Erreur', 'Error', '错误')}: ${snapshot.error}'));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
                 child: Text(
-                    l10n.t('Aucune clé API trouvée.', 'No API key found.')));
+                    l10n.t('Aucune clé API trouvée.', 'No API key found.', '未找到 API 密钥。')));
           }
 
           final apiKeys = snapshot.data!;
@@ -74,7 +74,7 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createNewApiKey,
-        tooltip: l10n.t('Créer une clé API', 'Create API Key'),
+        tooltip: l10n.t('Créer une clé API', 'Create API Key', '创建 API 密钥'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
       ),
@@ -97,12 +97,12 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
       await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text(l10n.t('Nouvelle clé API créée', 'New API Key Created')),
+          title: Text(l10n.t('Nouvelle clé API créée', 'New API Key Created', '已创建新的 API 密钥')),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(l10n.t('Veuillez copier cette clé maintenant. Vous ne pourrez pas la voir à nouveau.', 'Please copy this key now. You will not be able to see it again.')),
+              Text(l10n.t('Veuillez copier cette clé maintenant. Vous ne pourrez pas la voir à nouveau.', 'Please copy this key now. You will not be able to see it again.', '请立即复制此密钥。之后将无法再次查看。')),
               const SizedBox(height: 16),
               SelectableText(newApiKey,
                   style: const TextStyle(fontFamily: 'monospace')),
@@ -111,7 +111,7 @@ class _ApiKeysScreenState extends State<ApiKeysScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.t('OK', 'OK')),
+              child: Text(l10n.t('OK', 'OK', '确定')),
             ),
           ],
         ),
@@ -157,10 +157,10 @@ class _ApiKeyCard extends StatelessWidget {
             Text('ID: ${apiKey.id}',
                 style: Theme.of(context).textTheme.bodySmall),
             Text(
-                '${l10n.t('Expiration', 'Expiration')}: ${apiKey.expiration?.toLocal() ?? (l10n.t('Jamais', 'Never'))}',
+                '${l10n.t('Expiration', 'Expiration', '有效期')}: ${apiKey.expiration?.toLocal() ?? (l10n.t('Jamais', 'Never', '从未'))}',
                 style: Theme.of(context).textTheme.bodySmall),
             Text(
-                '${l10n.t('Dernière utilisation', 'Last Seen')}: ${apiKey.lastSeen?.toLocal() ?? (l10n.t('Jamais', 'Never'))}',
+                '${l10n.t('Dernière utilisation', 'Last Seen', '上次使用')}: ${apiKey.lastSeen?.toLocal() ?? (l10n.t('Jamais', 'Never', '从未'))}',
                 style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
@@ -171,14 +171,14 @@ class _ApiKeyCard extends StatelessWidget {
               value: 'expire',
               child: ListTile(
                   leading: const Icon(Icons.hourglass_bottom),
-                  title: Text(l10n.t('Faire expirer', 'Expire'))),
+                  title: Text(l10n.t('Faire expirer', 'Expire', '设为过期'))),
             ),
             PopupMenuItem(
               value: 'delete',
               child: ListTile(
                   leading: Icon(Icons.delete,
                       color: Theme.of(context).colorScheme.error),
-                  title: Text(l10n.t('Supprimer', 'Delete'))),
+                  title: Text(l10n.t('Supprimer', 'Delete', '删除'))),
             ),
           ],
         ),
@@ -195,8 +195,8 @@ class _ApiKeyCard extends StatelessWidget {
       case 'expire':
         final confirm = await _showConfirmationDialog(
             context,
-            l10n.t('Faire expirer la clé API ?', 'Expire API Key?'),
-            l10n.t('Voulez-vous vraiment faire expirer la clé API avec le préfixe ${apiKey.prefix} ?', 'Do you really want to expire the API key with prefix ${apiKey.prefix}?'));
+            l10n.t('Faire expirer la clé API ?', 'Expire API Key?', '将 API 密钥设为过期？'),
+            l10n.t('Voulez-vous vraiment faire expirer la clé API avec le préfixe ${apiKey.prefix} ?', 'Do you really want to expire the API key with prefix ${apiKey.prefix}?', '确定要让前缀为 ${apiKey.prefix} 的 API 密钥过期吗？'));
         if (!context.mounted) return;
         if (confirm) {
           await apiService.expireApiKey(apiKey.prefix);
@@ -206,8 +206,8 @@ class _ApiKeyCard extends StatelessWidget {
       case 'delete':
         final confirm = await _showConfirmationDialog(
             context,
-            l10n.t('Supprimer la clé API ?', 'Delete API Key?'),
-            l10n.t('Voulez-vous vraiment supprimer la clé API avec le préfixe ${apiKey.prefix} ?', 'Do you really want to delete the API key with prefix ${apiKey.prefix}?'));
+            l10n.t('Supprimer la clé API ?', 'Delete API Key?', '删除 API 密钥？'),
+            l10n.t('Voulez-vous vraiment supprimer la clé API avec le préfixe ${apiKey.prefix} ?', 'Do you really want to delete the API key with prefix ${apiKey.prefix}?', '确定要删除前缀为 ${apiKey.prefix} 的 API 密钥吗？'));
         if (!context.mounted) return;
         if (confirm) {
           await apiService.deleteApiKey(apiKey.prefix);
@@ -231,11 +231,11 @@ class _ApiKeyCard extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text(l10n.t('Annuler', 'Cancel')),
+                child: Text(l10n.t('Annuler', 'Cancel', '取消')),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text(l10n.t('Confirmer', 'Confirm'),
+                child: Text(l10n.t('Confirmer', 'Confirm', '确认'),
                     style:
                         TextStyle(color: Theme.of(context).colorScheme.error)),
               ),

@@ -59,7 +59,7 @@ class _DnsScreenState extends State<DnsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                '${l10n.t('Erreur lors de la récupération', 'Error fetching data')}: $e'),
+                '${l10n.t('Erreur lors de la récupération', 'Error fetching data', '获取数据出错')}: $e'),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -114,7 +114,7 @@ class _DnsScreenState extends State<DnsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.t('Vue DNS', 'DNS View')),
+        title: Text(l10n.t('Vue DNS', 'DNS View', 'DNS 视图')),
       ),
       body: RefreshIndicator(
         onRefresh: _fetchData,
@@ -125,7 +125,7 @@ class _DnsScreenState extends State<DnsScreen> {
               padding: const EdgeInsets.all(16.0),
               child: TextField(
                 decoration: InputDecoration(
-                  labelText: l10n.t('Rechercher par nom, FQDN, alias ou IP', 'Search by name, FQDN, alias, or IP'),
+                  labelText: l10n.t('Rechercher par nom, FQDN, alias ou IP', 'Search by name, FQDN, alias, or IP', '按名称、FQDN、别名或 IP 搜索'),
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -142,7 +142,7 @@ class _DnsScreenState extends State<DnsScreen> {
                   : _filteredNodes.isEmpty
                       ? Center(
                           child: Text(
-                              l10n.t('Aucun nœud trouvé', 'No nodes found')))
+                              l10n.t('Aucun nœud trouvé', 'No nodes found', '未找到节点')))
                       : ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           itemCount: _filteredNodes.length,
@@ -221,14 +221,14 @@ class _DnsScreenState extends State<DnsScreen> {
                                                         context: context,
                                                         builder: (ctx) =>
                                                             AlertDialog(
-                                                                title: Text(l10n.t('Réparer Alias', 'Fix Alias')),
-                                                                content: Text(l10n.t('Cet alias est invalide pour la v0.27+.\nRemplacement suggéré : "$sanitized"', 'This alias is invalid for v0.27+.\nSuggested replacement: "$sanitized"')),
+                                                                title: Text(l10n.t('Réparer Alias', 'Fix Alias', '修复别名')),
+                                                                content: Text(l10n.t('Cet alias est invalide pour la v0.27+.\nRemplacement suggéré : "$sanitized"', 'This alias is invalid for v0.27+.\nSuggested replacement: "$sanitized"', '该别名在 v0.27+ 中无效。\n建议替换为：「$sanitized」')),
                                                                 actions: [
                                                                   TextButton(
                                                                       onPressed: () =>
                                                                           Navigator.pop(
                                                                               ctx),
-                                                                      child: Text(l10n.t('Ignorer', 'Ignore'))),
+                                                                      child: Text(l10n.t('Ignorer', 'Ignore', '忽略'))),
                                                                   TextButton(
                                                                       onPressed:
                                                                           () {
@@ -238,7 +238,7 @@ class _DnsScreenState extends State<DnsScreen> {
                                                                         Navigator.pop(
                                                                             ctx);
                                                                       },
-                                                                      child: Text(l10n.t('Corriger', 'Fix'))),
+                                                                      child: Text(l10n.t('Corriger', 'Fix', '修复'))),
                                                                 ]));
                                                   },
                                                   child: const Icon(
@@ -277,7 +277,7 @@ class _DnsScreenState extends State<DnsScreen> {
                                             onPressed: () =>
                                                 _showEditAliasDialog(
                                                     context, node, customAlias),
-                                            tooltip: l10n.t('Ajouter/Modifier un alias DNS (Mémo local)', 'Add/Edit DNS Alias (Local Memo)'),
+                                            tooltip: l10n.t('Ajouter/Modifier un alias DNS (Mémo local)', 'Add/Edit DNS Alias (Local Memo)', '添加/编辑 DNS 别名（本地备忘）'),
                                             icon: Icon(Icons.edit_note,
                                                 color:
                                                     theme.colorScheme.primary)),
@@ -308,7 +308,7 @@ class _DnsScreenState extends State<DnsScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              l10n.t("Les noms affichés sont estimés. Les configurations serveur (MagicDNS/Extra Records) ne sont pas visibles ici mais fonctionnent correctement.", "Displayed names are estimated. Server-side custom MagicDNS/Extra Records are not visible here but work correctly."),
+              l10n.t("Les noms affichés sont estimés. Les configurations serveur (MagicDNS/Extra Records) ne sont pas visibles ici mais fonctionnent correctement.", "Displayed names are estimated. Server-side custom MagicDNS/Extra Records are not visible here but work correctly.", '显示的名称是推算的。服务器配置（MagicDNS/Extra Records）在这里不可见，但会正常工作。'),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.orange[800],
                     fontWeight: FontWeight.w500,
@@ -328,22 +328,22 @@ class _DnsScreenState extends State<DnsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.t('Alias DNS (Mémo Local)', 'DNS Alias (Local Memo)')),
+        title: Text(l10n.t('Alias DNS (Mémo Local)', 'DNS Alias (Local Memo)', 'DNS 别名（本地备忘）')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              l10n.t("Cet alias est uniquement sauvegardé localement sur cet appareil pour votre référence. Assurez-vous d'ajouter cet enregistrement dans le fichier 'config.yaml' de votre serveur Headscale pour qu'il soit effectif sur le réseau.", "This alias is only saved locally on this device for your reference. Make sure to add this record to your Headscale server's 'config.yaml' for it to work on the network."),
+              l10n.t("Cet alias est uniquement sauvegardé localement sur cet appareil pour votre référence. Assurez-vous d'ajouter cet enregistrement dans le fichier 'config.yaml' de votre serveur Headscale pour qu'il soit effectif sur le réseau.", "This alias is only saved locally on this device for your reference. Make sure to add this record to your Headscale server's 'config.yaml' for it to work on the network.", '此别名仅保存在本机供你参考。要让它在网络中生效，请把该记录添加到 Headscale 服务器的「config.yaml」文件中。'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
               decoration: InputDecoration(
-                labelText: l10n.t('Nom DNS personnalisé', 'Custom DNS Name'),
+                labelText: l10n.t('Nom DNS personnalisé', 'Custom DNS Name', '自定义 DNS 名称'),
                 hintText: 'ex: nas.home',
                 border: const OutlineInputBorder(),
-                helperText: l10n.t('Lettres minuscules, chiffres et tirets uniquement.', 'Lowercase letters, numbers, and hyphens only.'),
+                helperText: l10n.t('Lettres minuscules, chiffres et tirets uniquement.', 'Lowercase letters, numbers, and hyphens only.', '仅限小写字母、数字和连字符。'),
               ),
             ),
           ],
@@ -351,7 +351,7 @@ class _DnsScreenState extends State<DnsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(l10n.t('Annuler', 'Cancel')),
+            child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           ),
           TextButton(
             onPressed: () {
@@ -362,12 +362,12 @@ class _DnsScreenState extends State<DnsScreen> {
                     context: context,
                     builder: (ctx) => AlertDialog(
                           title:
-                              Text(l10n.t('Format Invalide', 'Invalid Format')),
-                          content: Text(l10n.t('Le nom "$text" ne respecte pas le format DNS (RFC 1123).\nVoulez-vous utiliser "$sanitized" à la place ?', 'The name "$text" does not match DNS format (RFC 1123).\nDo you want to use "$sanitized" instead?')),
+                              Text(l10n.t('Format Invalide', 'Invalid Format', '格式无效')),
+                          content: Text(l10n.t('Le nom "$text" ne respecte pas le format DNS (RFC 1123).\nVoulez-vous utiliser "$sanitized" à la place ?', 'The name "$text" does not match DNS format (RFC 1123).\nDo you want to use "$sanitized" instead?', '名称 "$text" 不符合 DNS 格式（RFC 1123）。\n是否改用 "$sanitized"？')),
                           actions: [
                             TextButton(
                                 onPressed: () => Navigator.pop(ctx),
-                                child: Text(l10n.t('Annuler', 'Cancel'))),
+                                child: Text(l10n.t('Annuler', 'Cancel', '取消'))),
                             TextButton(
                                 onPressed: () {
                                   Navigator.pop(ctx); // Close alert
@@ -375,7 +375,7 @@ class _DnsScreenState extends State<DnsScreen> {
                                       node.id, sanitized); // Save corrected
                                   Navigator.pop(context); // Close edit dialog
                                 },
-                                child: Text(l10n.t('Utiliser corrigé', 'Use corrected'))),
+                                child: Text(l10n.t('Utiliser corrigé', 'Use corrected', '使用修正后的值'))),
                           ],
                         ));
                 return;
@@ -383,7 +383,7 @@ class _DnsScreenState extends State<DnsScreen> {
               _saveCustomRecord(node.id, text);
               Navigator.pop(context);
             },
-            child: Text(l10n.t('Sauvegarder', 'Save')),
+            child: Text(l10n.t('Sauvegarder', 'Save', '保存')),
           ),
         ],
       ),
@@ -398,7 +398,7 @@ class _DnsScreenState extends State<DnsScreen> {
         if (choice == 'copy') {
           Clipboard.setData(ClipboardData(text: value));
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('$label ${l10n.t('copié', 'copied')}!')));
+              SnackBar(content: Text('$label ${l10n.t('copié', 'copied', '已复制')}!')));
         } else if (choice == 'share') {
           SharePlus.instance.share(ShareParams(
             text: value,
@@ -411,14 +411,14 @@ class _DnsScreenState extends State<DnsScreen> {
           value: 'copy',
           child: ListTile(
             leading: const Icon(Icons.copy),
-            title: Text(l10n.t('Copier', 'Copy')),
+            title: Text(l10n.t('Copier', 'Copy', '复制')),
           ),
         ),
         PopupMenuItem<String>(
           value: 'share',
           child: ListTile(
             leading: const Icon(Icons.share),
-            title: Text(l10n.t('Partager', 'Share')),
+            title: Text(l10n.t('Partager', 'Share', '分享')),
           ),
         ),
       ],
@@ -449,7 +449,7 @@ class _DnsScreenState extends State<DnsScreen> {
           });
         },
         title: Text(
-          l10n.t("Noms DNS Personnalisés", "Custom DNS Names"),
+          l10n.t("Noms DNS Personnalisés", "Custom DNS Names", '自定义 DNS 名称'),
           style: theme.textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
@@ -468,7 +468,7 @@ class _DnsScreenState extends State<DnsScreen> {
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Text(
-              l10n.t("Pour assigner un nom DNS à un service sur votre réseau local (ex: nas.votre.domaine pointant vers 192.168.1.100), vous devez modifier la section 'dns_config.extra_records' dans votre fichier config.yaml sur le serveur Headscale et redémarrer le service. Cette action ne peut pas être effectuée depuis l'application.", "To assign a DNS name to a service on your local network (e.g., nas.your.domain pointing to 192.168.1.100), you must edit the 'dns_config.extra_records' section in your config.yaml file on the Headscale server and restart the service. This action cannot be performed from the application."),
+              l10n.t("Pour assigner un nom DNS à un service sur votre réseau local (ex: nas.votre.domaine pointant vers 192.168.1.100), vous devez modifier la section 'dns_config.extra_records' dans votre fichier config.yaml sur le serveur Headscale et redémarrer le service. Cette action ne peut pas être effectuée depuis l'application.", "To assign a DNS name to a service on your local network (e.g., nas.your.domain pointing to 192.168.1.100), you must edit the 'dns_config.extra_records' section in your config.yaml file on the Headscale server and restart the service. This action cannot be performed from the application.", '要为局域网内的服务分配 DNS 名称（例如把 nas.your.domain 指向 192.168.1.100），需要在 Headscale 服务器的 config.yaml 中修改 dns_config.extra_records 段并重启服务。此操作无法在应用内完成。'),
               style: theme.textTheme.bodyMedium,
             ),
           ),

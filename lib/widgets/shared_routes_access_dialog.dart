@@ -36,14 +36,14 @@ class _SharedRoutesAccessDialogState extends State<SharedRoutesAccessDialog> {
     final l10n = L10n(Localizations.localeOf(context));
 
     return AlertDialog(
-      title: Text(l10n.t('Accès aux routes partagées', 'Shared Routes Access')),
+      title: Text(l10n.t('Accès aux routes partagées', 'Shared Routes Access', '已共享路由访问')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.t('Le nœud de destination partage les sous-réseaux suivants. Choisissez comment y accéder.', 'The destination node shares the following subnets. Choose how to access them.'),
+              l10n.t('Le nœud de destination partage les sous-réseaux suivants. Choisissez comment y accéder.', 'The destination node shares the following subnets. Choose how to access them.', '目标节点共享了以下子网。请选择访问它们的方式。'),
             ),
             const SizedBox(height: 16),
             ..._buildChoiceRadios(l10n),
@@ -54,12 +54,12 @@ class _SharedRoutesAccessDialogState extends State<SharedRoutesAccessDialog> {
       ),
       actions: [
         TextButton(
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
           onPressed: _handleConfirm,
-          child: Text(l10n.t('Confirmer', 'Confirm')),
+          child: Text(l10n.t('Confirmer', 'Confirm', '确认')),
         ),
       ],
     );
@@ -74,18 +74,18 @@ class _SharedRoutesAccessDialogState extends State<SharedRoutesAccessDialog> {
           children: [
             RadioListTile<RouteAccessChoice>(
               title:
-                  Text(l10n.t('Accès au nœud uniquement', 'Node access only')),
-              subtitle: Text(l10n.t('Autoriser l\'accès au nœud mais pas aux sous-réseaux partagés', 'Allow access to the node but not to shared subnets')),
+                  Text(l10n.t('Accès au nœud uniquement', 'Node access only', '仅访问节点')),
+              subtitle: Text(l10n.t('Autoriser l\'accès au nœud mais pas aux sous-réseaux partagés', 'Allow access to the node but not to shared subnets', '允许访问该节点，但不允许访问已共享子网')),
               value: RouteAccessChoice.none,
             ),
             RadioListTile<RouteAccessChoice>(
-              title: Text(l10n.t('Accès total', 'Full access')),
-              subtitle: Text(l10n.t('Autoriser l\'accès au nœud et à toutes les routes partagées', 'Allow access to the node and all shared routes')),
+              title: Text(l10n.t('Accès total', 'Full access', '完全访问')),
+              subtitle: Text(l10n.t('Autoriser l\'accès au nœud et à toutes les routes partagées', 'Allow access to the node and all shared routes', '允许访问该节点及所有已共享路由')),
               value: RouteAccessChoice.full,
             ),
             RadioListTile<RouteAccessChoice>(
-              title: Text(l10n.t('Accès personnalisé', 'Custom access')),
-              subtitle: Text(l10n.t('Définir des règles spécifiques par sous-réseau', 'Define specific rules per subnet')),
+              title: Text(l10n.t('Accès personnalisé', 'Custom access', '自定义访问')),
+              subtitle: Text(l10n.t('Définir des règles spécifiques par sous-réseau', 'Define specific rules per subnet', '为每个子网定义特定规则')),
               value: RouteAccessChoice.custom,
             ),
           ],
@@ -126,28 +126,28 @@ class _SharedRoutesAccessDialogState extends State<SharedRoutesAccessDialog> {
         if (startIp.isNotEmpty && !IpUtils.isValidIp(startIp)) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                  '${l10n.t('Format IP de début invalide pour', 'Invalid start IP format for')} $route')));
+                  '${l10n.t('Format IP de début invalide pour', 'Invalid start IP format for', '起始 IP 格式无效：')} $route')));
           return;
         }
 
         if (startIp.isNotEmpty && !IpUtils.isIpInSubnet(startIp, route)) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                  '${l10n.t('IP de début n\'est pas dans le sous-réseau', 'Start IP is not in subnet')} $route')));
+                  '${l10n.t('IP de début n\'est pas dans le sous-réseau', 'Start IP is not in subnet', '起始 IP 不在子网内')} $route')));
           return;
         }
 
         if (endIp.isNotEmpty && !IpUtils.isValidIp(endIp)) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                  '${l10n.t('Format IP de fin invalide pour', 'Invalid end IP format for')} $route')));
+                  '${l10n.t('Format IP de fin invalide pour', 'Invalid end IP format for', '结束 IP 格式无效：')} $route')));
           return;
         }
 
         if (endIp.isNotEmpty && !IpUtils.isIpInSubnet(endIp, route)) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                  '${l10n.t('IP de fin n\'est pas dans le sous-réseau', 'End IP is not in subnet')} $route')));
+                  '${l10n.t('IP de fin n\'est pas dans le sous-réseau', 'End IP is not in subnet', '结束 IP 不在子网内')} $route')));
           return;
         }
       }
@@ -199,23 +199,23 @@ class _SubnetRuleCard extends StatelessWidget {
             TextFormField(
               controller: rule.startIpController,
               decoration: InputDecoration(
-                labelText: l10n.t('IP de début', 'Start IP'),
+                labelText: l10n.t('IP de début', 'Start IP', '起始 IP'),
                 hintText: 'Ex: 192.168.1.10',
               ),
             ),
             TextFormField(
               controller: rule.endIpController,
               decoration: InputDecoration(
-                labelText: l10n.t('IP de fin (optionnel)', 'End IP (optional)'),
-                hintText: l10n.t('Laisser vide si IP unique', 'Leave empty for single IP'),
+                labelText: l10n.t('IP de fin (optionnel)', 'End IP (optional)', '结束 IP（选填）'),
+                hintText: l10n.t('Laisser vide si IP unique', 'Leave empty for single IP', '单一 IP 时留空'),
               ),
             ),
             TextFormField(
               controller: rule.portsController,
               decoration: InputDecoration(
-                labelText: l10n.t('Ports (optionnel)', 'Ports (optional)'),
+                labelText: l10n.t('Ports (optionnel)', 'Ports (optional)', '端口（选填）'),
                 hintText:
-                    l10n.t('Ex: 80, 443, 1024-2048', 'E.g. 80, 443, 1024-2048'),
+                    l10n.t('Ex: 80, 443, 1024-2048', 'E.g. 80, 443, 1024-2048', '例如：80, 443, 1024-2048'),
               ),
             ),
           ],

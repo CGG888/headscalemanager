@@ -215,7 +215,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
       }
 
       if (!mounted) return;
-      showSafeSnackBar(context, l10n.t('Tags mis à jour.', 'Tags updated.'));
+      showSafeSnackBar(context, l10n.t('Tags mis à jour.', 'Tags updated.', '标签已更新。'));
 
       // Check for ACL mode
       bool aclMode = true;
@@ -230,15 +230,15 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
         final bool? updateAcls = await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: Text(l10n.t('Mettre à jour les ACLs ?', 'Update ACLs?')),
-            content: Text(l10n.t('Voulez-vous régénérer et appliquer la politique ACL pour que ces changements prennent effet ?', 'Do you want to regenerate and apply the ACL policy for these changes to take effect?')),
+            title: Text(l10n.t('Mettre à jour les ACLs ?', 'Update ACLs?', '更新 ACL？')),
+            content: Text(l10n.t('Voulez-vous régénérer et appliquer la politique ACL pour que ces changements prennent effet ?', 'Do you want to regenerate and apply the ACL policy for these changes to take effect?', '要重新生成并应用 ACL 策略以使这些更改生效吗？')),
             actions: [
               TextButton(
-                child: Text(l10n.t('Non', 'No')),
+                child: Text(l10n.t('Non', 'No', '否')),
                 onPressed: () => Navigator.of(dialogContext).pop(false),
               ),
               TextButton(
-                child: Text(l10n.t('Oui', 'Yes')),
+                child: Text(l10n.t('Oui', 'Yes', '是')),
                 onPressed: () => Navigator.of(dialogContext).pop(true),
               ),
             ],
@@ -247,7 +247,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
 
         if (updateAcls == true && mounted) {
           showSafeSnackBar(
-              context, l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
+              context, l10n.t('Mise à jour des ACLs...', 'Updating ACLs...', '正在更新 ACL……'));
           final allUsers = await apiService.getUsers();
           final allNodes = await apiService.getNodes();
           final serverId = appProvider.activeServer?.id;
@@ -255,7 +255,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
             if (!mounted) return;
             showSafeSnackBar(
                 context,
-                l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.'));
+                l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.', '未选择活动服务器。'));
             return;
           }
           final tempRules =
@@ -276,7 +276,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
 
           if (!mounted) return;
           showSafeSnackBar(
-              context, l10n.t('ACLs mises à jour !', 'ACLs updated!'));
+              context, l10n.t('ACLs mises à jour !', 'ACLs updated!', 'ACL 已更新！'));
         }
       }
 
@@ -287,7 +287,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
       }
     } catch (e) {
       if (!mounted) return;
-      showSafeSnackBar(context, l10n.t('Échec: $e', 'Failed: $e'));
+      showSafeSnackBar(context, l10n.t('Échec: $e', 'Failed: $e', '失败：$e'));
     }
   }
 
@@ -300,7 +300,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
     final hasLanSharer = hasCapabilityTag('lan-sharer');
 
     return AlertDialog(
-      title: Text(l10n.t('Modifier les tags', 'Edit tags')),
+      title: Text(l10n.t('Modifier les tags', 'Edit tags', '编辑标签')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -320,14 +320,14 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      l10n.t('Note : Avec Headscale v0.26+, les tags sont stricts. Un appareil ne peut plus être "dé-tagué" une fois tagué.', 'Note: With Headscale v0.26+, tags are strict. A device cannot be "un-tagged" once tagged.'),
+                      l10n.t('Note : Avec Headscale v0.26+, les tags sont stricts. Un appareil ne peut plus être "dé-tagué" une fois tagué.', 'Note: With Headscale v0.26+, tags are strict. A device cannot be "un-tagged" once tagged.', '注意：在 Headscale v0.26+ 中，标签是严格的。设备一旦打上标签，就无法再「取消标签」。'),
                       style: const TextStyle(color: Colors.blue, fontSize: 13),
                     ),
                   ),
                 ],
               ),
             ),
-            Text(l10n.t('Tags Actuels', 'Current Tags'),
+            Text(l10n.t('Tags Actuels', 'Current Tags', '当前标签'),
                 style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             Wrap(
@@ -337,7 +337,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                   _currentTags.map((tag) => Chip(label: Text(tag))).toList(),
             ),
             const SizedBox(height: 24),
-            Text(l10n.t('Suggestions', 'Suggestions'),
+            Text(l10n.t('Suggestions', 'Suggestions', '建议'),
                 style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             if (clientTag.isNotEmpty) ...[
@@ -345,14 +345,14 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                 ElevatedButton.icon(
                   onPressed: () => _addCapability('exit-node'),
                   icon: const Icon(Icons.add),
-                  label: Text(l10n.t('Ajouter ;exit-node', 'Add ;exit-node')),
+                  label: Text(l10n.t('Ajouter ;exit-node', 'Add ;exit-node', '添加 ;exit-node')),
                 ),
               if (hasExitNode)
                 ElevatedButton.icon(
                   onPressed: () => _removeCapability('exit-node'),
                   icon: const Icon(Icons.remove),
                   label:
-                      Text(l10n.t('Retirer ;exit-node', 'Remove ;exit-node')),
+                      Text(l10n.t('Retirer ;exit-node', 'Remove ;exit-node', '移除 ;exit-node')),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 ),
               const SizedBox(height: 8),
@@ -360,19 +360,19 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                 ElevatedButton.icon(
                   onPressed: () => _addCapability('lan-sharer'),
                   icon: const Icon(Icons.add),
-                  label: Text(l10n.t('Ajouter ;lan-sharer', 'Add ;lan-sharer')),
+                  label: Text(l10n.t('Ajouter ;lan-sharer', 'Add ;lan-sharer', '添加 ;lan-sharer')),
                 ),
               if (hasLanSharer)
                 ElevatedButton.icon(
                   onPressed: () => _removeCapability('lan-sharer'),
                   icon: const Icon(Icons.remove),
                   label:
-                      Text(l10n.t('Retirer ;lan-sharer', 'Remove ;lan-sharer')),
+                      Text(l10n.t('Retirer ;lan-sharer', 'Remove ;lan-sharer', '移除 ;lan-sharer')),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 ),
             ] else ...[
               Text(
-                  l10n.t('Aucun tag trouvé. Pour intégrer cet appareil aux ACLs, il doit avoir un tag d\'identité.', 'No tags found. To include this device in ACLs, it must have an identity tag.'),
+                  l10n.t('Aucun tag trouvé. Pour intégrer cet appareil aux ACLs, il doit avoir un tag d\'identité.', 'No tags found. To include this device in ACLs, it must have an identity tag.', '未找到标签。要将此设备纳入 ACL，它必须具有身份标签。'),
                   style: const TextStyle(color: Colors.orange)),
               const SizedBox(height: 12),
               ElevatedButton.icon(
@@ -405,7 +405,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                   String userName = normalizeUserName(rawName);
                   if (userName.isEmpty) userName = 'user';
 
-                  return Text(l10n.t('Initialiser le Tag (tag:$userName-client)', 'Initialize Tag (tag:$userName-client)'));
+                  return Text(l10n.t('Initialiser le Tag (tag:$userName-client)', 'Initialize Tag (tag:$userName-client)', '初始化标签（tag:$userName-client）'));
                 }),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
@@ -418,12 +418,12 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
       ),
       actions: [
         TextButton(
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
           onPressed: _handleSave,
-          child: Text(l10n.t('Sauvegarder', 'Save')),
+          child: Text(l10n.t('Sauvegarder', 'Save', '保存')),
         ),
       ],
     );

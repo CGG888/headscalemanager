@@ -114,7 +114,7 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                widget.l10n.t('Modifier le grant', 'Edit grant'),
+                widget.l10n.t('Modifier le grant', 'Edit grant', '编辑授权'),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
@@ -123,7 +123,7 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
                 shrinkWrap: true,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
-                  Text(widget.l10n.t('Source(s)', 'Source(s)'),
+                  Text(widget.l10n.t('Source(s)', 'Source(s)', '源'),
                       style: Theme.of(context).textTheme.titleSmall),
                   ...srcOptions.map((o) => CheckboxListTile(
                         value: _src.contains(o.value),
@@ -135,7 +135,7 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
                         title: Text(o.label),
                       )),
                   const Divider(),
-                  Text(widget.l10n.t('Via (routeur)', 'Via (router)'),
+                  Text(widget.l10n.t('Via (routeur)', 'Via (router)', 'Via（路由器）'),
                       style: Theme.of(context).textTheme.titleSmall),
                   RadioGroup<String?>(
                     groupValue: _via,
@@ -144,7 +144,7 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
                       children: [
                         RadioListTile<String?>(
                           value: null,
-                          title: Text(widget.l10n.t('Aucun (direct)', 'None (direct)')),
+                          title: Text(widget.l10n.t('Aucun (direct)', 'None (direct)', '无（直连）')),
                         ),
                         ...routers.map((r) => RadioListTile<String?>(
                               value: r.viaTag,
@@ -154,7 +154,7 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
                     ),
                   ),
                   const Divider(),
-                  Text(widget.l10n.t('Destination(s)', 'Destination(s)'),
+                  Text(widget.l10n.t('Destination(s)', 'Destination(s)', '目标'),
                       style: Theme.of(context).textTheme.titleSmall),
                   ...uniqueDst.values.map((o) => CheckboxListTile(
                         value: _dst.contains(o.value),
@@ -187,14 +187,14 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text(widget.l10n.t('Annuler', 'Cancel')),
+                    child: Text(widget.l10n.t('Annuler', 'Cancel', '取消')),
                   ),
                   const Spacer(),
                   FilledButton(
                     onPressed: _src.isNotEmpty && _dst.isNotEmpty
                         ? () => Navigator.pop(context, _buildGrant())
                         : null,
-                    child: Text(widget.l10n.t('Enregistrer', 'Save')),
+                    child: Text(widget.l10n.t('Enregistrer', 'Save', '保存')),
                   ),
                 ],
               ),

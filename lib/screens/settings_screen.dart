@@ -48,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(l10n.t('Paramètres', 'Settings'),
+        title: Text(l10n.t('Paramètres', 'Settings', '设置'),
             style: theme.appBarTheme.titleTextStyle),
         backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
@@ -60,7 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(l10n.t('Serveurs', 'Servers'),
+              Text(l10n.t('Serveurs', 'Servers', '服务器'),
                   style: theme.textTheme.headlineSmall),
               const SizedBox(height: 16),
               Expanded(
@@ -76,10 +76,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(
-                            l10n.t('Notifications en arrière-plan', 'Background Notifications'),
+                            l10n.t('Notifications en arrière-plan', 'Background Notifications', '后台通知'),
                             style: theme.textTheme.titleMedium),
                         subtitle: Text(
-                            l10n.t('Vérifie périodiquement les nouvelles demandes d\'approbation.', 'Periodically check for new approval requests.'),
+                            l10n.t('Vérifie périodiquement les nouvelles demandes d\'approbation.', 'Periodically check for new approval requests.', '定期检查新的审批请求。'),
                             style: theme.textTheme.bodySmall),
                         value: _notificationsEnabled,
                         onChanged: (bool value) async {
@@ -109,7 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      l10n.t('Moteur ACL & Migration', 'ACL Engine & Migration'),
+                                      l10n.t('Moteur ACL & Migration', 'ACL Engine & Migration', 'ACL 引擎与迁移'),
                                       style: theme.textTheme.titleMedium
                                           ?.copyWith(
                                               fontWeight: FontWeight.bold),
@@ -120,13 +120,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         color: Colors.blue),
                                     onPressed: () =>
                                         _showMigrationHelpDialog(context, l10n),
-                                    tooltip: l10n.t('Aide', 'Help'),
+                                    tooltip: l10n.t('Aide', 'Help', '帮助'),
                                   ),
                                 ],
                               ),
                               const Divider(),
                               Text(
-                                l10n.t('Moteur de génération ACL', 'ACL Generation Engine'),
+                                l10n.t('Moteur de génération ACL', 'ACL Generation Engine', 'ACL 生成引擎'),
                                 style: theme.textTheme.bodyLarge
                                     ?.copyWith(fontWeight: FontWeight.w600),
                               ),
@@ -135,8 +135,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 l10n: l10n,
                                 mode: AclEngineMode.legacy,
                                 groupValue: appProvider.aclEngineMode,
-                                title: l10n.t('Legacy', 'Legacy'),
-                                subtitle: l10n.t('Tags fusionnés (ancien format).', 'Merged tags (legacy format).'),
+                                title: l10n.t('Legacy', 'Legacy', '旧版'),
+                                subtitle: l10n.t('Tags fusionnés (ancien format).', 'Merged tags (legacy format).', '标签已合并（旧格式）。'),
                                 onChanged: (mode) =>
                                     appProvider.setAclEngineMode(mode),
                               ),
@@ -144,8 +144,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 l10n: l10n,
                                 mode: AclEngineMode.standard,
                                 groupValue: appProvider.aclEngineMode,
-                                title: l10n.t('Standard', 'Standard'),
-                                subtitle: l10n.t('Tags séparés (Identity vs Capability).', 'Split tags (Identity vs Capability).'),
+                                title: l10n.t('Standard', 'Standard', 'Standard'),
+                                subtitle: l10n.t('Tags séparés (Identity vs Capability).', 'Split tags (Identity vs Capability).', '标签分离（Identity 与 Capability）。'),
                                 onChanged: (mode) =>
                                     appProvider.setAclEngineMode(mode),
                               ),
@@ -153,8 +153,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 l10n: l10n,
                                 mode: AclEngineMode.grantsV29,
                                 groupValue: appProvider.aclEngineMode,
-                                title: l10n.t('Grants V29 (via)', 'Grants V29 (via)'),
-                                subtitle: l10n.t('Headscale ≥ 0.29 — routage via pour LAN/exit.', 'Headscale ≥ 0.29 — via routing for LAN/exit.'),
+                                title: l10n.t('Grants V29 (via)', 'Grants V29 (via)', 'Grants V29（via）'),
+                                subtitle: l10n.t('Headscale ≥ 0.29 — routage via pour LAN/exit.', 'Headscale ≥ 0.29 — via routing for LAN/exit.', 'Headscale ≥ 0.29——为 LAN/出口提供 via 路由。'),
                                 enabled: VersionInfo.checkVersionAtLeast(
                                   appProvider.serverVersion,
                                   '0.29.0',
@@ -170,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   padding: const EdgeInsets.only(
                                       left: 16, bottom: 8),
                                   child: Text(
-                                    l10n.t('Grants V29 nécessite Headscale 0.29.0+.', 'Grants V29 requires Headscale 0.29.0+.'),
+                                    l10n.t('Grants V29 nécessite Headscale 0.29.0+.', 'Grants V29 requires Headscale 0.29.0+.', 'Grants V29 需要 Headscale 0.29.0+。'),
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: Colors.orange,
                                     ),
@@ -182,7 +182,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 leading: const Icon(Icons.info_outline,
                                     color: Colors.blue),
                                 title: Text(
-                                  l10n.t('Version du serveur', 'Server Version'),
+                                  l10n.t('Version du serveur', 'Server Version', '服务器版本'),
                                   style: theme.textTheme.bodyLarge,
                                 ),
                                 trailing: Text(
@@ -196,15 +196,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               const SizedBox(height: 8),
                               // Danger Zone Header inside Card
                               Text(
-                                l10n.t('Zone de Danger / Migration', 'Danger / Migration Zone'),
+                                l10n.t('Zone de Danger / Migration', 'Danger / Migration Zone', '危险区 / 迁移'),
                                 style: theme.textTheme.titleSmall?.copyWith(
                                     color: Colors.red,
                                     fontWeight: FontWeight.bold),
                               ),
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: Text(l10n.t('Migrer vers Grants V29', 'Migrate to Grants V29')),
-                                subtitle: Text(l10n.t('Régénère la politique avec routage via.', 'Regenerates policy with via routing.')),
+                                title: Text(l10n.t('Migrer vers Grants V29', 'Migrate to Grants V29', '迁移到 Grants V29')),
+                                subtitle: Text(l10n.t('Régénère la politique avec routage via.', 'Regenerates policy with via routing.', '使用 via 路由重新生成策略。')),
                                 trailing: const Icon(Icons.alt_route,
                                     color: Colors.green),
                                 enabled: VersionInfo.checkVersionAtLeast(
@@ -224,16 +224,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: Text(l10n.t('Rollback Grants → Standard', 'Rollback Grants → Standard')),
-                                subtitle: Text(l10n.t('Revient au moteur Standard (tags séparés).', 'Reverts to Standard engine (split tags).')),
+                                title: Text(l10n.t('Rollback Grants → Standard', 'Rollback Grants → Standard', '回滚 Grants → Standard')),
+                                subtitle: Text(l10n.t('Revient au moteur Standard (tags séparés).', 'Reverts to Standard engine (split tags).', '恢复为标准引擎（标签拆分）。')),
                                 trailing: const Icon(Icons.undo,
                                     color: Colors.orange),
                                 onTap: appProvider.aclEngineMode ==
                                         AclEngineMode.grantsV29
                                     ? () => _confirmAction(
                                           context,
-                                          l10n.t('Revenir au moteur Standard ?', 'Revert to Standard engine?'),
-                                          l10n.t('Les grants via ne seront plus générés. Régénérez la politique ACL ensuite.', 'Via grants will no longer be generated. Regenerate ACL policy afterwards.'),
+                                          l10n.t('Revenir au moteur Standard ?', 'Revert to Standard engine?', '恢复为标准引擎？'),
+                                          l10n.t('Les grants via ne seront plus générés. Régénérez la politique ACL ensuite.', 'Via grants will no longer be generated. Regenerate ACL policy afterwards.', '将不再生成 via 授权，之后请重新生成 ACL 策略。'),
                                           () async {
                                             await appProvider.setAclEngineMode(
                                                 AclEngineMode.standard);
@@ -241,7 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 SnackBar(
-                                                  content: Text(l10n.t('Moteur Standard activé.', 'Standard engine enabled.')),
+                                                  content: Text(l10n.t('Moteur Standard activé.', 'Standard engine enabled.', '标准引擎已启用。')),
                                                 ),
                                               );
                                             }
@@ -251,27 +251,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: Text(l10n.t('Migrer vers Standard', 'Migrate to Standard')),
-                                subtitle: Text(l10n.t('Convertit les tags fusionnés.', 'Converts merged tags.')),
+                                title: Text(l10n.t('Migrer vers Standard', 'Migrate to Standard', '迁移到标准引擎')),
+                                subtitle: Text(l10n.t('Convertit les tags fusionnés.', 'Converts merged tags.', '转换已合并的标签。')),
                                 trailing: const Icon(Icons.arrow_forward,
                                     color: Colors.orange),
                                 onTap: () => _confirmAction(
                                     context,
-                                    l10n.t('Migrer tous les nœuds ?', 'Migrate all nodes?'),
-                                    l10n.t('Ceci va modifier les tags de TOUS vos nœuds. Assurez-vous d\'avoir activé le moteur Standard avant.', 'This will modify tags for ALL nodes. Ensure Standard Engine is enabled first.'),
+                                    l10n.t('Migrer tous les nœuds ?', 'Migrate all nodes?', '迁移所有节点？'),
+                                    l10n.t('Ceci va modifier les tags de TOUS vos nœuds. Assurez-vous d\'avoir activé le moteur Standard avant.', 'This will modify tags for ALL nodes. Ensure Standard Engine is enabled first.', '这将修改所有节点的标签。请先确保已启用标准引擎。'),
                                     () => _performMigration(
                                         context, appProvider)),
                               ),
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: Text(l10n.t('Rollback vers Legacy', 'Rollback to Legacy')),
-                                subtitle: Text(l10n.t('Re-fusionne les tags.', 'Re-merges tags.')),
+                                title: Text(l10n.t('Rollback vers Legacy', 'Rollback to Legacy', '回滚到 Legacy')),
+                                subtitle: Text(l10n.t('Re-fusionne les tags.', 'Re-merges tags.', '重新合并标签。')),
                                 trailing: const Icon(Icons.history,
                                     color: Colors.red),
                                 onTap: () => _confirmAction(
                                     context,
-                                    l10n.t('Annuler la migration ?', 'Rollback migration?'),
-                                    l10n.t('Ceci va remettre les tags au format fusionné (legacy).', 'This will revert tags to the merged format.'),
+                                    l10n.t('Annuler la migration ?', 'Rollback migration?', '取消迁移？'),
+                                    l10n.t('Ceci va remettre les tags au format fusionné (legacy).', 'This will revert tags to the merged format.', '这会将标签恢复为合并格式（legacy）。'),
                                     () =>
                                         _performRollback(context, appProvider)),
                               ),
@@ -291,7 +291,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           );
                         },
-                        child: Text(l10n.t('Besoin d\'aide ?', 'Need help?'),
+                        child: Text(l10n.t('Besoin d\'aide ?', 'Need help?', '需要帮助？'),
                             style: theme.textTheme.labelLarge
                                 ?.copyWith(color: theme.colorScheme.primary)),
                       ),
@@ -305,7 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             borderRadius: BorderRadius.circular(12.0),
                           ),
                         ),
-                        child: Text(l10n.t('Fermer', 'Close'),
+                        child: Text(l10n.t('Fermer', 'Close', '关闭'),
                             style: theme.textTheme.labelLarge?.copyWith(
                                 fontSize: 16,
                                 color: theme.colorScheme.onPrimary)),
@@ -327,7 +327,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           SpeedDialChild(
             child: const Icon(Icons.add),
-            label: l10n.t('Ajouter un serveur', 'Add Server'),
+            label: l10n.t('Ajouter un serveur', 'Add Server', '添加服务器'),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const AddEditServerScreen()),
@@ -336,7 +336,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SpeedDialChild(
             child: const Icon(Icons.security),
-            label: l10n.t('Sécurité', 'Security'),
+            label: l10n.t('Sécurité', 'Security', '安全'),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -346,7 +346,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SpeedDialChild(
             child: const Icon(Icons.vpn_key),
-            label: l10n.t('Clés API', 'API Keys'),
+            label: l10n.t('Clés API', 'API Keys', 'API 密钥'),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ApiKeysScreen()),
@@ -438,10 +438,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Text(content),
         actions: [
           TextButton(
-              child: Text(l10n.t('Annuler', 'Cancel')),
+              child: Text(l10n.t('Annuler', 'Cancel', '取消')),
               onPressed: () => Navigator.of(ctx).pop()),
           TextButton(
-              child: Text(l10n.t('Confirmer', 'Confirm')),
+              child: Text(l10n.t('Confirmer', 'Confirm', '确认')),
               onPressed: () {
                 Navigator.of(ctx).pop();
                 onConfirm();
@@ -469,7 +469,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       showDialog(
           context: context,
           builder: (_) => AlertDialog(
-                title: Text(l10n.t('Résultat Migration', 'Migration Result')),
+                title: Text(l10n.t('Résultat Migration', 'Migration Result', '迁移结果')),
                 content: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -512,7 +512,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       showDialog(
           context: context,
           builder: (_) => AlertDialog(
-                title: Text(l10n.t('Résultat Rollback', 'Rollback Result')),
+                title: Text(l10n.t('Résultat Rollback', 'Rollback Result', '回滚结果')),
                 content: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -541,25 +541,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l10n.t('Aide Migration ACL', 'ACL Migration Help')),
+        title: Text(l10n.t('Aide Migration ACL', 'ACL Migration Help', 'ACL 迁移帮助')),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHelpSection(
                 context,
-                l10n.t('1. Principe', '1. Principle'),
-                l10n.t('Le moteur Legacy utilise des tags "fusionnés" (ex: tag:user;exit-node). Le moteur Standard sépare l\'identité (tag:user-client) des capacités (tag:user-exit-node) pour une meilleure gestion.', 'Legacy engine uses "merged" tags (e.g. tag:user;exit-node). Standard engine splits identity (tag:user-client) from capabilities (tag:user-exit-node) for better management.'),
+                l10n.t('1. Principe', '1. Principle', '1. 原理'),
+                l10n.t('Le moteur Legacy utilise des tags "fusionnés" (ex: tag:user;exit-node). Le moteur Standard sépare l\'identité (tag:user-client) des capacités (tag:user-exit-node) pour une meilleure gestion.', 'Legacy engine uses "merged" tags (e.g. tag:user;exit-node). Standard engine splits identity (tag:user-client) from capabilities (tag:user-exit-node) for better management.', 'Legacy 引擎使用「合并」标签（如 tag:user;exit-node）。标准引擎将身份（tag:user-client）与能力（tag:user-exit-node）分离，便于更好地管理。'),
               ),
               _buildHelpSection(
                 context,
-                l10n.t('2. Procédure de Migration', '2. Migration Procedure'),
-                l10n.t('A. Activez "Utiliser le moteur ACL standard".\nB. Cliquez sur "Migrer vers Standard".\nC. Redémarrez si nécessaire et vérifiez la connectivité.', 'A. Enable "Use Standard ACL Engine".\nB. Click "Migrate to Standard".\nC. Restart if needed and check connectivity.'),
+                l10n.t('2. Procédure de Migration', '2. Migration Procedure', '2. 迁移步骤'),
+                l10n.t('A. Activez "Utiliser le moteur ACL standard".\nB. Cliquez sur "Migrer vers Standard".\nC. Redémarrez si nécessaire et vérifiez la connectivité.', 'A. Enable "Use Standard ACL Engine".\nB. Click "Migrate to Standard".\nC. Restart if needed and check connectivity.', 'A. 启用「使用标准 ACL 引擎」。\nB. 点击「迁移到标准」。\nC. 如有需要请重启，并检查连通性。'),
               ),
               _buildHelpSection(
                 context,
-                l10n.t('3. Procédure de Rollback', '3. Rollback Procedure'),
-                l10n.t('A. Cliquez sur "Rollback vers Legacy".\nB. Désactivez "Utiliser le moteur ACL standard".\nC. Vérifiez que vos anciens tags sont revenus.', 'A. Click "Rollback to Legacy".\nB. Disable "Use Standard ACL Engine".\nC. Verify your old tags are back.'),
+                l10n.t('3. Procédure de Rollback', '3. Rollback Procedure', '3. 回滚步骤'),
+                l10n.t('A. Cliquez sur "Rollback vers Legacy".\nB. Désactivez "Utiliser le moteur ACL standard".\nC. Vérifiez que vos anciens tags sont revenus.', 'A. Click "Rollback to Legacy".\nB. Disable "Use Standard ACL Engine".\nC. Verify your old tags are back.', 'A. 点击「回滚到旧版」。\nB. 禁用「使用标准 ACL 引擎」。\nC. 确认旧标签已恢复。'),
               ),
             ],
           ),

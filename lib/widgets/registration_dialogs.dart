@@ -31,22 +31,22 @@ Future<void> showTailscaleUpCommandDialog(
       final l10n = L10n(locale);
       final theme = Theme.of(context);
       return AlertDialog(
-        title: Text(l10n.t('Ajouter un Appareil', 'Add a Device')),
+        title: Text(l10n.t('Ajouter un Appareil', 'Add a Device', '添加设备')),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                l10n.t('Choisissez le mode de connexion de votre serveur Headscale :', 'Choose your Headscale server connection mode:'),
+                l10n.t('Choisissez le mode de connexion de votre serveur Headscale :', 'Choose your Headscale server connection mode:', '选择你的 Headscale 服务器连接方式：'),
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 16),
               // Carte Classique
               _ConnectionModeCard(
                 icon: Icons.terminal,
-                title: l10n.t('Connexion Classique', 'Classic Connection'),
-                description: l10n.t('Le client Tailscale affiche une URL avec une clé machine à copier. Pour les serveurs sans OIDC.', 'Tailscale client shows a URL with a machine key to copy. For servers without OIDC.'),
+                title: l10n.t('Connexion Classique', 'Classic Connection', '经典连接'),
+                description: l10n.t('Le client Tailscale affiche une URL avec une clé machine à copier. Pour les serveurs sans OIDC.', 'Tailscale client shows a URL with a machine key to copy. For servers without OIDC.', 'Tailscale 客户端会显示一个带机器密钥的 URL 供复制。适用于没有 OIDC 的服务器。'),
                 color: theme.colorScheme.primary,
                 onTap: () {
                   Navigator.of(dialogContext).pop();
@@ -57,8 +57,8 @@ Future<void> showTailscaleUpCommandDialog(
               // Carte OIDC
               _ConnectionModeCard(
                 icon: Icons.login,
-                title: l10n.t('Connexion OIDC', 'OIDC Connection'),
-                description: l10n.t('Le navigateur s\'ouvre automatiquement vers un fournisseur d\'identité (Google, GitHub…). Réservé aux admins ayant activé OIDC dans config.yaml.', 'The browser opens automatically to an identity provider (Google, GitHub…). Only for admins who enabled OIDC in config.yaml.'),
+                title: l10n.t('Connexion OIDC', 'OIDC Connection', 'OIDC 连接'),
+                description: l10n.t('Le navigateur s\'ouvre automatiquement vers un fournisseur d\'identité (Google, GitHub…). Réservé aux admins ayant activé OIDC dans config.yaml.', 'The browser opens automatically to an identity provider (Google, GitHub…). Only for admins who enabled OIDC in config.yaml.', '浏览器会自动打开身份提供商（Google、GitHub……）。仅限在 config.yaml 中启用 OIDC 的管理员使用。'),
                 color: Colors.teal,
                 onTap: () {
                   Navigator.of(dialogContext).pop();
@@ -70,7 +70,7 @@ Future<void> showTailscaleUpCommandDialog(
         ),
         actions: [
           TextButton(
-            child: Text(l10n.t('Annuler', 'Cancel')),
+            child: Text(l10n.t('Annuler', 'Cancel', '取消')),
             onPressed: () => Navigator.of(dialogContext).pop(),
           ),
         ],
@@ -151,7 +151,7 @@ Future<void> _showClassicStep1(
       return DefaultTabController(
         length: 2,
         child: AlertDialog(
-          title: Text(l10n.t('Étape 1/3 : Connecter l\'appareil', 'Step 1/3: Connect Device')),
+          title: Text(l10n.t('Étape 1/3 : Connecter l\'appareil', 'Step 1/3: Connect Device', '第 1/3 步：连接设备')),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -172,7 +172,7 @@ Future<void> _showClassicStep1(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l10n.t('Exécutez la commande suivante dans le terminal de votre appareil:', 'Run the following command in your device\'s terminal:')),
+                            Text(l10n.t('Exécutez la commande suivante dans le terminal de votre appareil:', 'Run the following command in your device\'s terminal:', '在你的设备终端中执行以下命令：')),
                             const SizedBox(height: 16),
                             SelectableText(command,
                                 style: const TextStyle(
@@ -182,20 +182,20 @@ Future<void> _showClassicStep1(
                               children: [
                                 ElevatedButton.icon(
                                   icon: const Icon(Icons.copy),
-                                  label: Text(l10n.t('Copier', 'Copy')),
+                                  label: Text(l10n.t('Copier', 'Copy', '复制')),
                                   onPressed: () async {
                                     await Clipboard.setData(
                                         ClipboardData(text: command));
                                     if (!context.mounted) return;
                                     showSafeSnackBar(
                                         context,
-                                        l10n.t('Commande copiée !', 'Command copied!'));
+                                        l10n.t('Commande copiée !', 'Command copied!', '命令已复制！'));
                                   },
                                 ),
                                 const SizedBox(width: 8),
                                 ElevatedButton.icon(
                                   icon: const Icon(Icons.share),
-                                  label: Text(l10n.t('Partager', 'Share')),
+                                  label: Text(l10n.t('Partager', 'Share', '分享')),
                                   onPressed: () {
                                     SharePlus.instance
                                         .share(ShareParams(text: command));
@@ -212,7 +212,7 @@ Future<void> _showClassicStep1(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(l10n.t('Sur votre appareil, allez dans les paramètres du client Tailscale, sélectionnez "Use alternate server" et entrez l\'URL suivante:', 'On your device, go to the Tailscale client settings, select "Use alternate server" and enter the following URL:')),
+                              Text(l10n.t('Sur votre appareil, allez dans les paramètres du client Tailscale, sélectionnez "Use alternate server" et entrez l\'URL suivante:', 'On your device, go to the Tailscale client settings, select "Use alternate server" and enter the following URL:', '在你的设备上，进入 Tailscale 客户端设置，选择「Use alternate server」并输入以下 URL：')),
                               const SizedBox(height: 16),
                               SelectableText(loginServer,
                                   style: const TextStyle(
@@ -222,20 +222,20 @@ Future<void> _showClassicStep1(
                                 children: [
                                   ElevatedButton.icon(
                                     icon: const Icon(Icons.copy),
-                                    label: Text(l10n.t('Copier', 'Copy')),
+                                    label: Text(l10n.t('Copier', 'Copy', '复制')),
                                     onPressed: () async {
                                       await Clipboard.setData(
                                           ClipboardData(text: loginServer));
                                       if (!context.mounted) return;
                                       showSafeSnackBar(
                                           context,
-                                          l10n.t('URL copiée !', 'URL copied!'));
+                                          l10n.t('URL copiée !', 'URL copied!', 'URL 已复制！'));
                                     },
                                   ),
                                   const SizedBox(width: 8),
                                   ElevatedButton.icon(
                                     icon: const Icon(Icons.share),
-                                    label: Text(l10n.t('Partager', 'Share')),
+                                    label: Text(l10n.t('Partager', 'Share', '分享')),
                                     onPressed: () async {
                                       await SharePlus.instance.share(
                                           ShareParams(text: loginServer));
@@ -255,11 +255,11 @@ Future<void> _showClassicStep1(
           ),
           actions: [
             TextButton(
-              child: Text(l10n.t('Fermer', 'Close')),
+              child: Text(l10n.t('Fermer', 'Close', '关闭')),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             ElevatedButton(
-              child: Text(l10n.t('Étape suivante', 'Next Step')),
+              child: Text(l10n.t('Étape suivante', 'Next Step', '下一步')),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 showHeadscaleRegisterCommandDialog(context, user);
@@ -288,7 +288,7 @@ Future<void> _showOidcStep1(
       return DefaultTabController(
         length: 2,
         child: AlertDialog(
-          title: Text(l10n.t('OIDC — Étape 1/2 : Connecter l\'appareil', 'OIDC — Step 1/2: Connect Device')),
+          title: Text(l10n.t('OIDC — Étape 1/2 : Connecter l\'appareil', 'OIDC — Step 1/2: Connect Device', 'OIDC — 第 1/2 步：连接设备')),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -309,7 +309,7 @@ Future<void> _showOidcStep1(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l10n.t('Exécutez la commande suivante. Le navigateur s\'ouvrira automatiquement pour la connexion OIDC — aucune clé à copier.', 'Run the following command. The browser will open automatically for OIDC login — no key to copy.')),
+                            Text(l10n.t('Exécutez la commande suivante. Le navigateur s\'ouvrira automatiquement pour la connexion OIDC — aucune clé à copier.', 'Run the following command. The browser will open automatically for OIDC login — no key to copy.', '执行以下命令。浏览器会自动打开以进行 OIDC 登录——无需复制任何密钥。')),
                             const SizedBox(height: 12),
                             SelectableText(command,
                                 style: const TextStyle(
@@ -319,20 +319,20 @@ Future<void> _showOidcStep1(
                               children: [
                                 ElevatedButton.icon(
                                   icon: const Icon(Icons.copy),
-                                  label: Text(l10n.t('Copier', 'Copy')),
+                                  label: Text(l10n.t('Copier', 'Copy', '复制')),
                                   onPressed: () async {
                                     await Clipboard.setData(
                                         ClipboardData(text: command));
                                     if (!context.mounted) return;
                                     showSafeSnackBar(
                                         context,
-                                        l10n.t('Commande copiée !', 'Command copied!'));
+                                        l10n.t('Commande copiée !', 'Command copied!', '命令已复制！'));
                                   },
                                 ),
                                 const SizedBox(width: 8),
                                 ElevatedButton.icon(
                                   icon: const Icon(Icons.share),
-                                  label: Text(l10n.t('Partager', 'Share')),
+                                  label: Text(l10n.t('Partager', 'Share', '分享')),
                                   onPressed: () {
                                     SharePlus.instance
                                         .share(ShareParams(text: command));
@@ -349,7 +349,7 @@ Future<void> _showOidcStep1(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(l10n.t('Dans les paramètres du client Tailscale, sélectionnez "Use alternate server" et entrez l\'URL suivante. Le navigateur s\'ouvrira pour la connexion OIDC.', 'In Tailscale client settings, select "Use alternate server" and enter the URL below. The browser will open for OIDC login.')),
+                              Text(l10n.t('Dans les paramètres du client Tailscale, sélectionnez "Use alternate server" et entrez l\'URL suivante. Le navigateur s\'ouvrira pour la connexion OIDC.', 'In Tailscale client settings, select "Use alternate server" and enter the URL below. The browser will open for OIDC login.', '在 Tailscale 客户端设置中，选择「Use alternate server」并输入以下 URL。浏览器将打开以完成 OIDC 登录。')),
                               const SizedBox(height: 12),
                               SelectableText(loginServer,
                                   style: const TextStyle(
@@ -359,20 +359,20 @@ Future<void> _showOidcStep1(
                                 children: [
                                   ElevatedButton.icon(
                                     icon: const Icon(Icons.copy),
-                                    label: Text(l10n.t('Copier', 'Copy')),
+                                    label: Text(l10n.t('Copier', 'Copy', '复制')),
                                     onPressed: () async {
                                       await Clipboard.setData(
                                           ClipboardData(text: loginServer));
                                       if (!context.mounted) return;
                                       showSafeSnackBar(
                                           context,
-                                          l10n.t('URL copiée !', 'URL copied!'));
+                                          l10n.t('URL copiée !', 'URL copied!', 'URL 已复制！'));
                                     },
                                   ),
                                   const SizedBox(width: 8),
                                   ElevatedButton.icon(
                                     icon: const Icon(Icons.share),
-                                    label: Text(l10n.t('Partager', 'Share')),
+                                    label: Text(l10n.t('Partager', 'Share', '分享')),
                                     onPressed: () async {
                                       await SharePlus.instance.share(
                                           ShareParams(text: loginServer));
@@ -392,11 +392,11 @@ Future<void> _showOidcStep1(
           ),
           actions: [
             TextButton(
-              child: Text(l10n.t('Fermer', 'Close')),
+              child: Text(l10n.t('Fermer', 'Close', '关闭')),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             ElevatedButton(
-              child: Text(l10n.t('Étape suivante', 'Next Step')),
+              child: Text(l10n.t('Étape suivante', 'Next Step', '下一步')),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 _showOidcStep2(context, user);
@@ -427,14 +427,14 @@ Future<void> _showOidcStep2(BuildContext context, User user) async {
           : 'oidc:\n  allowed_users:\n    - <email@example.com>';
 
       return AlertDialog(
-        title: Text(l10n.t('OIDC — Étape 2/2 : Autoriser l\'utilisateur', 'OIDC — Step 2/2: Authorize User')),
+        title: Text(l10n.t('OIDC — Étape 2/2 : Autoriser l\'utilisateur', 'OIDC — Step 2/2: Authorize User', 'OIDC — 第 2/2 步：授权用户')),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                l10n.t('Pour que cet utilisateur puisse se connecter, son adresse email doit être autorisée dans le fichier config.yaml de votre serveur Headscale.', 'For this user to connect, their email must be allowed in your Headscale server\'s config.yaml file.'),
+                l10n.t('Pour que cet utilisateur puisse se connecter, son adresse email doit être autorisée dans le fichier config.yaml de votre serveur Headscale.', 'For this user to connect, their email must be allowed in your Headscale server\'s config.yaml file.', '要让该用户连接，其邮箱必须在你的 Headscale 服务器的 config.yaml 文件中被允许。'),
               ),
               const SizedBox(height: 16),
               Container(
@@ -458,7 +458,7 @@ Future<void> _showOidcStep2(BuildContext context, User user) async {
                                     .withValues(alpha: 0.5))),
                         IconButton(
                           icon: const Icon(Icons.copy, size: 16),
-                          tooltip: l10n.t('Copier', 'Copy'),
+                          tooltip: l10n.t('Copier', 'Copy', '复制'),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                           onPressed: () async {
@@ -466,7 +466,7 @@ Future<void> _showOidcStep2(BuildContext context, User user) async {
                                 ClipboardData(text: yamlSnippet));
                             if (!context.mounted) return;
                             showSafeSnackBar(context,
-                                l10n.t('Snippet copié !', 'Snippet copied!'));
+                                l10n.t('Snippet copié !', 'Snippet copied!', '代码片段已复制！'));
                           },
                         ),
                       ],
@@ -496,7 +496,7 @@ Future<void> _showOidcStep2(BuildContext context, User user) async {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        l10n.t('Une fois connecté, le nœud s\'enregistre automatiquement dans votre Dashboard. Si l\'utilisateur est créé sans nom, l\'application le corrigera automatiquement lors du prochain chargement de l\'écran Utilisateurs.', 'Once connected, the node registers automatically in your Dashboard. If the user is created without a name, the app will auto-fix it on the next Users screen load.'),
+                        l10n.t('Une fois connecté, le nœud s\'enregistre automatiquement dans votre Dashboard. Si l\'utilisateur est créé sans nom, l\'application le corrigera automatiquement lors du prochain chargement de l\'écran Utilisateurs.', 'Once connected, the node registers automatically in your Dashboard. If the user is created without a name, the app will auto-fix it on the next Users screen load.', '连接后，节点会自动注册到你的仪表盘。如果创建的用户没有名称，应用会在下次加载用户界面时自动修复。'),
                         style: theme.textTheme.bodySmall
                             ?.copyWith(color: Colors.teal),
                       ),
@@ -509,7 +509,7 @@ Future<void> _showOidcStep2(BuildContext context, User user) async {
         ),
         actions: [
           ElevatedButton(
-            child: Text(l10n.t('Terminé', 'Done')),
+            child: Text(l10n.t('Terminé', 'Done', '完成')),
             onPressed: () => Navigator.of(dialogContext).pop(),
           ),
         ],
@@ -533,18 +533,18 @@ Future<void> showHeadscaleRegisterCommandDialog(
       final locale = context.watch<AppProvider>().locale;
       final l10n = L10n(locale);
       return AlertDialog(
-        title: Text(l10n.t('Étape 2/3 : Enregistrer l\'appareil', 'Step 2/3: Register Device')),
+        title: Text(l10n.t('Étape 2/3 : Enregistrer l\'appareil', 'Step 2/3: Register Device', '第 2/3 步：注册设备')),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(l10n.t('Après avoir suivi l\'étape 1 sur votre appareil, le client Tailscale vous fournira une URL d\'enregistrement unique contenant une clé d\'identification unique. Collez cette URL compléte ou la clé d\'identification seule dans le champ ci-dessous pour enregistrer l\'appareil.', 'After following step 1 on your device, the Tailscale client will provide you with a unique registration URL containing a unique identification key. Paste this full URL or the identification key alone in the field below to register the device.')),
+              Text(l10n.t('Après avoir suivi l\'étape 1 sur votre appareil, le client Tailscale vous fournira une URL d\'enregistrement unique contenant une clé d\'identification unique. Collez cette URL compléte ou la clé d\'identification seule dans le champ ci-dessous pour enregistrer l\'appareil.', 'After following step 1 on your device, the Tailscale client will provide you with a unique registration URL containing a unique identification key. Paste this full URL or the identification key alone in the field below to register the device.', '在你的设备上完成步骤 1 后，Tailscale 客户端会提供一个包含唯一识别密钥的注册 URL。将此完整 URL 或仅识别密钥粘贴到下方字段中以注册设备。')),
               const SizedBox(height: 16),
               TextField(
                 controller: urlController,
                 decoration: InputDecoration(
-                  labelText: l10n.t('Coller l\'URL du client ici', 'Paste client URL here'),
+                  labelText: l10n.t('Coller l\'URL du client ici', 'Paste client URL here', '在此粘贴客户端 URL'),
                   border: const OutlineInputBorder(),
                 ),
                 onChanged: (value) {
@@ -568,7 +568,7 @@ Future<void> showHeadscaleRegisterCommandDialog(
         ),
         actions: [
           TextButton(
-            child: Text(l10n.t('Fermer', 'Close')),
+            child: Text(l10n.t('Fermer', 'Close', '关闭')),
             onPressed: () => Navigator.of(dialogContext).pop(),
           ),
           ValueListenableBuilder<String>(
@@ -577,7 +577,7 @@ Future<void> showHeadscaleRegisterCommandDialog(
               return ElevatedButton.icon(
                 icon: const Icon(Icons.save),
                 label: Text(
-                    l10n.t('Enregistrer sur le serveur', 'Register on Server')),
+                    l10n.t('Enregistrer sur le serveur', 'Register on Server', '在服务器上注册')),
                 onPressed: key.isEmpty
                     ? null
                     : () async {
@@ -591,16 +591,16 @@ Future<void> showHeadscaleRegisterCommandDialog(
                               .pop(); // Close registration dialog
                           showSafeSnackBar(
                               context,
-                              l10n.t('Appareil enregistré avec succès.', 'Device registered successfully.'));
+                              l10n.t('Appareil enregistré avec succès.', 'Device registered successfully.', '设备注册成功。'));
                           showSafeSnackBar(
                               context,
-                              l10n.t('Un redémarrage du serveur Headscale est recommandé.', 'A Headscale server restart is recommended.'));
+                              l10n.t('Un redémarrage du serveur Headscale est recommandé.', 'A Headscale server restart is recommended.', '建议重启 Headscale 服务器。'));
                           // Show the new dialog to add ACL tags
                           _showAddTagsDialog(context, newNode);
                         } catch (e) {
                           showSafeSnackBar(
                               context,
-                              l10n.t('Erreur lors de l\'enregistrement: $e', 'Error during registration: $e'));
+                              l10n.t('Erreur lors de l\'enregistrement: $e', 'Error during registration: $e', '注册时出错：$e'));
                         }
                       },
               );
@@ -626,17 +626,17 @@ Future<void> _showAddTagsDialog(BuildContext context, Node node) async {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: Text(l10n.t('Étape 3/3 : Ajouter des Tags ACL', 'Step 3/3: Add ACL Tags')),
+            title: Text(l10n.t('Étape 3/3 : Ajouter des Tags ACL', 'Step 3/3: Add ACL Tags', '第 3/3 步：添加 ACL 标签')),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                    '${l10n.t('Configurez les capacités de', 'Configure capabilities for')} "${node.name}".'),
+                    '${l10n.t('Configurez les capacités de', 'Configure capabilities for', '配置以下对象的能力')} "${node.name}".'),
                 const SizedBox(height: 16),
                 CheckboxListTile(
                   title: const Text('Exit Node'),
-                  subtitle: Text(l10n.t('Autoriser ce nœud à être une sortie internet.', 'Allow this node to be an internet exit.')),
+                  subtitle: Text(l10n.t('Autoriser ce nœud à être une sortie internet.', 'Allow this node to be an internet exit.', '允许此节点作为互联网出口。')),
                   value: isExitNode,
                   onChanged: (value) {
                     setState(() {
@@ -646,7 +646,7 @@ Future<void> _showAddTagsDialog(BuildContext context, Node node) async {
                 ),
                 CheckboxListTile(
                   title: const Text('LAN Sharer'),
-                  subtitle: Text(l10n.t('Autoriser ce nœud à partager son réseau local.', 'Allow this node to share its local network.')),
+                  subtitle: Text(l10n.t('Autoriser ce nœud à partager son réseau local.', 'Allow this node to share its local network.', '允许此节点共享其局域网。')),
                   value: isLanSharer,
                   onChanged: (value) {
                     setState(() {
@@ -658,11 +658,11 @@ Future<void> _showAddTagsDialog(BuildContext context, Node node) async {
             ),
             actions: [
               TextButton(
-                child: Text(l10n.t('Ignorer', 'Skip')),
+                child: Text(l10n.t('Ignorer', 'Skip', '跳过')),
                 onPressed: () => Navigator.of(dialogContext).pop(),
               ),
               ElevatedButton(
-                child: Text(l10n.t('Appliquer les Tags', 'Apply Tags')),
+                child: Text(l10n.t('Appliquer les Tags', 'Apply Tags', '应用标签')),
                 onPressed: () async {
                   final provider = context.read<AppProvider>();
                   String baseTag = 'tag:${normalizeUserName(node.user)}-client';
@@ -679,11 +679,11 @@ Future<void> _showAddTagsDialog(BuildContext context, Node node) async {
                     Navigator.of(dialogContext).pop();
                     showSafeSnackBar(
                         context,
-                        l10n.t('Tags appliqués avec succès.', 'Tags applied successfully.'));
+                        l10n.t('Tags appliqués avec succès.', 'Tags applied successfully.', '标签应用成功。'));
                   } catch (e) {
                     showSafeSnackBar(
                         context,
-                        l10n.t('Erreur lors de l\'application des tags: $e', 'Error applying tags: $e'));
+                        l10n.t('Erreur lors de l\'application des tags: $e', 'Error applying tags: $e', '应用标签时出错：$e'));
                   }
                 },
               ),

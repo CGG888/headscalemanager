@@ -30,15 +30,15 @@ class DeleteUserDialog extends StatelessWidget {
     final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(l10n.t('Supprimer l\'utilisateur ?', 'Delete user?')),
-      content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer ${user.name} ?\n\nNote : La suppression échouera si l\'utilisateur possède encore des appareils.', 'Are you sure you want to delete ${user.name}?\n\nNote: Deletion will fail if the user still owns devices.')),
+      title: Text(l10n.t('Supprimer l\'utilisateur ?', 'Delete user?', '删除用户？')),
+      content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer ${user.name} ?\n\nNote : La suppression échouera si l\'utilisateur possède encore des appareils.', 'Are you sure you want to delete ${user.name}?\n\nNote: Deletion will fail if the user still owns devices.', '确定要删除 ${user.name} 吗？\n\n注意：如果该用户仍拥有设备，删除将失败。')),
       actions: [
         TextButton(
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(l10n.t('Supprimer', 'Delete'),
+          child: Text(l10n.t('Supprimer', 'Delete', '删除'),
               style: const TextStyle(color: Colors.red)),
           onPressed: () async {
             try {
@@ -48,14 +48,14 @@ class DeleteUserDialog extends StatelessWidget {
               onUserDeleted(); // Appelle le callback pour rafraîchir la liste
               showSafeSnackBar(
                   context,
-                  l10n.t('Utilisateur ${user.name} supprimé.', 'User ${user.name} deleted.'));
+                  l10n.t('Utilisateur ${user.name} supprimé.', 'User ${user.name} deleted.', '用户 ${user.name} 已删除。'));
             } catch (e) {
               debugPrint(
                   'Erreur lors de la suppression de l\'utilisateur : $e');
               Navigator.of(context).pop();
               showSafeSnackBar(
                   context,
-                  l10n.t('Échec de la suppression de l\'utilisateur : $e', 'Failed to delete user: $e'));
+                  l10n.t('Échec de la suppression de l\'utilisateur : $e', 'Failed to delete user: $e', '删除用户失败：$e'));
             }
           },
         ),

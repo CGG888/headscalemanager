@@ -113,17 +113,17 @@ class SubnetCommandDialog extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            child: Text(l10n.t('Fermer', 'Close')),
+            child: Text(l10n.t('Fermer', 'Close', '关闭')),
             onPressed: () => Navigator.of(context).pop(),
           ),
           TextButton(
-            child: Text(l10n.t('Copier la commande Tailscale', 'Copy Tailscale Command')),
+            child: Text(l10n.t('Copier la commande Tailscale', 'Copy Tailscale Command', '复制 Tailscale 命令')),
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: tailscaleCommand));
               if (!context.mounted) return;
               showSafeSnackBar(
                   context,
-                  l10n.t('Commande Tailscale copiée dans le presse-papiers !', 'Tailscale command copied to clipboard!'));
+                  l10n.t('Commande Tailscale copiée dans le presse-papiers !', 'Tailscale command copied to clipboard!', 'Tailscale 命令已复制到剪贴板！'));
             },
           ),
         ],

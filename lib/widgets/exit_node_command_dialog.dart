@@ -54,12 +54,12 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
 
     if (serverUrl == null) {
       return AlertDialog(
-        title: Text(l10n.t('Erreur', 'Error')),
-        content: Text(l10n.t('URL du serveur non configurée.', 'Server URL not configured.')),
+        title: Text(l10n.t('Erreur', 'Error', '错误')),
+        content: Text(l10n.t('URL du serveur non configurée.', 'Server URL not configured.', '未配置服务器 URL。')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.t('Fermer', 'Close')),
+            child: Text(l10n.t('Fermer', 'Close', '关闭')),
           ),
         ],
       );
@@ -73,7 +73,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
 
     return AlertDialog(
       // Changed from SubnetCommandDialog to AlertDialog
-      title: Text(l10n.t('Étape 1 : Configurer le nœud de sortie', 'Step 1: Configure Exit Node')),
+      title: Text(l10n.t('Étape 1 : Configurer le nœud de sortie', 'Step 1: Configure Exit Node', '第 1 步：配置出口节点')),
       content: SizedBox(
         width: double.maxFinite,
         child: Column(
@@ -97,7 +97,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(l10n.t('Sur votre appareil Linux, assurez-vous que le transfert IP est activé si vous souhaitez acheminer le trafic d\'autres appareils via ce nœud de sortie. Exécutez ensuite la commande Tailscale :', 'On your Linux device, ensure IP forwarding is enabled if you want to route traffic from other devices through this exit node. Then run the Tailscale command:')),
+                        Text(l10n.t('Sur votre appareil Linux, assurez-vous que le transfert IP est activé si vous souhaitez acheminer le trafic d\'autres appareils via ce nœud de sortie. Exécutez ensuite la commande Tailscale :', 'On your Linux device, ensure IP forwarding is enabled if you want to route traffic from other devices through this exit node. Then run the Tailscale command:', '在 Linux 设备上，如需通过此出口节点转发其他设备的流量，请确保已启用 IP 转发。然后执行 Tailscale 命令：')),
                         const SizedBox(height: 8),
                         const SelectableText(
                             'sudo sysctl -w net.ipv4.ip_forward=1',
@@ -117,7 +117,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(l10n.t('Sur votre appareil Windows, assurez-vous que le transfert IP est activé si vous souhaitez acheminer le trafic d\'autres appareils via ce nœud de sortie. Exécutez ensuite la commande Tailscale :', 'On your Windows device, ensure IP forwarding is enabled if you want to route traffic from other devices through this exit node. Then run the Tailscale command:')),
+                        Text(l10n.t('Sur votre appareil Windows, assurez-vous que le transfert IP est activé si vous souhaitez acheminer le trafic d\'autres appareils via ce nœud de sortie. Exécutez ensuite la commande Tailscale :', 'On your Windows device, ensure IP forwarding is enabled if you want to route traffic from other devices through this exit node. Then run the Tailscale command:', '在 Windows 设备上，如需通过此出口节点转发其他设备的流量，请确保已启用 IP 转发。然后执行 Tailscale 命令：')),
                         const SizedBox(height: 8),
                         const SelectableText(
                             '# Activer le transfert IP (PowerShell en tant qu\'administrateur)\nSet-NetIPInterface -InterfaceAlias "Ethernet" -Forwarding Enabled',
@@ -136,7 +136,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
                   SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(l10n.t('Sur votre appareil mobile (Android/iOS), allez dans les paramètres du client Tailscale, sélectionnez l\'option "Exit nodes", puis activez l\'option "Run as exit node". Aucune ligne de commande n\'est nécessaire.', 'On your mobile device (Android/iOS), go to the Tailscale client settings, select the "Exit nodes" option, then enable the "Run as exit node" option. No command line is necessary.')),
+                      child: Text(l10n.t('Sur votre appareil mobile (Android/iOS), allez dans les paramètres du client Tailscale, sélectionnez l\'option "Exit nodes", puis activez l\'option "Run as exit node". Aucune ligne de commande n\'est nécessaire.', 'On your mobile device (Android/iOS), go to the Tailscale client settings, select the "Exit nodes" option, then enable the "Run as exit node" option. No command line is necessary.', '在移动设备（Android/iOS）上，进入 Tailscale 客户端设置，选择「Exit nodes」选项，然后启用「Run as exit node」选项。无需命令行。')),
                     ),
                   ),
                 ],
@@ -147,22 +147,22 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
       ),
       actions: [
         TextButton(
-          child: Text(l10n.t('Fermer', 'Close')),
+          child: Text(l10n.t('Fermer', 'Close', '关闭')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
           child: Text(
-              l10n.t('Copier la commande Tailscale', 'Copy Tailscale Command')),
+              l10n.t('Copier la commande Tailscale', 'Copy Tailscale Command', '复制 Tailscale 命令')),
           onPressed: () async {
             await Clipboard.setData(ClipboardData(text: tailscaleCommand));
             if (!context.mounted) return;
             showSafeSnackBar(
                 context,
-                l10n.t('Commande Tailscale copiée dans le presse-papiers !', 'Tailscale command copied to clipboard!'));
+                l10n.t('Commande Tailscale copiée dans le presse-papiers !', 'Tailscale command copied to clipboard!', 'Tailscale 命令已复制到剪贴板！'));
           },
         ),
         ElevatedButton(
-            child: Text(l10n.t('Procéder à la confirmation', 'Proceed to Confirmation')),
+            child: Text(l10n.t('Procéder à la confirmation', 'Proceed to Confirmation', '前往确认')),
             onPressed: () async {
               // Show loading or just wait
               try {
@@ -232,7 +232,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
                 if (aclMode) {
                   if (context.mounted) {
                     showSafeSnackBar(context,
-                        l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
+                        l10n.t('Mise à jour des ACLs...', 'Updating ACLs...', '正在更新 ACL……'));
                   }
 
                   // Regenerate Policy
@@ -261,7 +261,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
 
                 if (context.mounted) {
                   showSafeSnackBar(context,
-                      l10n.t('Nœud de sortie activé.', 'Exit node enabled.'));
+                      l10n.t('Nœud de sortie activé.', 'Exit node enabled.', '出口节点已启用。'));
                   Navigator.of(context).pop();
                 }
 
@@ -269,7 +269,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
               } catch (e) {
                 debugPrint('Error enabling exit node: $e');
                 if (context.mounted) {
-                  showSafeSnackBar(context, l10n.t('Erreur: $e', 'Error: $e'));
+                  showSafeSnackBar(context, l10n.t('Erreur: $e', 'Error: $e', '错误：$e'));
                   Navigator.of(context).pop();
                 }
               }

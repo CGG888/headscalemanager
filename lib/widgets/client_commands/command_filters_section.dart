@@ -49,7 +49,7 @@ class CommandFiltersSection extends StatelessWidget {
             controller: searchController,
             decoration: InputDecoration(
               hintText:
-                  l10n.t('Rechercher une commande...', 'Search command...'),
+                  l10n.t('Rechercher une commande...', 'Search command...', '搜索命令……'),
               prefixIcon: const Icon(Icons.search),
               suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
@@ -74,7 +74,7 @@ class CommandFiltersSection extends StatelessWidget {
                 child: DropdownButtonFormField<String>(
                   initialValue: selectedPlatform,
                   decoration: InputDecoration(
-                    labelText: l10n.t('Plateforme', 'Platform'),
+                    labelText: l10n.t('Plateforme', 'Platform', '平台'),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -108,7 +108,7 @@ class CommandFiltersSection extends StatelessWidget {
                 child: DropdownButtonFormField<CommandCategory?>(
                   initialValue: selectedCategory,
                   decoration: InputDecoration(
-                    labelText: l10n.t('Catégorie', 'Category'),
+                    labelText: l10n.t('Catégorie', 'Category', '类别'),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -118,7 +118,7 @@ class CommandFiltersSection extends StatelessWidget {
                   items: [
                     DropdownMenuItem<CommandCategory?>(
                       value: null,
-                      child: Text(l10n.t('Toutes', 'All')),
+                      child: Text(l10n.t('Toutes', 'All', '全部')),
                     ),
                     ...categories.map((category) {
                       return DropdownMenuItem<CommandCategory?>(
@@ -137,11 +137,11 @@ class CommandFiltersSection extends StatelessWidget {
           // Filtre élévation
           CheckboxListTile(
             title: Text(
-              l10n.t('Commandes privilégiées uniquement', 'Elevated commands only'),
+              l10n.t('Commandes privilégiées uniquement', 'Elevated commands only', '仅显示提权命令'),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             subtitle: Text(
-              l10n.t('Nécessitent des droits administrateur', 'Require administrator rights'),
+              l10n.t('Nécessitent des droits administrateur', 'Require administrator rights', '需要管理员权限'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             value: showOnlyElevated,

@@ -38,7 +38,7 @@ class ServerListTile extends StatelessWidget {
                 onPressed: () {
                   appProvider.switchServer(server.id);
                 },
-                child: Text(l10n.t('Activer', 'Set Active')),
+                child: Text(l10n.t('Activer', 'Set Active', '设为活动')),
               ),
             IconButton(
               icon: const Icon(Icons.edit),
@@ -58,18 +58,18 @@ class ServerListTile extends StatelessWidget {
                         context: context,
                         builder: (context) => AlertDialog(
                           title: Text(
-                              l10n.t('Supprimer le serveur', 'Delete Server')),
+                              l10n.t('Supprimer le serveur', 'Delete Server', '删除服务器')),
                           content: Text(
-                            l10n.t('Êtes-vous sûr de vouloir supprimer ce serveur ?', 'Are you sure you want to delete this server?'),
+                            l10n.t('Êtes-vous sûr de vouloir supprimer ce serveur ?', 'Are you sure you want to delete this server?', '确定要删除此服务器吗？'),
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(false),
-                              child: Text(l10n.t('Annuler', 'Cancel')),
+                              child: Text(l10n.t('Annuler', 'Cancel', '取消')),
                             ),
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(true),
-                              child: Text(l10n.t('Supprimer', 'Delete')),
+                              child: Text(l10n.t('Supprimer', 'Delete', '删除')),
                             ),
                           ],
                         ),

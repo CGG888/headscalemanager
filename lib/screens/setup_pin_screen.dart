@@ -26,7 +26,7 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
     // Set initial message here to access context
     final l10n = L10n(context.watch<AppProvider>().locale);
     setState(() {
-      _message = l10n.t('Créez votre code PIN', 'Create your PIN');
+      _message = l10n.t('Créez votre code PIN', 'Create your PIN', '创建你的 PIN 码');
     });
   }
 
@@ -56,7 +56,7 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
         _firstPin = _enteredPin;
         _enteredPin = '';
         _isConfirming = true;
-        _message = l10n.t('Confirmez votre code PIN', 'Confirm your PIN');
+        _message = l10n.t('Confirmez votre code PIN', 'Confirm your PIN', '确认你的 PIN 码');
       });
     } else {
       if (_firstPin == _enteredPin) {
@@ -64,7 +64,7 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.t('Code PIN enregistré avec succès !', 'PIN saved successfully!')),
+            content: Text(l10n.t('Code PIN enregistré avec succès !', 'PIN saved successfully!', 'PIN 码保存成功！')),
             backgroundColor: Colors.green,
           ),
         );
@@ -74,7 +74,7 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
           _enteredPin = '';
           _firstPin = '';
           _isConfirming = false;
-          _message = l10n.t('Les codes ne correspondent pas. Réessayez.', 'PINs do not match. Try again.');
+          _message = l10n.t('Les codes ne correspondent pas. Réessayez.', 'PINs do not match. Try again.', '两次输入的代码不一致，请重试。');
         });
       }
     }
@@ -86,7 +86,7 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(l10n.t('Code PIN supprimé.', 'PIN deleted.')),
+        content: Text(l10n.t('Code PIN supprimé.', 'PIN deleted.', 'PIN 码已删除。')),
         backgroundColor: Colors.red,
       ),
     );
@@ -100,12 +100,12 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.t('Configurer le code PIN', 'Set up PIN Code')),
+        title: Text(l10n.t('Configurer le code PIN', 'Set up PIN Code', '设置 PIN 码')),
         backgroundColor: theme.appBarTheme.backgroundColor,
         actions: [
           TextButton(
             onPressed: _clearPin,
-            child: Text(l10n.t('Supprimer', 'Delete'),
+            child: Text(l10n.t('Supprimer', 'Delete', '删除'),
                 style:
                     TextStyle(color: theme.appBarTheme.titleTextStyle?.color)),
           )

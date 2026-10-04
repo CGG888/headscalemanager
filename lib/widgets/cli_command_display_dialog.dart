@@ -21,11 +21,11 @@ class CliCommandDisplayDialog extends StatelessWidget {
     final locale = context.watch<AppProvider>().locale;
     final l10n = L10n(locale);
     return AlertDialog(
-      title: Text(l10n.t('Commande CLI', 'CLI Command')),
+      title: Text(l10n.t('Commande CLI', 'CLI Command', 'CLI 命令')),
       content: SingleChildScrollView(
         child: ListBody(
           children: <Widget>[
-            Text(l10n.t('Veuillez copier cette commande et l\'exécuter dans votre terminal où la CLI `headscale` est configurée.', 'Please copy this command and run it in your terminal where the `headscale` CLI is configured.')),
+            Text(l10n.t('Veuillez copier cette commande et l\'exécuter dans votre terminal où la CLI `headscale` est configurée.', 'Please copy this command and run it in your terminal where the `headscale` CLI is configured.', '请复制此命令，并在已配置 `headscale` CLI 的终端中运行。')),
             const SizedBox(height: 16),
             // Diagnostic: Wrap SelectableText in a SizedBox with fixed dimensions
             SizedBox(
@@ -41,20 +41,20 @@ class CliCommandDisplayDialog extends StatelessWidget {
       ),
       actions: <Widget>[
         TextButton(
-          child: Text(l10n.t('Fermer', 'Close')),
+          child: Text(l10n.t('Fermer', 'Close', '关闭')),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         ElevatedButton.icon(
           icon: const Icon(Icons.copy),
-          label: Text(l10n.t('Copier la commande CLI', 'Copy CLI Command')),
+          label: Text(l10n.t('Copier la commande CLI', 'Copy CLI Command', '复制 CLI 命令')),
           onPressed: () async {
             await Clipboard.setData(ClipboardData(text: command));
             if (!context.mounted) return;
             showSafeSnackBar(
                 context,
-                l10n.t('Commande copiée dans le presse-papiers !', 'Command copied to clipboard!'));
+                l10n.t('Commande copiée dans le presse-papiers !', 'Command copied to clipboard!', '命令已复制到剪贴板！'));
             Navigator.of(context).pop(); // Ferme le dialogue après copie
           },
         ),

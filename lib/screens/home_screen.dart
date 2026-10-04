@@ -140,10 +140,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final l10n = L10n(locale);
 
     final titles = [
-      l10n.t('Tableau de bord', 'Dashboard'),
-      l10n.t('Utilisateurs', 'Users'),
+      l10n.t('Tableau de bord', 'Dashboard', '仪表盘'),
+      l10n.t('Utilisateurs', 'Users', '用户'),
       'ACLs',
-      l10n.t('Réseau', 'Network'),
+      l10n.t('Réseau', 'Network', '网络'),
       'DNS',
     ];
 
@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   provider.usersViewMode == 'grid' ? 'list' : 'grid',
                 );
               },
-              tooltip: l10n.t('Changer l\'affichage', 'Change layout'),
+              tooltip: l10n.t('Changer l\'affichage', 'Change layout', '切换视图'),
             ),
           IconButton(
             icon: Icon(Icons.help_outline, color: theme.colorScheme.primary),

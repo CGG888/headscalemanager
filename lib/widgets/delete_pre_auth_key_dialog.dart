@@ -30,15 +30,15 @@ class DeletePreAuthKeyDialog extends StatelessWidget {
     final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(l10n.t('Supprimer la clé ?', 'Delete key?')),
-      content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer la clé ${preAuthKey.key} ?', 'Are you sure you want to delete the key ${preAuthKey.key}?')),
+      title: Text(l10n.t('Supprimer la clé ?', 'Delete key?', '删除密钥？')),
+      content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer la clé ${preAuthKey.key} ?', 'Are you sure you want to delete the key ${preAuthKey.key}?', '确定要删除密钥 ${preAuthKey.key} 吗？')),
       actions: [
         TextButton(
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(l10n.t('Supprimer', 'Delete'),
+          child: Text(l10n.t('Supprimer', 'Delete', '删除'),
               style: const TextStyle(color: Colors.red)),
           onPressed: () async {
             try {
@@ -49,13 +49,13 @@ class DeletePreAuthKeyDialog extends StatelessWidget {
               onKeyDeleted(); // Appelle le callback pour rafraîchir la liste
               showSafeSnackBar(
                   context,
-                  l10n.t('Clé expirée avec succès.', 'Key expired successfully.'));
+                  l10n.t('Clé expirée avec succès.', 'Key expired successfully.', '密钥已成功过期。'));
             } catch (e) {
               debugPrint('Erreur lors de l\'expiration de la clé : $e');
               Navigator.of(context).pop();
               showSafeSnackBar(
                   context,
-                  l10n.t('Échec de l\'expiration de la clé : $e', 'Failed to expire key: $e'));
+                  l10n.t('Échec de l\'expiration de la clé : $e', 'Failed to expire key: $e', '密钥过期失败：$e'));
             }
           },
         ),

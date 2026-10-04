@@ -78,7 +78,7 @@ class _GrantsMigrationBannerState extends State<GrantsMigrationBanner> {
         ? '${_migrationDate!.day.toString().padLeft(2, '0')}/'
             '${_migrationDate!.month.toString().padLeft(2, '0')}/'
             '${_migrationDate!.year}'
-        : (widget.l10n.t('récemment', 'recently'));
+        : (widget.l10n.t('récemment', 'recently', '最近'));
 
     return Card(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
@@ -94,7 +94,7 @@ class _GrantsMigrationBannerState extends State<GrantsMigrationBanner> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    widget.l10n.t('Policy migrée en Grants V29 ($dateStr)', 'Policy migrated to Grants V29 ($dateStr)'),
+                    widget.l10n.t('Policy migrée en Grants V29 ($dateStr)', 'Policy migrated to Grants V29 ($dateStr)', '策略已迁移为 Grants V29（$dateStr）'),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.green[900],
@@ -104,13 +104,13 @@ class _GrantsMigrationBannerState extends State<GrantsMigrationBanner> {
                 IconButton(
                   icon: const Icon(Icons.close, size: 18),
                   onPressed: _dismiss,
-                  tooltip: widget.l10n.t('Masquer', 'Dismiss'),
+                  tooltip: widget.l10n.t('Masquer', 'Dismiss', '忽略'),
                 ),
               ],
             ),
             if (widget.grantCount > 0)
               Text(
-                widget.l10n.t('${widget.grantCount} grant(s) réseau actif(s) avec routage via.', '${widget.grantCount} active network grant(s) with via routing.'),
+                widget.l10n.t('${widget.grantCount} grant(s) réseau actif(s) avec routage via.', '${widget.grantCount} active network grant(s) with via routing.', '${widget.grantCount} 条活动网络授权使用 via 路由。'),
                 style: const TextStyle(fontSize: 12),
               ),
           ],

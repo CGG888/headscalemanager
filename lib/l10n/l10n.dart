@@ -42,7 +42,7 @@ class L10n {
   }
 }
 
-/// 便捷访问：`context.l10n.t('Ajouter', 'Add')`
+/// 便捷访问：`context.l10n.t('Ajouter', 'Add', '添加')`
 extension L10nBuildContext on BuildContext {
   L10n get l10n => L10n(Localizations.localeOf(this));
 }

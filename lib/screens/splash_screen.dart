@@ -73,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: theme
                     .colorScheme.primary), // Indicateur visuel de chargement.
             const SizedBox(height: 20),
-            Text(l10n.t('Chargement...', 'Loading...'),
+            Text(l10n.t('Chargement...', 'Loading...', '加载中……'),
                 style: theme
                     .textTheme.titleMedium), // Texte indiquant le chargement.
           ],

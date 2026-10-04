@@ -103,8 +103,8 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
           IconButton(
             icon: Icon(_showGraphView ? Icons.list_alt : Icons.account_tree),
             tooltip: _showGraphView
-                ? (l10n.t('Vue tableau', 'Table View'))
-                : (l10n.t('Vue graphique', 'Graph View')),
+                ? (l10n.t('Vue tableau', 'Table View', '表格视图'))
+                : (l10n.t('Vue graphique', 'Graph View', '图形视图')),
             onPressed: () {
               setState(() {
                 _showGraphView = !_showGraphView;
@@ -130,7 +130,7 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            '${l10n.t('Erreur', 'Error')}: $_error',
+            '${l10n.t('Erreur', 'Error', '错误')}: $_error',
             textAlign: TextAlign.center,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
@@ -140,7 +140,7 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
 
     if (_users.isEmpty) {
       return Center(
-        child: Text(l10n.t('Aucun utilisateur trouvé.', 'No users found.')),
+        child: Text(l10n.t('Aucun utilisateur trouvé.', 'No users found.', '未找到用户。')),
       );
     }
 
@@ -224,23 +224,23 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
 
     rows.addAll(permissions.allowedPeers.map((p) => _PermissionRowData(
           destination: p.node.name,
-          type: l10n.t('Pair', 'Peer'),
+          type: l10n.t('Pair', 'Peer', '对端'),
           ports: p.ports.join(', '),
           source: 'N/A',
         )));
 
     rows.addAll(permissions.allowedSubnets.map((s) => _PermissionRowData(
           destination: s.subnet,
-          type: l10n.t('Sous-réseau', 'Subnet'),
+          type: l10n.t('Sous-réseau', 'Subnet', '子网'),
           ports: s.ports.join(', '),
-          source: s.sourceNode?.name ?? (l10n.t('Inconnu', 'Unknown')),
+          source: s.sourceNode?.name ?? (l10n.t('Inconnu', 'Unknown', '未知')),
         )));
 
     rows.addAll(permissions.allowedExitNodes.map((e) => _PermissionRowData(
           destination: e.node.name,
           type: 'Exit Node',
           ports: '*',
-          source: e.sourceNode?.name ?? (l10n.t('Direct', 'Direct')),
+          source: e.sourceNode?.name ?? (l10n.t('Direct', 'Direct', '直连')),
         )));
 
     rows.addAll(
@@ -257,7 +257,7 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
           padding: const EdgeInsets.all(8.0),
           child: Center(
             child: Text(
-              l10n.t('Aucune permission spécifique trouvée.', 'No specific permissions found.'),
+              l10n.t('Aucune permission spécifique trouvée.', 'No specific permissions found.', '未找到特定权限。'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -272,16 +272,16 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
           columnSpacing: 16,
           columns: [
             DataColumn(
-                label: Text(l10n.t('Destination', 'Destination'),
+                label: Text(l10n.t('Destination', 'Destination', '目标'),
                     style: Theme.of(context).textTheme.titleSmall)),
             DataColumn(
-                label: Text(l10n.t('Type', 'Type'),
+                label: Text(l10n.t('Type', 'Type', '类型'),
                     style: Theme.of(context).textTheme.titleSmall)),
             DataColumn(
-                label: Text(l10n.t('Ports', 'Ports'),
+                label: Text(l10n.t('Ports', 'Ports', '端口'),
                     style: Theme.of(context).textTheme.titleSmall)),
             DataColumn(
-                label: Text(l10n.t('Source', 'Source'),
+                label: Text(l10n.t('Source', 'Source', '源'),
                     style: Theme.of(context).textTheme.titleSmall)),
           ],
           rows: rows.map((rowData) {

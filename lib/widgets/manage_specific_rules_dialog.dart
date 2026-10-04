@@ -68,14 +68,14 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
     final bool confirm = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(l10n.t('Confirmer la suppression', 'Confirm Deletion')),
-            content: Text(l10n.t('Cela va supprimer la règle et appliquer immédiatement la nouvelle politique au serveur. Continuer ?', 'This will delete the rule and immediately apply the new policy to the server. Continue?')),
+            title: Text(l10n.t('Confirmer la suppression', 'Confirm Deletion', '确认删除')),
+            content: Text(l10n.t('Cela va supprimer la règle et appliquer immédiatement la nouvelle politique au serveur. Continuer ?', 'This will delete the rule and immediately apply the new policy to the server. Continue?', '这将删除该规则并立即将新策略应用到服务器。是否继续？')),
             actions: [
               TextButton(
-                  child: Text(l10n.t('Annuler', 'Cancel')),
+                  child: Text(l10n.t('Annuler', 'Cancel', '取消')),
                   onPressed: () => Navigator.of(ctx).pop(false)),
               TextButton(
-                  child: Text(l10n.t('Confirmer', 'Confirm'),
+                  child: Text(l10n.t('Confirmer', 'Confirm', '确认'),
                       style: const TextStyle(color: Colors.red)),
                   onPressed: () => Navigator.of(ctx).pop(true)),
             ],
@@ -97,7 +97,7 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
       await storage.saveTemporaryRules(serverId, _temporaryRules);
     }
     await _generateAndExportPolicy(
-        message: l10n.t('Règle supprimée et politique mise à jour.', 'Rule deleted and policy updated.'));
+        message: l10n.t('Règle supprimée et politique mise à jour.', 'Rule deleted and policy updated.', '规则已删除并更新策略。'));
   }
 
   Future<void> _generateAndExportPolicy({String? message}) async {
@@ -131,7 +131,7 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(message ??
-                  (l10n.t('Politique mise à jour.', 'Policy updated.'))),
+                  (l10n.t('Politique mise à jour.', 'Policy updated.', '策略已更新。'))),
               backgroundColor: Colors.green),
         );
       }
@@ -140,7 +140,7 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${l10n.t("Erreur lors de la mise à jour de la politique", "Error updating policy")}: $e'),
+                  '${l10n.t("Erreur lors de la mise à jour de la politique", "Error updating policy", '更新策略时出错')}: $e'),
               backgroundColor: Colors.red),
         );
       }
@@ -158,14 +158,14 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
 
     return AlertDialog(
       title:
-          Text(l10n.t('Règles Spécifiques Actives', 'Active Specific Rules')),
+          Text(l10n.t('Règles Spécifiques Actives', 'Active Specific Rules', '已启用的特定规则')),
       content: SizedBox(
         width: double.maxFinite,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _temporaryRules.isEmpty
                 ? Center(
-                    child: Text(l10n.t('Aucune règle spécifique active.', 'No active specific rules.')))
+                    child: Text(l10n.t('Aucune règle spécifique active.', 'No active specific rules.', '无活动的特定规则。')))
                 : ListView.builder(
                     shrinkWrap: true,
                     itemCount: _temporaryRules.length,
@@ -199,7 +199,7 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(_rulesChanged),
-          child: Text(l10n.t('Fermer', 'Close')),
+          child: Text(l10n.t('Fermer', 'Close', '关闭')),
         ),
       ],
     );
@@ -232,17 +232,17 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.t('Détails de la Règle', 'Rule Details')),
+        title: Text(l10n.t('Détails de la Règle', 'Rule Details', '规则详情')),
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
-              _buildDetailRow(l10n.t('Source', 'Source'),
-                  srcNode?.name ?? (l10n.t('Inconnu', 'Unknown'))),
+              _buildDetailRow(l10n.t('Source', 'Source', '源'),
+                  srcNode?.name ?? (l10n.t('Inconnu', 'Unknown', '未知'))),
               _buildDetailRow('IP Source', srcIp),
               if (srcNode != null)
                 _buildDetailRow('IPs Source', srcNode.ipAddresses.join(', ')),
               const Divider(),
-              _buildDetailRow(l10n.t('Destination', 'Destination'),
+              _buildDetailRow(l10n.t('Destination', 'Destination', '目标'),
                   dstNode?.name ?? dstIpOrSubnet),
               _buildDetailRow('IP/Subnet Dest.', dstIpOrSubnet),
               if (dstNode != null)
@@ -258,7 +258,7 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
         ),
         actions: <Widget>[
           TextButton(
-            child: Text(l10n.t('Fermer', 'Close')),
+            child: Text(l10n.t('Fermer', 'Close', '关闭')),
             onPressed: () {
               Navigator.of(context).pop();
             },

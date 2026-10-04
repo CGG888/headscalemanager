@@ -24,20 +24,20 @@ void _showEntityRenameDialog(BuildContext context, PuzzleEntity entity, VoidCall
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: Text(l10n.t('Renommer l\'entité', 'Rename Entity')),
+      title: Text(l10n.t('Renommer l\'entité', 'Rename Entity', '重命名实体')),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${l10n.t("Valeur d'origine", "Original Value")}: ${entity.value}',
+            '${l10n.t("Valeur d'origine", "Original Value", '原始值')}: ${entity.value}',
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: controller,
             decoration: InputDecoration(
-              labelText: l10n.t('Nom personnalisé (Alias)', 'Custom Name (Alias)'),
+              labelText: l10n.t('Nom personnalisé (Alias)', 'Custom Name (Alias)', '自定义名称（别名）'),
               hintText: entity.displayLabel,
               border: const OutlineInputBorder(),
             ),
@@ -48,7 +48,7 @@ void _showEntityRenameDialog(BuildContext context, PuzzleEntity entity, VoidCall
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx),
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
         ),
         ElevatedButton(
           onPressed: () async {
@@ -58,7 +58,7 @@ void _showEntityRenameDialog(BuildContext context, PuzzleEntity entity, VoidCall
               Navigator.pop(ctx);
             }
           },
-          child: Text(l10n.t('Enregistrer', 'Save')),
+          child: Text(l10n.t('Enregistrer', 'Save', '保存')),
         ),
       ],
     ),
@@ -171,7 +171,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
         id: 'group:${user.name}',
         type: PuzzleEntityType.group,
         value: 'group:${user.name}',
-        displayLabel: l10n.t('Groupe: ${user.name}', 'Group: ${user.name}'),
+        displayLabel: l10n.t('Groupe: ${user.name}', 'Group: ${user.name}', '分组：${user.name}'),
       ));
 
       // User Tag Entity (e.g. tag:tom-client)
@@ -242,7 +242,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
             id: entityId,
             type: PuzzleEntityType.host,
             value: viaTag,
-            displayLabel: l10n.t('Routeur: ${node.name} ($role)', 'Router: ${node.name} ($role)'),
+            displayLabel: l10n.t('Routeur: ${node.name} ($role)', 'Router: ${node.name} ($role)', '路由器：${node.name}（$role）'),
           ));
         }
       }
@@ -253,7 +253,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
       id: 'autogroup:internet',
       type: PuzzleEntityType.internet,
       value: 'autogroup:internet',
-      displayLabel: l10n.t('Internet (Monde)', 'Internet (World)'),
+      displayLabel: l10n.t('Internet (Monde)', 'Internet (World)', '互联网（全球）'),
     ));
 
     // 4. LAN Subnets (extracted from nodes routes)
@@ -270,7 +270,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
         id: route,
         type: PuzzleEntityType.cidr,
         value: route,
-        displayLabel: l10n.t('Sous-réseau: $route', 'Subnet: $route'),
+        displayLabel: l10n.t('Sous-réseau: $route', 'Subnet: $route', '子网：$route'),
       ));
     }
   }
@@ -332,14 +332,14 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(l10n.t('Politique ACL (Puzzle) appliquée avec succès !', 'ACL Puzzle Policy applied successfully!')),
+          content: Text(l10n.t('Politique ACL (Puzzle) appliquée avec succès !', 'ACL Puzzle Policy applied successfully!', 'ACL 策略（Puzzle）应用成功！')),
           backgroundColor: Colors.green,
         ));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(l10n.t('Erreur lors de l\'application : $e', 'Error applying policy: $e')),
+          content: Text(l10n.t('Erreur lors de l\'application : $e', 'Error applying policy: $e', '应用策略时出错：$e')),
           backgroundColor: Colors.red,
         ));
       }
@@ -383,11 +383,11 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
     return Scaffold(
       appBar: AppBar(
         title:
-            Text(l10n.t('Constructeur ACL (Puzzle)', 'ACL Builder (Puzzle)')),
+            Text(l10n.t('Constructeur ACL (Puzzle)', 'ACL Builder (Puzzle)', 'ACL 构建器（拼图）')),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_sweep),
-            tooltip: l10n.t('Tout effacer', 'Clear all'),
+            tooltip: l10n.t('Tout effacer', 'Clear all', '全部清除'),
             onPressed: () {
               setState(() {
                 _puzzleRules.clear();
@@ -396,7 +396,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.save),
-            tooltip: l10n.t('Appliquer au serveur', 'Apply to server'),
+            tooltip: l10n.t('Appliquer au serveur', 'Apply to server', '应用到服务器'),
             onPressed: _applyPolicy,
           ),
         ],
@@ -413,7 +413,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
                             size: 64, color: Colors.grey),
                         const SizedBox(height: 16),
                         Text(
-                          l10n.t('Aucune pièce de puzzle', 'No puzzle pieces yet'),
+                          l10n.t('Aucune pièce de puzzle', 'No puzzle pieces yet', '尚无拼图块'),
                           style: Theme.of(context)
                               .textTheme
                               .titleLarge
@@ -421,7 +421,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          l10n.t('Appuyez sur + pour commencer', 'Tap + to start building'),
+                          l10n.t('Appuyez sur + pour commencer', 'Tap + to start building', '点击 + 开始创建'),
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -455,7 +455,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addRule,
         icon: const Icon(Icons.add),
-        label: Text(l10n.t('Ajouter une pièce', 'Add Piece')),
+        label: Text(l10n.t('Ajouter une pièce', 'Add Piece', '添加拼图块')),
       ),
     );
   }
@@ -557,16 +557,16 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
     String? selectedColorHex = meta['colorHex'];
 
     final List<Map<String, String>> availableColors = [
-      {'name': l10n.t('Bleu Royal', 'Royal Blue'), 'hex': '#1E88E5'},
-      {'name': l10n.t('Violet Profond', 'Deep Purple'), 'hex': '#6A1B9A'},
-      {'name': l10n.t('Vert Forêt', 'Forest Green'), 'hex': '#2E7D32'},
-      {'name': l10n.t('Orange Flamboyant', 'Sunset Orange'), 'hex': '#D84315'},
-      {'name': l10n.t('Teal Profond', 'Deep Teal'), 'hex': '#00695C'},
-      {'name': l10n.t('Bleu Ardoise', 'Slate Blue'), 'hex': '#2C5E8A'},
-      {'name': l10n.t('Rose Crimson', 'Crimson Rose'), 'hex': '#C2185B'},
-      {'name': l10n.t('Indigo Impérial', 'Imperial Indigo'), 'hex': '#1A237E'},
-      {'name': l10n.t('Rouge Rubis', 'Ruby Red'), 'hex': '#B71C1C'},
-      {'name': l10n.t('Gris Anthracite', 'Charcoal Grey'), 'hex': '#37474F'},
+      {'name': l10n.t('Bleu Royal', 'Royal Blue', '宝蓝'), 'hex': '#1E88E5'},
+      {'name': l10n.t('Violet Profond', 'Deep Purple', '深紫'), 'hex': '#6A1B9A'},
+      {'name': l10n.t('Vert Forêt', 'Forest Green', '森林绿'), 'hex': '#2E7D32'},
+      {'name': l10n.t('Orange Flamboyant', 'Sunset Orange', '烈焰橙'), 'hex': '#D84315'},
+      {'name': l10n.t('Teal Profond', 'Deep Teal', '深青色'), 'hex': '#00695C'},
+      {'name': l10n.t('Bleu Ardoise', 'Slate Blue', '石板蓝'), 'hex': '#2C5E8A'},
+      {'name': l10n.t('Rose Crimson', 'Crimson Rose', '深红玫瑰'), 'hex': '#C2185B'},
+      {'name': l10n.t('Indigo Impérial', 'Imperial Indigo', '帝王靛蓝'), 'hex': '#1A237E'},
+      {'name': l10n.t('Rouge Rubis', 'Ruby Red', '宝石红'), 'hex': '#B71C1C'},
+      {'name': l10n.t('Gris Anthracite', 'Charcoal Grey', '炭灰色'), 'hex': '#37474F'},
     ];
 
     showModalBottomSheet(
@@ -603,7 +603,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    l10n.t('Personnaliser le bloc de règle', 'Customize Rule Block'),
+                    l10n.t('Personnaliser le bloc de règle', 'Customize Rule Block', '自定义规则区块'),
                     style: Theme.of(stCtx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
@@ -611,8 +611,8 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                   TextField(
                     controller: nameController,
                     decoration: InputDecoration(
-                      labelText: l10n.t('Nom du bloc', 'Block Name'),
-                      hintText: l10n.t('Ex: Accès Web Invités', 'Ex: Guest Web Access'),
+                      labelText: l10n.t('Nom du bloc', 'Block Name', '块名称'),
+                      hintText: l10n.t('Ex: Accès Web Invités', 'Ex: Guest Web Access', '例如：访客 Web 访问'),
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.title),
                     ),
@@ -621,7 +621,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                   
                   // --- SECTION PHOTO ---
                   Text(
-                    l10n.t('Illustration (Photo)', 'Illustration (Photo)'),
+                    l10n.t('Illustration (Photo)', 'Illustration (Photo)', '插图（照片）'),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
@@ -657,7 +657,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                                 }
                               },
                               icon: const Icon(Icons.photo_library),
-                              label: Text(l10n.t('Choisir une photo', 'Choose Photo')),
+                              label: Text(l10n.t('Choisir une photo', 'Choose Photo', '选择照片')),
                             ),
                             if (selectedImagePath != null && selectedImagePath!.isNotEmpty)
                               TextButton.icon(
@@ -668,7 +668,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                                 },
                                 icon: const Icon(Icons.delete, color: Colors.red),
                                 label: Text(
-                                  l10n.t('Supprimer la photo', 'Remove Photo'),
+                                  l10n.t('Supprimer la photo', 'Remove Photo', '删除照片'),
                                   style: const TextStyle(color: Colors.red),
                                 ),
                               ),
@@ -682,7 +682,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
 
                   // --- SECTION COULEUR DE L'EN-TÊTE ---
                   Text(
-                    l10n.t('Couleur de l\'en-tête', 'Header Color'),
+                    l10n.t('Couleur de l\'en-tête', 'Header Color', '标题颜色'),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 10),
@@ -738,7 +738,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                   
                   // --- SECTION PALETTE D'ICÔNES ---
                   Text(
-                    l10n.t('Sélectionner une icône (Palette riche)', 'Select an Icon (Rich Palette)'),
+                    l10n.t('Sélectionner une icône (Palette riche)', 'Select an Icon (Rich Palette)', '选择图标（丰富调色板）'),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 10),
@@ -819,7 +819,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                             Navigator.pop(ctx);
                             setState(() {});
                           },
-                          child: Text(l10n.t('Réinitialiser', 'Reset')),
+                          child: Text(l10n.t('Réinitialiser', 'Reset', '重置')),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -838,7 +838,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                               setState(() {});
                             }
                           },
-                          child: Text(l10n.t('Enregistrer', 'Save')),
+                          child: Text(l10n.t('Enregistrer', 'Save', '保存')),
                         ),
                       ),
                     ],
@@ -884,7 +884,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
 
     final String displayName = (customName != null && customName.isNotEmpty)
         ? customName
-        : (l10n.t('Règle non nommée', 'Unnamed Rule'));
+        : (l10n.t('Règle non nommée', 'Unnamed Rule', '未命名规则'));
 
     final isCustomColor = customHeaderColor != null;
     final isLight = isCustomColor ? customHeaderColor.computeLuminance() > 0.5 : true;
@@ -1000,7 +1000,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                     ),
                     IconButton(
                       icon: Icon(Icons.tune, size: 20, color: headerActionIconColor),
-                      tooltip: l10n.t('Personnaliser le bloc', 'Customize block'),
+                      tooltip: l10n.t('Personnaliser le bloc', 'Customize block', '自定义区块'),
                       onPressed: () => _showBlockCustomizerDialog(context, sig),
                     ),
                   ],
@@ -1018,7 +1018,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      l10n.t('Règle non nommée', 'Unnamed Rule'),
+                      l10n.t('Règle non nommée', 'Unnamed Rule', '未命名规则'),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -1028,7 +1028,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.tune, size: 18, color: Colors.grey),
-                      tooltip: l10n.t('Nommer ou illustrer le bloc', 'Name or illustrate block'),
+                      tooltip: l10n.t('Nommer ou illustrer le bloc', 'Name or illustrate block', '为块命名或添加图示'),
                       onPressed: () => _showBlockCustomizerDialog(context, sig),
                     ),
                   ],
@@ -1052,7 +1052,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                           .map((e) => Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                                 child: Tooltip(
-                                  message: l10n.t('Valeur: ${e.value}\n(Cliquer pour renommer)', 'Value: ${e.value}\n(Click to rename)'),
+                                  message: l10n.t('Valeur: ${e.value}\n(Cliquer pour renommer)', 'Value: ${e.value}\n(Click to rename)', '值：${e.value}\n（点击重命名）'),
                                   child: InkWell(
                                     onTap: () {
                                       _showEntityRenameDialog(context, e, () {
@@ -1107,7 +1107,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                           ? [
                               Center(
                                 child: Text(
-                                  l10n.t('direct', 'direct'),
+                                  l10n.t('direct', 'direct', '直连'),
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: Colors.grey[600],
@@ -1170,7 +1170,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                             color: Colors.green, size: 20),
                         const SizedBox(height: 2),
                         Text(
-                          l10n.t('AUTOR.', 'ALLOW'),
+                          l10n.t('AUTOR.', 'ALLOW', '允许'),
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
@@ -1189,7 +1189,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                           .map((e) => Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                                 child: Tooltip(
-                                  message: l10n.t('Valeur: ${e.value}\n(Cliquer pour renommer)', 'Value: ${e.value}\n(Click to rename)'),
+                                  message: l10n.t('Valeur: ${e.value}\n(Cliquer pour renommer)', 'Value: ${e.value}\n(Click to rename)', '值：${e.value}\n（点击重命名）'),
                                   child: InkWell(
                                     onTap: () {
                                       _showEntityRenameDialog(context, e, () {
@@ -1313,18 +1313,18 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l10n.t('Détails de la règle', 'Rule Details')),
+        title: Text(l10n.t('Détails de la règle', 'Rule Details', '规则详情')),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildDetailSection(ctx, l10n.t('SOURCES', 'SOURCES'),
+              _buildDetailSection(ctx, l10n.t('SOURCES', 'SOURCES', '来源'),
                   widget.rule.sources, Colors.blue),
               const Divider(),
               Center(
                 child: Chip(
-                  label: Text(l10n.t('ACTION: AUTORISER', 'ACTION: ALLOW'),
+                  label: Text(l10n.t('ACTION: AUTORISER', 'ACTION: ALLOW', '操作：允许'),
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                   backgroundColor: Colors.green.withAlpha(51),
                   avatar: const Icon(Icons.check_circle, color: Colors.green),
@@ -1333,11 +1333,11 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
               const Divider(),
               _buildDetailSection(
                   ctx,
-                  l10n.t('VIA (routage)', 'VIA (routing)'),
+                  l10n.t('VIA (routage)', 'VIA (routing)', 'VIA（路由）'),
                   widget.rule.via,
                   Colors.purple),
               const Divider(),
-              _buildDetailSection(ctx, l10n.t('DESTINATIONS', 'DESTINATIONS'),
+              _buildDetailSection(ctx, l10n.t('DESTINATIONS', 'DESTINATIONS', '目的地'),
                   widget.rule.destinations, Colors.orange),
             ],
           ),
@@ -1401,14 +1401,14 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
   String _stepTitle(L10n l10n, bool useGrants) {
     switch (_currentStep) {
       case 0:
-        return l10n.t('Étape 1: QUI ? (Source)', 'Step 1: WHO? (Source)');
+        return l10n.t('Étape 1: QUI ? (Source)', 'Step 1: WHO? (Source)', '第 1 步：谁？（源）');
       case 1:
         if (!useGrants) {
-          return l10n.t('Étape 2: VERS QUOI ? (Destination)', 'Step 2: TO WHAT? (Destination)');
+          return l10n.t('Étape 2: VERS QUOI ? (Destination)', 'Step 2: TO WHAT? (Destination)', '第 2 步：到哪？（目的地）');
         }
-        return l10n.t('Étape 2: VIA ? (Routage)', 'Step 2: VIA? (Routing)');
+        return l10n.t('Étape 2: VIA ? (Routage)', 'Step 2: VIA? (Routing)', '第 2 步：VIA？（路由）');
       default:
-        return l10n.t('Étape 3: VERS QUOI ? (Destination)', 'Step 3: TO WHAT? (Destination)');
+        return l10n.t('Étape 3: VERS QUOI ? (Destination)', 'Step 3: TO WHAT? (Destination)', '第 3 步：到哪？（目的地）');
     }
   }
 
@@ -1441,7 +1441,7 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  l10n.t('Optionnel — laissez vide pour un accès direct (intra-flotte).', 'Optional — leave empty for direct access (intra-fleet).'),
+                  l10n.t('Optionnel — laissez vide pour un accès direct (intra-flotte).', 'Optional — leave empty for direct access (intra-fleet).', '选填 — 留空表示直接访问（集群内）。'),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
@@ -1457,7 +1457,7 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
                 if (_currentStep > 0)
                   TextButton(
                     onPressed: () => setState(() => _currentStep--),
-                    child: Text(l10n.t('Précédent', 'Back')),
+                    child: Text(l10n.t('Précédent', 'Back', '上一步')),
                   )
                 else
                   const SizedBox(),
@@ -1466,7 +1466,7 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
                     if (_currentStep == 0) {
                       if (_selectedSources.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(l10n.t('Veuillez sélectionner au moins une source.', 'Please select at least one source.')),
+                            content: Text(l10n.t('Veuillez sélectionner au moins une source.', 'Please select at least one source.', '请至少选择一个来源。')),
                             backgroundColor: Colors.orange));
                         return;
                       }
@@ -1476,7 +1476,7 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
                     } else if (_currentStep == maxStep) {
                       if (_selectedDestinations.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(l10n.t('Veuillez sélectionner au moins une destination.', 'Please select at least one destination.')),
+                            content: Text(l10n.t('Veuillez sélectionner au moins une destination.', 'Please select at least one destination.', '请至少选择一个目的地。')),
                             backgroundColor: Colors.orange));
                         return;
                       }
@@ -1495,8 +1495,8 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
                     }
                   },
                   child: Text(_currentStep < maxStep
-                      ? (l10n.t('Suivant', 'Next'))
-                      : (l10n.t('Ajouter la pièce', 'Add Piece'))),
+                      ? (l10n.t('Suivant', 'Next', '下一步'))
+                      : (l10n.t('Ajouter la pièce', 'Add Piece', '添加拼图块'))),
                 ),
               ],
             )
@@ -1553,7 +1553,7 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
 
     if (grouped.isEmpty) {
       return Center(
-          child: Text(l10n.t('Aucune destination disponible (déjà configuré ?)', 'No available destinations (already configured?)')));
+          child: Text(l10n.t('Aucune destination disponible (déjà configuré ?)', 'No available destinations (already configured?)', '没有可用目标（已配置过？）')));
     }
 
     return ListView(
@@ -1597,13 +1597,13 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
               ),
               subtitle: Text(
                 hasAlias 
-                    ? '${entity.value} • ${l10n.t("Cliquer sur le crayon pour modifier", "Click pencil to edit")}'
-                    : (l10n.t("Cliquer sur le crayon pour donner un nom", "Click pencil to name")),
+                    ? '${entity.value} • ${l10n.t("Cliquer sur le crayon pour modifier", "Click pencil to edit", '点击铅笔图标修改')}'
+                    : (l10n.t("Cliquer sur le crayon pour donner un nom", "Click pencil to name", '点击铅笔图标命名')),
                 style: TextStyle(fontSize: 10, color: Colors.grey[600]),
               ),
               trailing: IconButton(
                 icon: const Icon(Icons.edit_outlined, size: 20),
-                tooltip: l10n.t('Modifier le nom', 'Edit name'),
+                tooltip: l10n.t('Modifier le nom', 'Edit name', '编辑名称'),
                 onPressed: () {
                   _showEntityRenameDialog(context, entity, () {
                     setState(() {});

@@ -51,18 +51,18 @@ class _RenameNodeDialogState extends State<RenameNodeDialog> {
     final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(l10n.t('Renommer l\'appareil', 'Rename Device')),
+      title: Text(l10n.t('Renommer l\'appareil', 'Rename Device', '重命名设备')),
       content: Form(
         key: _formKey,
         child: TextFormField(
           controller: _nameController,
           decoration: InputDecoration(
-            labelText: l10n.t('Nouveau nom', 'New name'),
-            hintText: l10n.t('Entrez le nouveau nom de l\'appareil', 'Enter the new device name'),
+            labelText: l10n.t('Nouveau nom', 'New name', '新名称'),
+            hintText: l10n.t('Entrez le nouveau nom de l\'appareil', 'Enter the new device name', '输入新的设备名称'),
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return l10n.t('Le nom ne peut pas être vide.', 'Name cannot be empty.');
+              return l10n.t('Le nom ne peut pas être vide.', 'Name cannot be empty.', '名称不能为空。');
             }
             return null;
           },
@@ -71,11 +71,11 @@ class _RenameNodeDialogState extends State<RenameNodeDialog> {
       ),
       actions: [
         TextButton(
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(l10n.t('Renommer', 'Rename')),
+          child: Text(l10n.t('Renommer', 'Rename', '重命名')),
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
               final newName = _nameController.text.trim();
@@ -87,18 +87,18 @@ class _RenameNodeDialogState extends State<RenameNodeDialog> {
                     context: context,
                     builder: (ctx) => AlertDialog(
                           title:
-                              Text(l10n.t('Format Invalide', 'Invalid Format')),
-                          content: Text(l10n.t('Le nom "$newName" ne respecte pas le format DNS (RFC 1123).\n\nCaractères autorisés : a-z, 0-9 et tirets.\nPas de majuscules ni de caractères spéciaux.\n\nVoulez-vous utiliser "$sanitized" à la place ?', 'The name "$newName" does not match DNS format (RFC 1123).\n\nAllowed: a-z, 0-9, and dashes.\nNo uppercase or special characters.\n\nDo you want to use "$sanitized" instead?')),
+                              Text(l10n.t('Format Invalide', 'Invalid Format', '格式无效')),
+                          content: Text(l10n.t('Le nom "$newName" ne respecte pas le format DNS (RFC 1123).\n\nCaractères autorisés : a-z, 0-9 et tirets.\nPas de majuscules ni de caractères spéciaux.\n\nVoulez-vous utiliser "$sanitized" à la place ?', 'The name "$newName" does not match DNS format (RFC 1123).\n\nAllowed: a-z, 0-9, and dashes.\nNo uppercase or special characters.\n\nDo you want to use "$sanitized" instead?', '名称 "$newName" 不符合 DNS 格式（RFC 1123）。\n\n允许的字符：a-z、0-9 和连字符。\n不能使用大写字母或特殊字符。\n\n是否改用 "$sanitized"？')),
                           actions: [
                             TextButton(
                                 onPressed: () => Navigator.pop(ctx),
-                                child: Text(l10n.t('Annuler', 'Cancel'))),
+                                child: Text(l10n.t('Annuler', 'Cancel', '取消'))),
                             TextButton(
                                 onPressed: () {
                                   Navigator.pop(ctx);
                                   _nameController.text = sanitized;
                                 },
-                                child: Text(l10n.t('Utiliser corrigé', 'Use corrected'))),
+                                child: Text(l10n.t('Utiliser corrigé', 'Use corrected', '使用修正后的值'))),
                           ],
                         ));
                 return;
@@ -116,7 +116,7 @@ class _RenameNodeDialogState extends State<RenameNodeDialog> {
                 if (serverId != null) {
                   if (!context.mounted) return;
                   showSafeSnackBar(context,
-                      l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
+                      l10n.t('Mise à jour des ACLs...', 'Updating ACLs...', '正在更新 ACL……'));
                   final allUsers = await apiService.getUsers();
                   final allNodes = await apiService.getNodes();
                   final tempRules = await appProvider.storageService
@@ -140,11 +140,11 @@ class _RenameNodeDialogState extends State<RenameNodeDialog> {
                 Navigator.of(context).pop();
                 showSafeSnackBar(
                     context,
-                    l10n.t('Appareil renommé et ACLs mises à jour.', 'Device renamed and ACLs updated.'));
+                    l10n.t('Appareil renommé et ACLs mises à jour.', 'Device renamed and ACLs updated.', '设备已重命名并更新 ACL。'));
               } catch (e) {
                 showSafeSnackBar(
                     context,
-                    l10n.t('Erreur lors du renommage: $e', 'Error while renaming: $e'));
+                    l10n.t('Erreur lors du renommage: $e', 'Error while renaming: $e', '重命名时出错：$e'));
               }
             }
           },

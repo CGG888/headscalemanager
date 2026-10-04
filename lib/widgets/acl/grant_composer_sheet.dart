@@ -241,7 +241,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        widget.l10n.t('Composeur de grants', 'Grant composer'),
+                        widget.l10n.t('Composeur de grants', 'Grant composer', '授权编写器'),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
@@ -272,14 +272,14 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
                     if (_step > 0)
                       TextButton(
                         onPressed: _back,
-                        child: Text(widget.l10n.t('Retour', 'Back')),
+                        child: Text(widget.l10n.t('Retour', 'Back', '返回')),
                       ),
                     const Spacer(),
                     FilledButton(
                       onPressed: _canNext() ? _next : null,
                       child: Text(_step == _maxStep
-                          ? (widget.l10n.t('Ajouter', 'Add'))
-                          : (widget.l10n.t('Suivant', 'Next'))),
+                          ? (widget.l10n.t('Ajouter', 'Add', '添加'))
+                          : (widget.l10n.t('Suivant', 'Next', '下一步'))),
                     ),
                   ],
                 ),
@@ -297,7 +297,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.l10n.t('Choisir un modèle', 'Choose a template'),
+          widget.l10n.t('Choisir un modèle', 'Choose a template', '选择模板'),
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 12),
@@ -328,10 +328,10 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
       nodes: widget.nodes,
     );
     if (options.isEmpty) {
-      return Text(widget.l10n.t('Aucun tag client disponible. Taguer au moins un nœud -client.', 'No client tags available. Tag at least one -client node.'));
+      return Text(widget.l10n.t('Aucun tag client disponible. Taguer au moins un nœud -client.', 'No client tags available. Tag at least one -client node.', '没有可用的客户端标签。请至少为一个 -client 节点打标签。'));
     }
     return _optionCheckList(
-      widget.l10n.t('Qui accède ? (source)', 'Who accesses? (source)'),
+      widget.l10n.t('Qui accède ? (source)', 'Who accesses? (source)', '谁访问？（source）'),
       options,
       _selectedSrc,
       single: _isExceptionAcl,
@@ -348,12 +348,12 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.l10n.t('Par où router ? (via)', 'Route through? (via)'),
+          widget.l10n.t('Par où router ? (via)', 'Route through? (via)', '经由何处路由？（via）'),
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
         if (routers.isEmpty)
-          Text(widget.l10n.t('Aucun routeur tagué trouvé (lan-sharer ou exit-node).', 'No tagged router found (lan-sharer or exit-node).'))
+          Text(widget.l10n.t('Aucun routeur tagué trouvé (lan-sharer ou exit-node).', 'No tagged router found (lan-sharer or exit-node).', '未找到已打标签的路由器（lan-sharer 或 exit-node）。'))
         else
           ...routers.map((r) {
             final selected = _selectedVia == r.viaTag;
@@ -383,7 +383,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.l10n.t('IP destination', 'Destination IP'),
+            widget.l10n.t('IP destination', 'Destination IP', '目标 IP'),
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
@@ -391,7 +391,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
             decoration: InputDecoration(
               hintText: '100.64.0.15',
               border: const OutlineInputBorder(),
-              labelText: widget.l10n.t('Adresse IP Tailscale', 'Tailscale IP'),
+              labelText: widget.l10n.t('Adresse IP Tailscale', 'Tailscale IP', 'Tailscale IP'),
             ),
             onChanged: (v) => setState(() {
               _targetIp = v.trim();
@@ -401,7 +401,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
             }),
           ),
           const SizedBox(height: 16),
-          Text(widget.l10n.t('Ou choisir un nœud :', 'Or pick a node:')),
+          Text(widget.l10n.t('Ou choisir un nœud :', 'Or pick a node:', '或选择一个节点：')),
           const SizedBox(height: 8),
           ...GrantComposerService.destinationOptions(
             nodes: widget.nodes,
@@ -425,7 +425,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
           );
 
     return _optionCheckList(
-      widget.l10n.t('Vers quoi ? (destination)', 'Towards what? (destination)'),
+      widget.l10n.t('Vers quoi ? (destination)', 'Towards what? (destination)', '到哪？（目的地）'),
       options,
       _selectedDst,
       single: true,
@@ -486,12 +486,12 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.l10n.t('Aperçu', 'Preview'),
+          widget.l10n.t('Aperçu', 'Preview', '预览'),
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
         if (preview == null)
-          Text(widget.l10n.t('Complétez les étapes précédentes.', 'Complete previous steps.'))
+          Text(widget.l10n.t('Complétez les étapes précédentes.', 'Complete previous steps.', '请完成前面的步骤。'))
         else
           Container(
             width: double.infinity,

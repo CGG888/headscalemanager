@@ -18,7 +18,7 @@ class AclsListView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            l10n.t('Aucune règle ACL classique.', 'No classic ACL rules.'),
+            l10n.t('Aucune règle ACL classique.', 'No classic ACL rules.', '无经典 ACL 规则。'),
             style: TextStyle(color: Colors.grey[600]),
           ),
         ),

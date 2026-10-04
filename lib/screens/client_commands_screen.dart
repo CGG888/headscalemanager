@@ -59,7 +59,7 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.t('Échec du chargement des commandes dynamiques: ${e.toString()}', 'Failed to load dynamic commands: ${e.toString()}')),
+            content: Text(l10n.t('Échec du chargement des commandes dynamiques: ${e.toString()}', 'Failed to load dynamic commands: ${e.toString()}', '加载动态命令失败：${e.toString()}')),
             backgroundColor: Colors.red,
           ),
         );
@@ -160,7 +160,7 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          l10n.t('Commandes Clients', 'Client Commands'),
+          l10n.t('Commandes Clients', 'Client Commands', '客户端命令'),
           style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,

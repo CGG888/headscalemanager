@@ -45,11 +45,11 @@ class AclEngineBanner extends StatelessWidget {
   String _engineLabel() {
     switch (engineMode) {
       case AclEngineMode.legacy:
-        return l10n.t('Legacy (tags fusionnés)', 'Legacy (merged tags)');
+        return l10n.t('Legacy (tags fusionnés)', 'Legacy (merged tags)', '旧版（标签合并）');
       case AclEngineMode.standard:
-        return l10n.t('Standard (tags séparés)', 'Standard (split tags)');
+        return l10n.t('Standard (tags séparés)', 'Standard (split tags)', 'Standard（标签分离）');
       case AclEngineMode.grantsV29:
-        return l10n.t('Grants V29 (via)', 'Grants V29 (via)');
+        return l10n.t('Grants V29 (via)', 'Grants V29 (via)', 'Grants V29（via）');
     }
   }
 
@@ -79,7 +79,7 @@ class AclEngineBanner extends StatelessWidget {
                 size: 18, color: _engineColor(context)),
             const SizedBox(width: 6),
             Text(
-              l10n.t('Moteur :', 'Engine:'),
+              l10n.t('Moteur :', 'Engine:', '引擎：'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(width: 6),
@@ -96,7 +96,7 @@ class AclEngineBanner extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  l10n.t('Fallback Standard (< 0.29)', 'Standard fallback (< 0.29)'),
+                  l10n.t('Fallback Standard (< 0.29)', 'Standard fallback (< 0.29)', '标准回退（< 0.29）'),
                   style: TextStyle(color: Colors.orange[800], fontSize: 11),
                 ),
               ),
@@ -119,7 +119,7 @@ class AclEngineBanner extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    l10n.t('Moteur actif : ', 'Active engine: '),
+                    l10n.t('Moteur actif : ', 'Active engine: ', '当前引擎：'),
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
@@ -137,7 +137,7 @@ class AclEngineBanner extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  l10n.t('Serveur < 0.29 : fallback Standard appliqué à la génération.', 'Server < 0.29: Standard fallback used for generation.'),
+                  l10n.t('Serveur < 0.29 : fallback Standard appliqué à la génération.', 'Server < 0.29: Standard fallback used for generation.', '服务器 < 0.29：生成时应用 Standard 回退方案。'),
                   style: TextStyle(color: Colors.orange[800], fontSize: 12),
                 ),
               ),
@@ -152,7 +152,7 @@ class AclEngineBanner extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        l10n.t('Utilisateurs sans nœud tagué (aucune règle auto) : ${untagged.join(", ")}', 'Users without tagged nodes (no auto rules): ${untagged.join(", ")}'),
+                        l10n.t('Utilisateurs sans nœud tagué (aucune règle auto) : ${untagged.join(", ")}', 'Users without tagged nodes (no auto rules): ${untagged.join(", ")}', '没有已打标签节点的用户（无自动规则）：${untagged.join(", ")}'),
                         style: TextStyle(
                             color: Colors.amber[900], fontSize: 12),
                       ),

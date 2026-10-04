@@ -30,7 +30,7 @@ class WhatsNewDialog extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      l10n.t('Nouveautés', 'What\'s New'),
+                      l10n.t('Nouveautés', 'What\'s New', '更新日志'),
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -49,7 +49,7 @@ class WhatsNewDialog extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                l10n.t('Cette mise à jour inclut d\'importants changements pour assurer la compatibilité avec les serveurs Headscale v0.25 à v0.29.1, avec support complet de Taildrive !', 'This update includes important changes to ensure compatibility with Headscale servers v0.25 to v0.29.1, with full Taildrive support!'),
+                l10n.t('Cette mise à jour inclut d\'importants changements pour assurer la compatibilité avec les serveurs Headscale v0.25 à v0.29.1, avec support complet de Taildrive !', 'This update includes important changes to ensure compatibility with Headscale servers v0.25 to v0.29.1, with full Taildrive support!', '本次更新包含重要改动，以确保兼容 Headscale 服务器 v0.25 至 v0.29.1，并完整支持 Taildrive！'),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontStyle: FontStyle.italic,
                   color: theme.colorScheme.onSurfaceVariant,
@@ -138,7 +138,7 @@ class WhatsNewDialog extends StatelessWidget {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    '${l10n.t("Vérification", "Verification")}: ${item.verification}',
+                                    '${l10n.t("Vérification", "Verification", '验证')}: ${item.verification}',
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.secondary,
                                     ),
@@ -164,7 +164,7 @@ class WhatsNewDialog extends StatelessWidget {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(l10n.t('J\'ai compris', 'Got it')),
+                  child: Text(l10n.t('J\'ai compris', 'Got it', '知道了')),
                 ),
               ),
             ),

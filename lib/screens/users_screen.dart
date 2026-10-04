@@ -105,13 +105,13 @@ class _UsersScreenState extends State<UsersScreen> {
               debugPrint(
                   'Erreur lors du chargement des utilisateurs : ${snapshot.error}');
               return Center(
-                  child: Text('${l10n.t('Erreur', 'Error')}: ${snapshot.error}',
+                  child: Text('${l10n.t('Erreur', 'Error', '错误')}: ${snapshot.error}',
                       style: theme.textTheme.bodyMedium));
             }
             if (!snapshot.hasData || snapshot.data!.users.isEmpty) {
               return Center(
                   child: Text(
-                      l10n.t('Aucun utilisateur trouvé.', 'No users found.'),
+                      l10n.t('Aucun utilisateur trouvé.', 'No users found.', '未找到用户。'),
                       style: theme.textTheme.bodyMedium));
             }
 
@@ -176,7 +176,7 @@ class _UsersScreenState extends State<UsersScreen> {
                 MaterialPageRoute(builder: (_) => const PreAuthKeysScreen()));
           },
           heroTag: 'managePreAuthKeys',
-          tooltip: l10n.t('Gérer les clés d\'accès', 'Manage pre-auth keys'),
+          tooltip: l10n.t('Gérer les clés d\'accès', 'Manage pre-auth keys', '管理预认证密钥'),
           backgroundColor: theme.colorScheme.primary,
           child: Icon(Icons.vpn_key, color: theme.colorScheme.onPrimary),
         ),
@@ -192,12 +192,12 @@ class _UsersScreenState extends State<UsersScreen> {
               if (context.mounted) {
                 showSafeSnackBar(
                     context,
-                    l10n.t('Utilisateur créé avec succès.', 'User created successfully.'));
+                    l10n.t('Utilisateur créé avec succès.', 'User created successfully.', '用户创建成功。'));
               }
             }
           },
           heroTag: 'createUser',
-          tooltip: l10n.t('Créer un utilisateur', 'Create user'),
+          tooltip: l10n.t('Créer un utilisateur', 'Create user', '创建用户'),
           backgroundColor: theme.colorScheme.primary,
           child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
         ),
@@ -234,7 +234,7 @@ class _UserCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  l10n.t('Personnaliser l\'icône', 'Customize Icon'),
+                  l10n.t('Personnaliser l\'icône', 'Customize Icon', '自定义图标'),
                   style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
@@ -296,7 +296,7 @@ class _UserCard extends StatelessWidget {
                     }
                   },
                   icon: const Icon(Icons.photo_library),
-                  label: Text(l10n.t('Importer une photo', 'Import a photo')),
+                  label: Text(l10n.t('Importer une photo', 'Import a photo', '导入照片')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.colorScheme.primary,
                     foregroundColor: theme.colorScheme.onPrimary,
@@ -307,7 +307,7 @@ class _UserCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: Text(l10n.t('Annuler', 'Cancel')),
+                  child: Text(l10n.t('Annuler', 'Cancel', '取消')),
                 ),
               ],
             ),
@@ -416,7 +416,7 @@ class _UserCard extends StatelessWidget {
                       ),
                     const SizedBox(height: 2),
                     Text(
-                      '${l10n.t('Créé le', 'Created on')}: ${user.createdAt?.toLocal().toString().substring(0, 10) ?? 'N/A'}',
+                      '${l10n.t('Créé le', 'Created on', '创建于')}: ${user.createdAt?.toLocal().toString().substring(0, 10) ?? 'N/A'}',
                       style: theme.textTheme.bodySmall?.copyWith(
                           color:
                               theme.colorScheme.onPrimary.withValues(alpha: 0.7),
@@ -450,7 +450,7 @@ class _UserCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '$connectedNodes/${userNodes.length} ${l10n.t('connectés', 'online')}',
+                            '$connectedNodes/${userNodes.length} ${l10n.t('connectés', 'online', '在线')}',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,
@@ -493,9 +493,9 @@ class _UserCard extends StatelessWidget {
                       child: ListTile(
                         leading: Icon(Icons.image,
                             color: theme.colorScheme.onSurface,
-                            semanticLabel: l10n.t('Personnaliser l\'icône', 'Customize icon')),
+                            semanticLabel: l10n.t('Personnaliser l\'icône', 'Customize icon', '自定义图标')),
                         title: Text(
-                            l10n.t('Personnaliser l\'icône', 'Customize icon'),
+                            l10n.t('Personnaliser l\'icône', 'Customize icon', '自定义图标'),
                             style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface)),
                       ),
@@ -507,7 +507,7 @@ class _UserCard extends StatelessWidget {
                           color: Colors.red,
                           semanticLabel: 'Delete user'),
                       title: Text(
-                          l10n.t('Supprimer l\'utilisateur', 'Delete user'),
+                          l10n.t('Supprimer l\'utilisateur', 'Delete user', '删除用户'),
                           style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.onSurface)),
                     ),
@@ -519,7 +519,7 @@ class _UserCard extends StatelessWidget {
                           color: theme.colorScheme.onSurface,
                           semanticLabel: 'Rename user'),
                       title: Text(
-                          l10n.t('Renommer l\'utilisateur', 'Rename user'),
+                          l10n.t('Renommer l\'utilisateur', 'Rename user', '重命名用户'),
                           style: theme.textTheme.bodyMedium
                               ?.copyWith(color: theme.colorScheme.onSurface)),
                     ),
@@ -562,7 +562,7 @@ class _UserListTile extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  l10n.t('Personnaliser l\'icône', 'Customize Icon'),
+                  l10n.t('Personnaliser l\'icône', 'Customize Icon', '自定义图标'),
                   style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
@@ -624,7 +624,7 @@ class _UserListTile extends StatelessWidget {
                     }
                   },
                   icon: const Icon(Icons.photo_library),
-                  label: Text(l10n.t('Importer une photo', 'Import a photo')),
+                  label: Text(l10n.t('Importer une photo', 'Import a photo', '导入照片')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.colorScheme.primary,
                     foregroundColor: theme.colorScheme.onPrimary,
@@ -635,7 +635,7 @@ class _UserListTile extends StatelessWidget {
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: Text(l10n.t('Annuler', 'Cancel')),
+                  child: Text(l10n.t('Annuler', 'Cancel', '取消')),
                 ),
               ],
             ),
@@ -748,7 +748,7 @@ class _UserListTile extends StatelessWidget {
               ),
             const SizedBox(height: 2),
             Text(
-              '${l10n.t('Créé le', 'Created on')}: ${user.createdAt?.toLocal().toString().substring(0, 10) ?? 'N/A'}',
+              '${l10n.t('Créé le', 'Created on', '创建于')}: ${user.createdAt?.toLocal().toString().substring(0, 10) ?? 'N/A'}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
                 fontSize: 10,
@@ -824,7 +824,7 @@ class _UserListTile extends StatelessWidget {
                     child: ListTile(
                       leading: Icon(Icons.image, color: theme.colorScheme.onSurface),
                       title: Text(
-                        l10n.t('Personnaliser l\'icône', 'Customize icon'),
+                        l10n.t('Personnaliser l\'icône', 'Customize icon', '自定义图标'),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface,
                         ),
@@ -836,7 +836,7 @@ class _UserListTile extends StatelessWidget {
                   child: ListTile(
                     leading: const Icon(Icons.delete, color: Colors.red),
                     title: Text(
-                      l10n.t('Supprimer l\'utilisateur', 'Delete user'),
+                      l10n.t('Supprimer l\'utilisateur', 'Delete user', '删除用户'),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurface,
                       ),
@@ -848,7 +848,7 @@ class _UserListTile extends StatelessWidget {
                   child: ListTile(
                     leading: Icon(Icons.edit, color: theme.colorScheme.onSurface),
                     title: Text(
-                      l10n.t('Renommer l\'utilisateur', 'Rename user'),
+                      l10n.t('Renommer l\'utilisateur', 'Rename user', '重命名用户'),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurface,
                       ),

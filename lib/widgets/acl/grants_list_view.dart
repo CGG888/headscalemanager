@@ -49,7 +49,7 @@ class GrantsListView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            l10n.t('Aucun grant réseau dans la politique.', 'No network grants in policy.'),
+            l10n.t('Aucun grant réseau dans la politique.', 'No network grants in policy.', '策略中无网络授权。'),
             style: TextStyle(color: Colors.grey[600]),
           ),
         ),
@@ -61,7 +61,7 @@ class GrantsListView extends StatelessWidget {
       children: [
         if (networkEntries.isNotEmpty) ...[
           Text(
-            l10n.t('Grants réseau (ip + via)', 'Network grants (ip + via)'),
+            l10n.t('Grants réseau (ip + via)', 'Network grants (ip + via)', '网络授权（ip + via）'),
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
@@ -79,7 +79,7 @@ class GrantsListView extends StatelessWidget {
         if (taildriveGrants.isNotEmpty) ...[
           const SizedBox(height: 16),
           Text(
-            l10n.t('Grants Taildrive', 'Taildrive grants'),
+            l10n.t('Grants Taildrive', 'Taildrive grants', 'Taildrive 授权'),
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
@@ -130,14 +130,14 @@ class _GrantTile extends StatelessWidget {
           children: [
             if (via != null)
               Text(
-                l10n.t('Via : $via', 'Via: $via'),
+                l10n.t('Via : $via', 'Via: $via', 'Via：$via'),
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, color: Colors.purple),
               ),
-            Text(l10n.t('IP : $ip', 'IP: $ip')),
+            Text(l10n.t('IP : $ip', 'IP: $ip', 'IP：$ip')),
             if (onTap != null)
               Text(
-                l10n.t('Appuyer pour modifier', 'Tap to edit'),
+                l10n.t('Appuyer pour modifier', 'Tap to edit', '点击编辑'),
                 style: TextStyle(fontSize: 10, color: Colors.grey[600]),
               ),
           ],

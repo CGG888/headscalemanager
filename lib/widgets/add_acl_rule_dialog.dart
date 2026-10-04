@@ -37,7 +37,7 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
     final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(l10n.t('Ajouter une règle ACL', 'Add ACL Rule')),
+      title: Text(l10n.t('Ajouter une règle ACL', 'Add ACL Rule', '添加 ACL 规则')),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -46,12 +46,12 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                l10n.t('Créez une exception pour autoriser la communication entre les appareils.', 'Create an exception to allow communication between devices.'),
+                l10n.t('Créez une exception pour autoriser la communication entre les appareils.', 'Create an exception to allow communication between devices.', '创建例外以允许设备之间通信。'),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
               _buildNodeDropdown(
-                l10n.t('Source (Nœud)', 'Source (Node)'),
+                l10n.t('Source (Nœud)', 'Source (Node)', '源（节点）'),
                 _selectedSourceNode,
                 widget.allNodes,
                 (node) {
@@ -67,22 +67,22 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
                     }
                   });
                 },
-                l10n.t('Veuillez sélectionner un nœud source', 'Please select a source node'),
+                l10n.t('Veuillez sélectionner un nœud source', 'Please select a source node', '请选择源节点'),
               ),
               const SizedBox(height: 16),
               _buildNodeDropdown(
-                l10n.t('Destination (Nœud)', 'Destination (Node)'),
+                l10n.t('Destination (Nœud)', 'Destination (Node)', '目标（节点）'),
                 _selectedDestinationNode,
                 _destinationNodes,
                 (node) => setState(() => _selectedDestinationNode = node),
-                l10n.t('Veuillez sélectionner un nœud destination', 'Please select a destination node'),
+                l10n.t('Veuillez sélectionner un nœud destination', 'Please select a destination node', '请选择目标节点'),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _portController,
                 keyboardType: TextInputType.text,
                 decoration: _buildInputDecoration(
-                    l10n.t('Port(s)', 'Port(s)'), 'ex: 443, 8080-8089, *'),
+                    l10n.t('Port(s)', 'Port(s)', '端口'), 'ex: 443, 8080-8089, *'),
               ),
             ],
           ),
@@ -91,11 +91,11 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
         ),
         ElevatedButton(
           onPressed: _addRule,
-          child: Text(l10n.t('Ajouter', 'Add')),
+          child: Text(l10n.t('Ajouter', 'Add', '添加')),
         ),
       ],
     );
@@ -114,7 +114,7 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
     return DropdownButtonFormField<Node>(
       initialValue: selectedNode,
       decoration: _buildInputDecoration(
-          label, l10n.t('Choisir un nœud', 'Choose a node')),
+          label, l10n.t('Choisir un nœud', 'Choose a node', '选择节点')),
       items: nodes.map((Node node) {
         return DropdownMenuItem<Node>(
           value: node,
@@ -156,7 +156,7 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
 
     if (_selectedSourceNode!.ipAddresses.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(l10n.t('Le nœud source doit avoir au moins une adresse IP.', 'Source node must have at least one IP address.')),
+          content: Text(l10n.t('Le nœud source doit avoir au moins une adresse IP.', 'Source node must have at least one IP address.', '源节点必须至少有一个 IP 地址。')),
           backgroundColor: Theme.of(context).colorScheme.error));
       return;
     }
@@ -195,7 +195,7 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
         } else {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(l10n.t('Accès au sous-réseau non configuré et le nœud n\'a pas d\'IP pour une règle de base.', 'Subnet access not configured and the node has no IP for a fallback rule.')),
+            content: Text(l10n.t('Accès au sous-réseau non configuré et le nœud n\'a pas d\'IP pour une règle de base.', 'Subnet access not configured and the node has no IP for a fallback rule.', '未配置子网访问，且节点没有 IP 可用于兜底规则。')),
             backgroundColor: Theme.of(context).colorScheme.error,
           ));
           return;
@@ -238,7 +238,7 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
     } else {
       if (_selectedDestinationNode!.ipAddresses.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(l10n.t('Le nœud destination doit avoir au moins une adresse IP.', 'Destination node must have at least one IP address.')),
+            content: Text(l10n.t('Le nœud destination doit avoir au moins une adresse IP.', 'Destination node must have at least one IP address.', '目标节点必须至少有一个 IP 地址。')),
             backgroundColor: Theme.of(context).colorScheme.error));
         return;
       }

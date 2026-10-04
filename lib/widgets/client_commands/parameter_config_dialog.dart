@@ -107,7 +107,7 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          widget.l10n.t('Commande copiée dans le presse-papiers', 'Command copied to clipboard'),
+          widget.l10n.t('Commande copiée dans le presse-papiers', 'Command copied to clipboard', '命令已复制到剪贴板'),
         ),
         duration: const Duration(seconds: 2),
       ),
@@ -190,13 +190,13 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
               : TextInputType.text,
       validator: (value) {
         if (param.required && (value == null || value.isEmpty)) {
-          return widget.l10n.t('Ce champ est requis', 'This field is required');
+          return widget.l10n.t('Ce champ est requis', 'This field is required', '此字段为必填');
         }
 
         if (value != null && value.isNotEmpty && param.validation != null) {
           final regex = RegExp(param.validation!);
           if (!regex.hasMatch(value)) {
-            return widget.l10n.t('Format invalide', 'Invalid format');
+            return widget.l10n.t('Format invalide', 'Invalid format', '格式无效');
           }
         }
 
@@ -212,7 +212,7 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        widget.l10n.t('Configurer les paramètres', 'Configure Parameters'),
+        widget.l10n.t('Configurer les paramètres', 'Configure Parameters', '配置参数'),
         style: Theme.of(context).textTheme.titleLarge,
       ),
       content: SizedBox(
@@ -262,7 +262,7 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
                 if (_generatedCommand != null) ...[
                   const SizedBox(height: 24),
                   Text(
-                    widget.l10n.t('Commande Générée', 'Generated Command'),
+                    widget.l10n.t('Commande Générée', 'Generated Command', '生成的命令'),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
@@ -286,13 +286,13 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
                       OutlinedButton.icon(
                         onPressed: () => _shareCommand(_generatedCommand!),
                         icon: const Icon(Icons.share, size: 16),
-                        label: Text(widget.l10n.t('Partager', 'Share')),
+                        label: Text(widget.l10n.t('Partager', 'Share', '分享')),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton.icon(
                         onPressed: () => _copyToClipboard(_generatedCommand!),
                         icon: const Icon(Icons.copy, size: 16),
-                        label: Text(widget.l10n.t('Copier', 'Copy')),
+                        label: Text(widget.l10n.t('Copier', 'Copy', '复制')),
                       ),
                     ],
                   )
@@ -305,12 +305,12 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(widget.l10n.t('Fermer', 'Close')),
+          child: Text(widget.l10n.t('Fermer', 'Close', '关闭')),
         ),
         ElevatedButton.icon(
           onPressed: _generateCommand,
           icon: const Icon(Icons.build_circle_outlined),
-          label: Text(widget.l10n.t('Générer', 'Generate')),
+          label: Text(widget.l10n.t('Générer', 'Generate', '生成')),
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Colors.white,

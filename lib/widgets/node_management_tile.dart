@@ -83,7 +83,7 @@ class NodeManagementTile extends StatelessWidget {
           children: [
             Text(node.ipAddresses.join(', ')),
             Text(
-                '${l10n.t('Dernière connexion', 'Last seen')}: ${node.lastSeen.toLocal()}',
+                '${l10n.t('Dernière connexion', 'Last seen', '最后在线')}: ${node.lastSeen.toLocal()}',
                 style: const TextStyle(fontSize: 12, color: Colors.grey)),
           ],
         ),
@@ -110,7 +110,7 @@ class NodeManagementTile extends StatelessWidget {
                 if (moved == true && context.mounted) {
                   showSafeSnackBar(
                     context,
-                    l10n.t('Appareil déplacé. Redémarrage de Headscale recommandé.', 'Device moved. Headscale restart recommended.'),
+                    l10n.t('Appareil déplacé. Redémarrage de Headscale recommandé.', 'Device moved. Headscale restart recommended.', '设备已移动。建议重启 Headscale。'),
                   );
                 }
                 break;
@@ -127,7 +127,7 @@ class NodeManagementTile extends StatelessWidget {
                 _runAction(
                     context,
                     () => provider.apiService.setNodeRoutes(node.id, []),
-                    l10n.t('Nœud de sortie désactivé.', 'Exit node disabled.'));
+                    l10n.t('Nœud de sortie désactivé.', 'Exit node disabled.', '出口节点已禁用。'));
                 break;
               case 'share_subnet':
                 // Affiche le dialogue pour partager un sous-réseau.
@@ -142,7 +142,7 @@ class NodeManagementTile extends StatelessWidget {
                 _runAction(
                     context,
                     () => provider.apiService.setNodeRoutes(node.id, []),
-                    l10n.t('Routes de sous-réseau désactivées.', 'Subnet routes disabled.'));
+                    l10n.t('Routes de sous-réseau désactivées.', 'Subnet routes disabled.', '子网路由已禁用。'));
                 break;
               case 'delete_device':
                 // Affiche le dialogue de confirmation de suppression.
@@ -150,21 +150,21 @@ class NodeManagementTile extends StatelessWidget {
                   context: context,
                   builder: (dialogCtx) => AlertDialog(
                     title: Text(
-                        l10n.t('Supprimer l\'appareil ?', 'Delete device?')),
-                    content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer ${node.name} ?', 'Are you sure you want to delete ${node.name}?')),
+                        l10n.t('Supprimer l\'appareil ?', 'Delete device?', '删除设备？')),
+                    content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer ${node.name} ?', 'Are you sure you want to delete ${node.name}?', '确定要删除 ${node.name} 吗？')),
                     actions: <Widget>[
                       TextButton(
-                          child: Text(l10n.t('Annuler', 'Cancel')),
+                          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
                           onPressed: () => Navigator.of(dialogCtx).pop()),
                       TextButton(
-                        child: Text(l10n.t('Confirmer', 'Confirm'),
+                        child: Text(l10n.t('Confirmer', 'Confirm', '确认'),
                             style: const TextStyle(color: Colors.red)),
                         onPressed: () {
                           Navigator.of(dialogCtx).pop();
                           _runAction(
                               context,
                               () => provider.apiService.deleteNode(node.id),
-                              l10n.t('Appareil supprimé.', 'Device deleted.'));
+                              l10n.t('Appareil supprimé.', 'Device deleted.', '设备已删除。'));
                         },
                       ),
                     ],
@@ -178,14 +178,14 @@ class NodeManagementTile extends StatelessWidget {
               value: 'rename',
               child: ListTile(
                 leading: const Icon(Icons.edit),
-                title: Text(l10n.t('Renommer l\'appareil', 'Rename Device')),
+                title: Text(l10n.t('Renommer l\'appareil', 'Rename Device', '重命名设备')),
               ),
             ),
             PopupMenuItem<String>(
               value: 'move',
               child: ListTile(
                 leading: const Icon(Icons.move_up),
-                title: Text(l10n.t('Déplacer l\'appareil', 'Move Device')),
+                title: Text(l10n.t('Déplacer l\'appareil', 'Move Device', '移动设备')),
               ),
             ),
             PopupMenuItem<String>(
@@ -193,21 +193,21 @@ class NodeManagementTile extends StatelessWidget {
               child: ListTile(
                 leading: const Icon(Icons.exit_to_app),
                 title: Text(
-                    l10n.t('Activer le nœud de sortie', 'Enable Exit Node')),
+                    l10n.t('Activer le nœud de sortie', 'Enable Exit Node', '启用出口节点')),
               ),
             ),
             PopupMenuItem<String>(
               value: 'disable_exit_node',
               child: ListTile(
                 leading: const Icon(Icons.remove_circle_outline),
-                title: Text(l10n.t('Désactiver le nœud de sortie', 'Disable Exit Node')),
+                title: Text(l10n.t('Désactiver le nœud de sortie', 'Disable Exit Node', '禁用出口节点')),
               ),
             ),
             PopupMenuItem<String>(
               value: 'share_subnet',
               child: ListTile(
                 leading: const Icon(Icons.router_outlined),
-                title: Text(l10n.t('Partager le sous-réseau local', 'Share Local Subnet')),
+                title: Text(l10n.t('Partager le sous-réseau local', 'Share Local Subnet', '共享本地子网')),
               ),
             ),
             PopupMenuItem<String>(
@@ -215,7 +215,7 @@ class NodeManagementTile extends StatelessWidget {
               child: ListTile(
                 leading: const Icon(Icons
                     .router_outlined), // Réutilisation de l'icône pour l'instant
-                title: Text(l10n.t('Désactiver les routes de sous-réseau', 'Disable Subnet Routes')),
+                title: Text(l10n.t('Désactiver les routes de sous-réseau', 'Disable Subnet Routes', '禁用子网路由')),
               ),
             ),
             const PopupMenuDivider(),
@@ -223,7 +223,7 @@ class NodeManagementTile extends StatelessWidget {
               value: 'delete_device',
               child: ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
-                title: Text(l10n.t('Supprimer l\'appareil', 'Delete Device')),
+                title: Text(l10n.t('Supprimer l\'appareil', 'Delete Device', '删除设备')),
               ),
             ),
           ],

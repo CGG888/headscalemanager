@@ -38,12 +38,12 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
 
   String _title() {
     if (_step == 0) {
-      return _l10n.t('Migration Grants V29', 'Grants V29 Migration');
+      return _l10n.t('Migration Grants V29', 'Grants V29 Migration', 'Grants V29 迁移');
     }
     if (_step == 1) {
-      return _l10n.t('Migration en cours…', 'Migration in progress…');
+      return _l10n.t('Migration en cours…', 'Migration in progress…', '正在迁移……');
     }
-    return _l10n.t('Migration terminée', 'Migration completed');
+    return _l10n.t('Migration terminée', 'Migration completed', '迁移完成');
   }
 
   Widget _buildIntro() {
@@ -52,11 +52,11 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _l10n.t('Votre serveur Headscale ≥ 0.29 supporte les grants avec routage via. Cette migration bascule le moteur ACL vers Grants V29 et régénère la politique.', 'Your Headscale server ≥ 0.29 supports grants with via routing. This migration switches the ACL engine to Grants V29 and regenerates the policy.'),
+          _l10n.t('Votre serveur Headscale ≥ 0.29 supporte les grants avec routage via. Cette migration bascule le moteur ACL vers Grants V29 et régénère la politique.', 'Your Headscale server ≥ 0.29 supports grants with via routing. This migration switches the ACL engine to Grants V29 and regenerates the policy.', '你的 Headscale 服务器 ≥ 0.29 支持带 via 路由的 Grants。此迁移会将 ACL 引擎切换为 Grants V29 并重新生成策略。'),
         ),
         const SizedBox(height: 12),
         Text(
-          _l10n.t('Recommandé si plusieurs utilisateurs partagent le même sous-réseau LAN (ex. 192.168.1.0/24).', 'Recommended when multiple users share the same LAN subnet (e.g. 192.168.1.0/24).'),
+          _l10n.t('Recommandé si plusieurs utilisateurs partagent le même sous-réseau LAN (ex. 192.168.1.0/24).', 'Recommended when multiple users share the same LAN subnet (e.g. 192.168.1.0/24).', '多个用户共享同一局域网子网时推荐（例如 192.168.1.0/24）。'),
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         if (_error != null) ...[
@@ -88,11 +88,11 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
       return [
         TextButton(
           onPressed: _processing ? null : _dismissLater,
-          child: Text(_l10n.t('Plus tard', 'Later')),
+          child: Text(_l10n.t('Plus tard', 'Later', '稍后')),
         ),
         TextButton(
           onPressed: _processing ? null : _startMigration,
-          child: Text(_l10n.t('Démarrer', 'Start')),
+          child: Text(_l10n.t('Démarrer', 'Start', '开始')),
         ),
       ];
     }
@@ -100,7 +100,7 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
     return [
       ElevatedButton(
         onPressed: () => Navigator.of(context).pop(true),
-        child: Text(_l10n.t('OK', 'OK')),
+        child: Text(_l10n.t('OK', 'OK', '确定')),
       ),
     ];
   }
@@ -129,7 +129,7 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
     final serverId = provider.activeServer?.id;
     if (serverId == null) {
       setState(() {
-        _error = _l10n.t('Aucun serveur actif.', 'No active server.');
+        _error = _l10n.t('Aucun serveur actif.', 'No active server.', '无活动服务器。');
         _step = 0;
         _processing = false;
       });
@@ -137,16 +137,16 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
     }
 
     try {
-      _log(_l10n.t('Activation moteur Grants V29…', 'Enabling Grants V29 engine…'));
+      _log(_l10n.t('Activation moteur Grants V29…', 'Enabling Grants V29 engine…', '正在启用 Grants V29 引擎……'));
       await provider.setAclEngineMode(AclEngineMode.grantsV29);
 
-      _log(_l10n.t('Récupération utilisateurs et nœuds…', 'Fetching users and nodes…'));
+      _log(_l10n.t('Récupération utilisateurs et nœuds…', 'Fetching users and nodes…', '正在获取用户和节点……'));
       final users = await provider.apiService.getUsers();
       final nodes = await provider.apiService.getNodes();
       final tempRules =
           await provider.storageService.getTemporaryRules(serverId);
 
-      _log(_l10n.t('Génération politique grants…', 'Generating grants policy…'));
+      _log(_l10n.t('Génération politique grants…', 'Generating grants policy…', '正在生成授权策略……'));
       final orchestrator = AclPolicyOrchestrator();
       final policy = orchestrator.generatePolicy(
         engineMode: AclEngineMode.grantsV29,
@@ -157,7 +157,7 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
         serverVersion: provider.serverVersion,
       );
 
-      _log(_l10n.t('Envoi vers le serveur…', 'Pushing to server…'));
+      _log(_l10n.t('Envoi vers le serveur…', 'Pushing to server…', '正在发送到服务器……'));
       final jsonPolicy =
           const JsonEncoder.withIndent('  ').convert(policy);
       await provider.apiService.setAclPolicy(jsonPolicy);
@@ -169,7 +169,7 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
       await provider.storageService.setGrantsMigrationBannerDismissed(
           serverId, false);
 
-      _log(_l10n.t('Migration réussie !', 'Migration successful!'));
+      _log(_l10n.t('Migration réussie !', 'Migration successful!', '迁移成功！'));
       if (mounted) setState(() => _step = 2);
     } catch (e) {
       _log('ERROR: $e');

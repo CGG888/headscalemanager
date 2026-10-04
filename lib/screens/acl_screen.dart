@@ -145,7 +145,7 @@ class _AclScreenState extends State<AclScreen> {
 
     if (!_isComposerAvailable(provider)) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(l10n.t('Composeur disponible uniquement en mode Grants V29 (Headscale ≥ 0.29).', 'Composer available only in Grants V29 mode (Headscale ≥ 0.29).')),
+        content: Text(l10n.t('Composeur disponible uniquement en mode Grants V29 (Headscale ≥ 0.29).', 'Composer available only in Grants V29 mode (Headscale ≥ 0.29).', '编排器仅在 Grants V29 模式（Headscale ≥ 0.29）下可用。')),
       ));
       return;
     }
@@ -181,7 +181,7 @@ class _AclScreenState extends State<AclScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(l10n.t('Règle ajoutée à la policy locale. Exportez pour appliquer au serveur.', 'Rule added to local policy. Export to apply to server.')),
+      content: Text(l10n.t('Règle ajoutée à la policy locale. Exportez pour appliquer au serveur.', 'Rule added to local policy. Export to apply to server.', '规则已添加到本地策略。导出以应用到服务器。')),
     ));
   }
 
@@ -368,11 +368,11 @@ class _AclScreenState extends State<AclScreen> {
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       title: Text(
-        l10n.t('Mode avancé : exceptions manuelles', 'Advanced: manual exceptions'),
+        l10n.t('Mode avancé : exceptions manuelles', 'Advanced: manual exceptions', '高级模式：手动例外'),
         style: Theme.of(context).textTheme.titleSmall,
       ),
       subtitle: Text(
-        l10n.t('Ancien formulaire nœud à nœud — le composeur suffit en général', 'Legacy node-to-node form — composer is usually enough'),
+        l10n.t('Ancien formulaire nœud à nœud — le composeur suffit en général', 'Legacy node-to-node form — composer is usually enough', '旧版节点到节点表单——通常用编写器就够了'),
         style: Theme.of(context).textTheme.bodySmall,
       ),
       children: [
@@ -388,7 +388,7 @@ class _AclScreenState extends State<AclScreen> {
       child: FilledButton.icon(
         onPressed: () => _openGrantComposer(),
         icon: const Icon(Icons.auto_fix_high),
-        label: Text(l10n.t('Composer une règle', 'Compose a rule')),
+        label: Text(l10n.t('Composer une règle', 'Compose a rule', '编写规则')),
       ),
     );
   }
@@ -403,7 +403,7 @@ class _AclScreenState extends State<AclScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(l10n.t('Gestion des ACLs', 'ACL Management'),
+        title: Text(l10n.t('Gestion des ACLs', 'ACL Management', 'ACL 管理'),
             style: Theme.of(context).appBarTheme.titleTextStyle),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
@@ -420,9 +420,9 @@ class _AclScreenState extends State<AclScreen> {
                 children: [
                   TabBar(
                     tabs: [
-                      Tab(text: l10n.t('Grants', 'Grants')),
-                      Tab(text: l10n.t('ACLs', 'ACLs')),
-                      Tab(text: l10n.t('JSON', 'JSON')),
+                      Tab(text: l10n.t('Grants', 'Grants', '授权（Grants）')),
+                      Tab(text: l10n.t('ACLs', 'ACLs', 'ACL')),
+                      Tab(text: l10n.t('JSON', 'JSON', 'JSON')),
                     ],
                   ),
                   Expanded(
@@ -448,14 +448,14 @@ class _AclScreenState extends State<AclScreen> {
           if (composerAvailable)
             SpeedDialChild(
               child: const Icon(Icons.auto_fix_high),
-              label: l10n.t('Composeur de grants', 'Grant composer'),
+              label: l10n.t('Composeur de grants', 'Grant composer', '授权编写器'),
               backgroundColor: Colors.teal,
               foregroundColor: Colors.white,
               onTap: () => _openGrantComposer(),
             ),
           SpeedDialChild(
             child: const Icon(Icons.account_tree_outlined),
-            label: l10n.t('Vue Graphe', 'Graph View'),
+            label: l10n.t('Vue Graphe', 'Graph View', '图形视图'),
             backgroundColor: Theme.of(context).colorScheme.secondary,
             onTap: () {
               Navigator.of(context).push(
@@ -465,7 +465,7 @@ class _AclScreenState extends State<AclScreen> {
           ),
           SpeedDialChild(
             child: const Icon(Icons.extension),
-            label: l10n.t('Vue Puzzle (Builder)', 'Puzzle View (Builder)'),
+            label: l10n.t('Vue Puzzle (Builder)', 'Puzzle View (Builder)', '拼图视图（构建器）'),
             backgroundColor: Colors.purple,
             labelBackgroundColor: Colors.purple,
             labelStyle: const TextStyle(color: Colors.white),
@@ -478,7 +478,7 @@ class _AclScreenState extends State<AclScreen> {
           ),
           SpeedDialChild(
             child: const Icon(Icons.folder_shared),
-            label: l10n.t('Partages Taildrive', 'Taildrive Shares'),
+            label: l10n.t('Partages Taildrive', 'Taildrive Shares', 'Taildrive 分享'),
             backgroundColor: Theme.of(context).colorScheme.tertiary,
             labelBackgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
             labelStyle: TextStyle(color: Theme.of(context).colorScheme.onTertiaryContainer),
@@ -491,7 +491,7 @@ class _AclScreenState extends State<AclScreen> {
           ),
           SpeedDialChild(
             child: const Icon(Icons.settings_backup_restore),
-            label: l10n.t('Générer Politique', 'Generate Policy'),
+            label: l10n.t('Générer Politique', 'Generate Policy', '生成策略'),
             backgroundColor: Theme.of(context).colorScheme.secondary,
             onTap: () => _generateNewAclPolicy(showSnackbar: true),
           ),
@@ -535,34 +535,34 @@ class _AclScreenState extends State<AclScreen> {
           child: ListTile(
               leading: const Icon(Icons.cloud_upload),
               title:
-                  Text(l10n.t('Exporter vers le serveur', 'Export to Server'))),
+                  Text(l10n.t('Exporter vers le serveur', 'Export to Server', '导出到服务器'))),
         ),
         PopupMenuItem<String>(
           value: 'fetch',
           child: ListTile(
               leading: const Icon(Icons.cloud_download),
-              title: Text(l10n.t('Récupérer du serveur', 'Fetch from Server'))),
+              title: Text(l10n.t('Récupérer du serveur', 'Fetch from Server', '从服务器获取'))),
         ),
         const PopupMenuDivider(),
         PopupMenuItem<String>(
           value: 'backup',
           child: ListTile(
             leading: const Icon(Icons.save_alt),
-            title: Text(l10n.t('Exporter backup JSON', 'Export JSON Backup')),
+            title: Text(l10n.t('Exporter backup JSON', 'Export JSON Backup', '导出 JSON 备份')),
           ),
         ),
         PopupMenuItem<String>(
           value: 'import',
           child: ListTile(
             leading: const Icon(Icons.upload_file),
-            title: Text(l10n.t('Importer depuis JSON', 'Import from JSON')),
+            title: Text(l10n.t('Importer depuis JSON', 'Import from JSON', '从 JSON 导入')),
           ),
         ),
         PopupMenuItem<String>(
           value: 'share',
           child: ListTile(
               leading: const Icon(Icons.share),
-              title: Text(l10n.t('Partager en fichier', 'Share as File'))),
+              title: Text(l10n.t('Partager en fichier', 'Share as File', '分享为文件'))),
         ),
         const PopupMenuDivider(),
         PopupMenuItem<String>(
@@ -570,7 +570,7 @@ class _AclScreenState extends State<AclScreen> {
           child: ListTile(
             leading: const Icon(Icons.lock_open, color: Colors.orange),
             title: Text(
-                l10n.t('Repartir : tout autoriser…', 'Start over: allow all…'),
+                l10n.t('Repartir : tout autoriser…', 'Start over: allow all…', '重新开始：全部允许……'),
                 style: const TextStyle(color: Colors.orange)),
           ),
         ),
@@ -630,7 +630,7 @@ class _AclScreenState extends State<AclScreen> {
           final locale = appProvider.locale;
           final l10n = L10n(locale);
           await _generateAndExportPolicy(
-              message: l10n.t('Règle supprimée et politique mise à jour.', 'Rule deleted and policy updated.'));
+              message: l10n.t('Règle supprimée et politique mise à jour.', 'Rule deleted and policy updated.', '规则已删除并更新策略。'));
         },
       ),
     );
@@ -649,14 +649,14 @@ class _AclScreenState extends State<AclScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.t('Autorisations Spécifiques', 'Specific Permissions'),
+            Text(l10n.t('Autorisations Spécifiques', 'Specific Permissions', '特定权限'),
                 style: Theme.of(context)
                     .textTheme
                     .titleLarge
                     ?.copyWith(fontSize: 20)),
             const SizedBox(height: 8),
             Text(
-              l10n.t('Créez ici des exceptions pour autoriser la communication entre les appareils de différents utilisateurs.', 'Create exceptions here to allow communication between devices of different users.'),
+              l10n.t('Créez ici des exceptions pour autoriser la communication entre les appareils de différents utilisateurs.', 'Create exceptions here to allow communication between devices of different users.', '在此创建例外，以允许不同用户的设备之间通信。'),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
@@ -701,7 +701,7 @@ class _AclScreenState extends State<AclScreen> {
                   child: TextField(
                     controller: _portController,
                     decoration: InputDecoration(
-                      labelText: l10n.t('Port (Optionnel)', 'Port (Optional)'),
+                      labelText: l10n.t('Port (Optionnel)', 'Port (Optional)', '端口（选填）'),
                       hintText: 'ex: 80, 443',
                       border: const OutlineInputBorder(),
                     ),
@@ -713,13 +713,13 @@ class _AclScreenState extends State<AclScreen> {
                   child: DropdownButtonFormField<String>(
                     initialValue: _selectedProtocol,
                     decoration: InputDecoration(
-                      labelText: l10n.t('Protocole', 'Protocol'),
+                      labelText: l10n.t('Protocole', 'Protocol', '协议'),
                       border: const OutlineInputBorder(),
                     ),
                     items: [
                       DropdownMenuItem(
                           value: 'any',
-                          child: Text(l10n.t('Tous (Any)', 'Any'))),
+                          child: Text(l10n.t('Tous (Any)', 'Any', '全部（Any）'))),
                       const DropdownMenuItem(value: 'tcp', child: Text('TCP')),
                       const DropdownMenuItem(value: 'udp', child: Text('UDP')),
                     ],
@@ -739,7 +739,7 @@ class _AclScreenState extends State<AclScreen> {
               child: ElevatedButton.icon(
                 onPressed: _addTemporaryRule,
                 icon: const Icon(Icons.add_link, color: Colors.white),
-                label: Text(l10n.t('Ajouter et Appliquer', 'Add and Apply'),
+                label: Text(l10n.t('Ajouter et Appliquer', 'Add and Apply', '添加并应用'),
                     style: const TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
@@ -752,7 +752,7 @@ class _AclScreenState extends State<AclScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(l10n.t('Règles actives:', 'Active Rules:'),
+                Text(l10n.t('Règles actives:', 'Active Rules:', '已启用规则：'),
                     style: Theme.of(context).textTheme.titleMedium),
                 IconButton(
                   icon: Icon(Icons.delete_sweep,
@@ -761,7 +761,7 @@ class _AclScreenState extends State<AclScreen> {
                           .onSurface
                           .withValues(alpha: 0.6)),
                   tooltip:
-                      l10n.t('Effacer toutes les règles', 'Clear All Rules'),
+                      l10n.t('Effacer toutes les règles', 'Clear All Rules', '清除所有规则'),
                   onPressed: _clearTemporaryRules,
                 )
               ],
@@ -788,7 +788,7 @@ class _AclScreenState extends State<AclScreen> {
     return DropdownButtonFormField<Node>(
       initialValue: selectedNode,
       decoration: _buildInputDecoration(
-          label, l10n.t('Choisir un nœud', 'Choose a node')),
+          label, l10n.t('Choisir un nœud', 'Choose a node', '选择节点')),
       items: nodes.map((Node node) {
         return DropdownMenuItem<Node>(
           value: node,
@@ -845,7 +845,7 @@ class _AclScreenState extends State<AclScreen> {
   void _showIpMismatchError(BuildContext context, L10n l10n, String dest) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
-            l10n.t('Impossible de trouver une IP source compatible (IPv4/IPv6) pour la destination: $dest', 'Could not find a compatible source IP (IPv4/IPv6) for destination: $dest'),
+            l10n.t('Impossible de trouver une IP source compatible (IPv4/IPv6) pour la destination: $dest', 'Could not find a compatible source IP (IPv4/IPv6) for destination: $dest', '找不到与目标 $dest 兼容的源 IP（IPv4/IPv6）'),
             style: TextStyle(color: Theme.of(context).colorScheme.onError)),
         backgroundColor: Theme.of(context).colorScheme.error));
   }
@@ -869,7 +869,7 @@ class _AclScreenState extends State<AclScreen> {
     if (_selectedSourceNode == null || _selectedDestinationNode == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-              l10n.t('Veuillez sélectionner un nœud source et un nœud destination.', 'Please select a source and a destination node.'),
+              l10n.t('Veuillez sélectionner un nœud source et un nœud destination.', 'Please select a source and a destination node.', '请选择源节点和目标节点。'),
               style: TextStyle(color: Theme.of(context).colorScheme.onError)),
           backgroundColor: Theme.of(context).colorScheme.error));
       return;
@@ -878,7 +878,7 @@ class _AclScreenState extends State<AclScreen> {
     if (_selectedSourceNode!.ipAddresses.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-              l10n.t('Le nœud source doit avoir au moins une adresse IP.', 'Source node must have at least one IP address.'),
+              l10n.t('Le nœud source doit avoir au moins une adresse IP.', 'Source node must have at least one IP address.', '源节点必须至少有一个 IP 地址。'),
               style: TextStyle(color: Theme.of(context).colorScheme.onError)),
           backgroundColor: Theme.of(context).colorScheme.error));
       return;
@@ -949,7 +949,7 @@ class _AclScreenState extends State<AclScreen> {
             }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(l10n.t('Accès au sous-réseau non configuré et le nœud n\'a pas d\'IP pour une règle de base.', 'Subnet access not configured and the node has no IP for a fallback rule.')),
+              content: Text(l10n.t('Accès au sous-réseau non configuré et le nœud n\'a pas d\'IP pour une règle de base.', 'Subnet access not configured and the node has no IP for a fallback rule.', '未配置子网访问，且节点没有 IP 可用于兜底规则。')),
             ));
             return;
           }
@@ -1017,7 +1017,7 @@ class _AclScreenState extends State<AclScreen> {
       if (_selectedDestinationNode!.ipAddresses.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
-                l10n.t('Le nœud destination doit avoir au moins une adresse IP.', 'Destination node must have at least one IP address.'),
+                l10n.t('Le nœud destination doit avoir au moins une adresse IP.', 'Destination node must have at least one IP address.', '目标节点必须至少有一个 IP 地址。'),
                 style: TextStyle(color: Theme.of(context).colorScheme.onError)),
             backgroundColor: Theme.of(context).colorScheme.error));
         return;
@@ -1053,7 +1053,7 @@ class _AclScreenState extends State<AclScreen> {
         if (validSrc == validDest) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                  l10n.t('Les nœuds source et destination ne peuvent pas être identiques.', 'Source and destination nodes cannot be the same.'),
+                  l10n.t('Les nœuds source et destination ne peuvent pas être identiques.', 'Source and destination nodes cannot be the same.', '源节点和目标节点不能相同。'),
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.onError)),
               backgroundColor: Theme.of(context).colorScheme.error));
@@ -1070,7 +1070,7 @@ class _AclScreenState extends State<AclScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
-                l10n.t('Impossible de trouver une paire d\'adresses IP compatibles (IPv4/IPv6) entre la source et la destination.', 'Could not find a compatible IP pair (IPv4/IPv6) between source and destination.'),
+                l10n.t('Impossible de trouver une paire d\'adresses IP compatibles (IPv4/IPv6) entre la source et la destination.', 'Could not find a compatible IP pair (IPv4/IPv6) between source and destination.', '在源和目标之间找不到兼容的 IP 地址对（IPv4/IPv6）。'),
                 style: TextStyle(color: Theme.of(context).colorScheme.onError)),
             backgroundColor: Theme.of(context).colorScheme.error));
         return;
@@ -1096,7 +1096,7 @@ class _AclScreenState extends State<AclScreen> {
         debugPrint('DEBUG: Règle ignorée (existe déjà): $newRule');
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
-                '${l10n.t('Règle ignorée car elle existe déjà:', 'Skipped existing rule:')} ${newRule['dst']}',
+                '${l10n.t('Règle ignorée car elle existe déjà:', 'Skipped existing rule:', '规则已存在，已跳过：')} ${newRule['dst']}',
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.onSecondaryContainer)),
             backgroundColor: Theme.of(context).colorScheme.secondaryContainer));
@@ -1113,12 +1113,12 @@ class _AclScreenState extends State<AclScreen> {
         await storage.saveTemporaryRules(serverId, _temporaryRules);
       }
       await _generateAndExportPolicy(
-          message: l10n.t('$addedCount règle(s) ajoutée(s) et politique appliquée.', '$addedCount rule(s) added and policy applied.'));
+          message: l10n.t('$addedCount règle(s) ajoutée(s) et politique appliquée.', '$addedCount rule(s) added and policy applied.', '已添加 $addedCount 条规则并应用策略。'));
     } else {
       // Debug: Afficher un message si aucune règle n'a été ajoutée
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-              l10n.t('Aucune règle n\'a été ajoutée.', 'No rules were added.'),
+              l10n.t('Aucune règle n\'a été ajoutée.', 'No rules were added.', '未添加任何规则。'),
               style: TextStyle(color: Theme.of(context).colorScheme.onError)),
           backgroundColor: Theme.of(context).colorScheme.error));
     }
@@ -1165,12 +1165,12 @@ class _AclScreenState extends State<AclScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                    l10n.t('Politique ACL avancée générée dans le champ de texte.', 'Advanced ACL policy generated in the text field.'),
+                    l10n.t('Politique ACL avancée générée dans le champ de texte.', 'Advanced ACL policy generated in the text field.', '已在文本框中生成高级 ACL 策略。'),
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimary)),
                 const SizedBox(height: 4),
                 Text(
-                    l10n.t('Utilisez le menu (⋮) pour l\'exporter.', 'Use the menu (⋮) to export it.'),
+                    l10n.t('Utilisez le menu (⋮) pour l\'exporter.', 'Use the menu (⋮) to export it.', '使用菜单（⋮）导出。'),
                     style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme
@@ -1192,7 +1192,7 @@ class _AclScreenState extends State<AclScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${l10n.t('Échec de la génération de la politique ACL avancée', 'Failed to generate advanced ACL policy')}: $e',
+                  '${l10n.t('Échec de la génération de la politique ACL avancée', 'Failed to generate advanced ACL policy', '生成高级 ACL 策略失败')}: $e',
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.onError)),
               backgroundColor: Theme.of(context).colorScheme.error),
@@ -1213,14 +1213,14 @@ class _AclScreenState extends State<AclScreen> {
     final bool confirm = await showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(l10n.t('Confirmer la suppression', 'Confirm Deletion')),
-            content: Text(l10n.t('Cela va supprimer TOUTES les règles et appliquer la nouvelle politique au serveur. Continuer ?', 'This will delete ALL rules and apply the new policy to the server. Continue?')),
+            title: Text(l10n.t('Confirmer la suppression', 'Confirm Deletion', '确认删除')),
+            content: Text(l10n.t('Cela va supprimer TOUTES les règles et appliquer la nouvelle politique au serveur. Continuer ?', 'This will delete ALL rules and apply the new policy to the server. Continue?', '这将删除所有规则并将新策略应用到服务器。是否继续？')),
             actions: [
               TextButton(
-                  child: Text(l10n.t('Annuler', 'Cancel')),
+                  child: Text(l10n.t('Annuler', 'Cancel', '取消')),
                   onPressed: () => Navigator.of(ctx).pop(false)),
               TextButton(
-                  child: Text(l10n.t('Confirmer', 'Confirm'),
+                  child: Text(l10n.t('Confirmer', 'Confirm', '确认'),
                       style: const TextStyle(color: Colors.red)),
                   onPressed: () => Navigator.of(ctx).pop(true)),
             ],
@@ -1240,7 +1240,7 @@ class _AclScreenState extends State<AclScreen> {
       await storage.saveTemporaryRules(serverId, _temporaryRules);
     }
     await _generateAndExportPolicy(
-        message: l10n.t('Toutes les règles ont été supprimées et la politique a été mise à jour.', 'All rules have been deleted and the policy has been updated.'));
+        message: l10n.t('Toutes les règles ont été supprimées et la politique a été mise à jour.', 'All rules have been deleted and the policy has been updated.', '已删除所有规则并更新策略。'));
   }
 
   Future<void> _generateAndExportPolicy({String? message}) async {
@@ -1287,7 +1287,7 @@ class _AclScreenState extends State<AclScreen> {
           SnackBar(
               content: Text(
                   successMessage ??
-                      (l10n.t('Politique ACL exportée avec succès vers le serveur.', 'ACL policy successfully exported to the server.')),
+                      (l10n.t('Politique ACL exportée avec succès vers le serveur.', 'ACL policy successfully exported to the server.', 'ACL 策略已成功导出到服务器。')),
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary)),
               backgroundColor: Theme.of(context).colorScheme.primary),
@@ -1300,7 +1300,7 @@ class _AclScreenState extends State<AclScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${l10n.t('Échec de l\'exportation de la politique ACL', 'Failed to export ACL policy')}: $e',
+                  '${l10n.t('Échec de l\'exportation de la politique ACL', 'Failed to export ACL policy', '导出 ACL 策略失败')}: $e',
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.onError)),
               backgroundColor: Theme.of(context).colorScheme.error),
@@ -1329,7 +1329,7 @@ class _AclScreenState extends State<AclScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  l10n.t('Politique ACL récupérée du serveur.', 'ACL policy fetched from the server.'),
+                  l10n.t('Politique ACL récupérée du serveur.', 'ACL policy fetched from the server.', '已从服务器获取 ACL 策略。'),
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary)),
               backgroundColor: Theme.of(context).colorScheme.primary),
@@ -1344,7 +1344,7 @@ class _AclScreenState extends State<AclScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${l10n.t('Échec de la récupération de la politique ACL', 'Failed to fetch ACL policy')}: $e',
+                  '${l10n.t('Échec de la récupération de la politique ACL', 'Failed to fetch ACL policy', '获取 ACL 策略失败')}: $e',
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.onError)),
               backgroundColor: Theme.of(context).colorScheme.error),
@@ -1390,7 +1390,7 @@ class _AclScreenState extends State<AclScreen> {
     final choice = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l10n.t('Repartir de zéro', 'Start from scratch')),
+        title: Text(l10n.t('Repartir de zéro', 'Start from scratch', '从头开始')),
         content: SingleChildScrollView(
           child: Text(
             l10n.isFr ? 'Approche recommandée :\n\n'
@@ -1410,19 +1410,19 @@ class _AclScreenState extends State<AclScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(l10n.t('Annuler', 'Cancel')),
+            child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop('local'),
             child: Text(
-              l10n.t('Brouillon local', 'Local draft'),
+              l10n.t('Brouillon local', 'Local draft', '本地草稿'),
               style: const TextStyle(color: Colors.orange),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop('publish'),
             child: Text(
-              l10n.t('Publier tout autoriser', 'Publish allow all'),
+              l10n.t('Publier tout autoriser', 'Publish allow all', '发布「全部允许」'),
               style: TextStyle(color: Theme.of(ctx).colorScheme.error),
             ),
           ),
@@ -1453,7 +1453,7 @@ class _AclScreenState extends State<AclScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            l10n.t('Brouillon « tout autoriser » chargé localement. Le serveur n\'a pas été modifié.', '« Allow all » draft loaded locally. Server was not changed.'),
+            l10n.t('Brouillon « tout autoriser » chargé localement. Le serveur n\'a pas été modifié.', '« Allow all » draft loaded locally. Server was not changed.', '已加载「全部允许」草稿到本地。服务器未被修改。'),
             style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
           ),
           backgroundColor: Theme.of(context).colorScheme.primary,
@@ -1470,19 +1470,19 @@ class _AclScreenState extends State<AclScreen> {
     final confirm = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(l10n.t('Publier tout autoriser', 'Publish allow all')),
+            title: Text(l10n.t('Publier tout autoriser', 'Publish allow all', '发布「全部允许」')),
             content: Text(
-              l10n.t('La policy actuelle du serveur sera remplacée par « tout autoriser » immédiatement. Continuer ?', 'The server policy will be replaced with « allow all » immediately. Continue?'),
+              l10n.t('La policy actuelle du serveur sera remplacée par « tout autoriser » immédiatement. Continuer ?', 'The server policy will be replaced with « allow all » immediately. Continue?', '服务器当前的策略将立即替换为「全部允许」。是否继续？'),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(l10n.t('Annuler', 'Cancel')),
+                child: Text(l10n.t('Annuler', 'Cancel', '取消')),
               ),
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
                 child: Text(
-                  l10n.t('Publier', 'Publish'),
+                  l10n.t('Publier', 'Publish', '发布'),
                   style: TextStyle(color: Theme.of(ctx).colorScheme.error),
                 ),
               ),
@@ -1507,7 +1507,7 @@ class _AclScreenState extends State<AclScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.')),
+            content: Text(l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.', '未选择活动服务器。')),
             backgroundColor: Colors.red,
           ),
         );
@@ -1517,7 +1517,7 @@ class _AclScreenState extends State<AclScreen> {
 
     await _exportAclPolicyToServer(
       showConfirmation: false,
-      successMessage: l10n.t('Policy publiée : tout le trafic est maintenant autorisé.', 'Policy published: all traffic is now allowed.'),
+      successMessage: l10n.t('Policy publiée : tout le trafic est maintenant autorisé.', 'Policy published: all traffic is now allowed.', '策略已发布：现在允许所有流量。'),
     );
   }
 
@@ -1545,7 +1545,7 @@ class _AclScreenState extends State<AclScreen> {
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path)],
-          text: l10n.t('Backup de votre policy Headscale.', 'Backup of your Headscale policy.'),
+          text: l10n.t('Backup de votre policy Headscale.', 'Backup of your Headscale policy.', '你的 Headscale 策略的备份。'),
         ),
       );
     } catch (e) {
@@ -1554,7 +1554,7 @@ class _AclScreenState extends State<AclScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${l10n.t('Échec de l\'export backup', 'Backup export failed')}: $e',
+              '${l10n.t('Échec de l\'export backup', 'Backup export failed', '备份导出失败')}: $e',
               style: TextStyle(color: Theme.of(context).colorScheme.onError),
             ),
             backgroundColor: Theme.of(context).colorScheme.error,
@@ -1581,7 +1581,7 @@ class _AclScreenState extends State<AclScreen> {
       final picked = result.files.single;
       final path = picked.path;
       if (path == null) {
-        throw Exception(l10n.t('Chemin fichier inaccessible', 'File path unavailable'));
+        throw Exception(l10n.t('Chemin fichier inaccessible', 'File path unavailable', '文件路径不可访问'));
       }
 
       final raw = await File(path).readAsString();
@@ -1592,25 +1592,25 @@ class _AclScreenState extends State<AclScreen> {
       final publish = await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: Text(l10n.t('Importer la policy', 'Import policy')),
+              title: Text(l10n.t('Importer la policy', 'Import policy', '导入策略')),
               content: Text(
-                l10n.t('Charger en brouillon local (recommandé) ou publier immédiatement sur le serveur ?', 'Load as local draft (recommended) or publish immediately to the server?'),
+                l10n.t('Charger en brouillon local (recommandé) ou publier immédiatement sur le serveur ?', 'Load as local draft (recommended) or publish immediately to the server?', '作为本地草稿加载（推荐），还是立即发布到服务器？'),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  child: Text(l10n.t('Annuler', 'Cancel')),
+                  child: Text(l10n.t('Annuler', 'Cancel', '取消')),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(false),
                   child: Text(
-                    l10n.t('Brouillon local', 'Local draft'),
+                    l10n.t('Brouillon local', 'Local draft', '本地草稿'),
                     style: const TextStyle(color: Colors.orange),
                   ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(true),
-                  child: Text(l10n.t('Publier', 'Publish')),
+                  child: Text(l10n.t('Publier', 'Publish', '发布')),
                 ),
               ],
             ),
@@ -1623,13 +1623,13 @@ class _AclScreenState extends State<AclScreen> {
       if (publish) {
         await _exportAclPolicyToServer(
           showConfirmation: true,
-          successMessage: l10n.t('Policy importée et publiée sur le serveur.', 'Policy imported and published to the server.'),
+          successMessage: l10n.t('Policy importée et publiée sur le serveur.', 'Policy imported and published to the server.', '策略已导入并发布到服务器。'),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              l10n.t('Policy importée en brouillon local. Le serveur n\'a pas été modifié.', 'Policy imported as local draft. Server was not changed.'),
+              l10n.t('Policy importée en brouillon local. Le serveur n\'a pas été modifié.', 'Policy imported as local draft. Server was not changed.', '策略已导入为本地草稿。服务器未改动。'),
               style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
             backgroundColor: Theme.of(context).colorScheme.primary,
@@ -1642,7 +1642,7 @@ class _AclScreenState extends State<AclScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${l10n.t('Échec de l\'import', 'Import failed')}: $e',
+              '${l10n.t('Échec de l\'import', 'Import failed', '导入失败')}: $e',
               style: TextStyle(color: Theme.of(context).colorScheme.onError),
             ),
             backgroundColor: Theme.of(context).colorScheme.error,

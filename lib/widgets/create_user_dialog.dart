@@ -33,19 +33,19 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
     final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(l10n.t('Créer un utilisateur', 'Create user')),
+      title: Text(l10n.t('Créer un utilisateur', 'Create user', '创建用户')),
       content: TextField(
         controller: _nameController,
         decoration: InputDecoration(
-            hintText: l10n.t('Nom de l\'utilisateur', 'Username')),
+            hintText: l10n.t('Nom de l\'utilisateur', 'Username', '用户名')),
       ),
       actions: [
         TextButton(
-          child: Text(l10n.t('Annuler', 'Cancel')),
+          child: Text(l10n.t('Annuler', 'Cancel', '取消')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(l10n.t('Créer', 'Create')),
+          child: Text(l10n.t('Créer', 'Create', '创建')),
           onPressed: () async {
             final String name = _nameController.text.trim();
             if (name.isEmpty) {
@@ -91,15 +91,15 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                 final bool? proceed = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: Text(l10n.t('Conflit détecté', 'Conflict detected')),
-                    content: Text(l10n.t('Un utilisateur avec ce nom ou générant le même tag existe déjà. Voulez-vous essayer avec "$suggestedName" ?', 'A user with this name or generating the same tag already exists. Would you like to try with "$suggestedName" ?')),
+                    title: Text(l10n.t('Conflit détecté', 'Conflict detected', '检测到冲突')),
+                    content: Text(l10n.t('Un utilisateur avec ce nom ou générant le même tag existe déjà. Voulez-vous essayer avec "$suggestedName" ?', 'A user with this name or generating the same tag already exists. Would you like to try with "$suggestedName" ?', '已存在同名用户或会生成相同标签的用户。是否改用「$suggestedName」？')),
                     actions: [
                       TextButton(
-                        child: Text(l10n.t('Annuler', 'Cancel')),
+                        child: Text(l10n.t('Annuler', 'Cancel', '取消')),
                         onPressed: () => Navigator.of(ctx).pop(false),
                       ),
                       TextButton(
-                        child: Text(l10n.t('Utiliser $suggestedName', 'Use $suggestedName')),
+                        child: Text(l10n.t('Utiliser $suggestedName', 'Use $suggestedName', '使用 $suggestedName')),
                         onPressed: () {
                           _nameController.text = suggestedName;
                           Navigator.of(ctx).pop(true);
@@ -123,7 +123,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
               if (context.mounted) {
                 showSafeSnackBar(
                     context,
-                    l10n.t('Échec de la création de l\'utilisateur : $e', 'Failed to create user: $e'));
+                    l10n.t('Échec de la création de l\'utilisateur : $e', 'Failed to create user: $e', '创建用户失败：$e'));
                 Navigator.of(context).pop(false); // Failure
               }
             }
