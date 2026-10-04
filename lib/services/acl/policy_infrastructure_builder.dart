@@ -20,7 +20,9 @@ class PolicyInfrastructureBuilder {
 
     for (var user in users) {
       final groupName = 'group:${normalizeUserName(user.name)}';
-      final members = <String>{user.name};
+      // 成员必须是合法的 Headscale 用户引用（本地用户名需要补 `@`），
+      // 否则保存策略时服务端会报 username must contain @。
+      final members = <String>{headscaleUserRef(user.name)};
       if (user.email != null && user.email!.isNotEmpty) {
         members.add(user.email!);
       }

@@ -28,7 +28,8 @@ class StandardAclGeneratorService {
 
     for (var user in users) {
       final groupName = 'group:${normalizeUserName(user.name)}';
-      final members = <String>{user.name};
+      // 本地用户名不含 @，必须补成 `name@` 才能被 Headscale 策略解析器接受。
+      final members = <String>{headscaleUserRef(user.name)};
       if (user.email != null && user.email!.isNotEmpty) {
         members.add(user.email!);
       }

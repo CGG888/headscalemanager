@@ -31,6 +31,19 @@ extension StringUtils on String {
   }
 }
 
+/// 把用户名转成 **Headscale 策略里合法的用户引用**。
+///
+/// Headscale 的策略解析器要求每个用户引用都必须含 `@`
+/// （语义：`alice@` = 「alice 名下的所有设备」）。本地（CLI）创建的用户名通常是
+/// `lcmyhome` 这种不含 `@` 的形式，直接写进策略会被服务端拒绝：
+///
+///   `setting policy: parsing policy: ... json: cannot unmarshal JSON object into
+///    Go v2.Group within "/groups": username must contain @,got:"lcmyhome"`
+///
+/// 已经含 `@` 的名字（例如 OIDC 用户的邮箱）原样返回，避免出现 `a@b@`。
+String headscaleUserRef(String userName) =>
+    userName.contains('@') ? userName : '$userName@';
+
 /// Normalise un nom d'utilisateur en supprimant le domaine de l'e-mail,
 /// en le mettant en minuscules et en remplaçant les caractères non-alphanumériques (dont '.') par des tirets.
 /// Conforme aux exigences de nommage des tags et groupes Headscale/Tailscale.
