@@ -16,6 +16,12 @@ class WhatsNewVersion {
   static List<WhatsNewVersion> getVersions(L10n l10n) {
     return [
       WhatsNewVersion(
+        version: '2.2.3',
+        title: l10n.t('Release 2.2.3 — Signature permanente', 'Release 2.2.3 — Permanent signing key', 'Release 2.2.3 — 使用固定签名密钥'),
+        description: l10n.t('Les versions publiées sont désormais signées avec une clé de signature permanente, ce qui permet les mises à jour par-dessus une installation existante. Si vous avez installé une version de test antérieure (v2.2.2 ou avant), désinstallez-la d\'abord : la clé a changé.', 'Published builds are now signed with a permanent signing key, so future updates install over an existing installation. If you installed an earlier test build (v2.2.2 or before), uninstall it first - the key has changed.', '今后发布的安装包使用固定的正式签名密钥，可以直接覆盖升级。如果你装过更早的测试版（v2.2.2 及以前），请先卸载再安装——签名密钥变了。'),
+        verification: l10n.t('Installer l\'APK depuis la page Releases', 'Install the APK from the Releases page', '从 Releases 页面下载并安装 APK'),
+      ),
+      WhatsNewVersion(
         version: '2.2.2',
         title: l10n.t('Release 2.2.2 — Signature de l\'APK corrigée', 'Release 2.2.2 — APK signing fixed', 'Release 2.2.2 — 修复安装包签名'),
         description: l10n.t('Les APK sont désormais signés avec les trois schémas v1 (JAR), v2 et v3. Certains installateurs (systèmes anciens, ROM personnalisées) ne vérifient que la signature v1 et refusaient l\'installation avec « paquet sans fichier de signature ».', 'APKs are now signed with all three schemes - v1 (JAR), v2 and v3. Some installers (older systems, custom ROMs) only check the v1 signature and refused to install with "package has no signature file".', '安装包现在同时带有 v1（JAR）、v2、v3 三种签名。部分安装器（旧系统、定制 ROM）只校验 v1 签名，此前会以「安装包没有签名文件」为由拒绝安装。'),
