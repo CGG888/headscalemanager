@@ -84,12 +84,18 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      # 接受 SDK 许可并预装项目声明的 platform/build-tools；
-      # 许可被接受后，AGP 也能在需要时自行下载 NDK 等缺失组件。
-      - name: 预装 Android SDK 组件
+      # 接受 SDK 许可并预装项目声明的 platform。许可被接受后，
+      # AGP 也能在构建时自行下载缺失的 platform/build-tools/NDK。
+      # 刻意容错（continue-on-error + || true）：即使 sdkmanager 不在 PATH 或
+      # 某个版本号不存在，也不要在构建开始前就整段失败。
+      - name: 接受 SDK 许可并预装组件（失败不阻塞）
+        continue-on-error: true
         run: |
-          yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+          SDKMANAGER="$(command -v sdkmanager || echo "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools/latest/bin/sdkmanager")"
+          echo "sdkmanager: $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          yes | "$SDKMANAGER" "platforms;android-36" || true
+          echo "SDK 组件准备结束（缺失部分由 AGP 在构建时补齐）"
 
       - name: 注入正式签名密钥（仅在配置了 Secrets 时）
         if: ${{ env.KEYSTORE_B64 != '' }}
