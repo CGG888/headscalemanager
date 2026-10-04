@@ -22,9 +22,11 @@ Android Gradle Plugin 在 `minSdk >= 24` 时默认只做 v2/v3 签名（这是�
 
 **修复**：
 
-- release 签名（以及无密钥库时回退的 debug 签名）现在**强制同时启用 v1 + v2 + v3**；
-- CI 增加**签名闸门**：构建后自动校验，缺 v1 或 v2/v3 会直接让流水线失败，并打印签名证书指纹——这类问题不会再悄悄发出去；
-- CI 缓存 debug keystore，使未配置正式密钥时**多次构建使用同一把密钥**，保证能覆盖升级。
+- 构建完成后，CI 用 `apksigner` **显式重签**并开启 v1 + v2 + v3 三种方案——不再依赖 Android Gradle Plugin 的签名默认行为（实测 AGP 在 `minSdk ≥ 24` 时，即便设置 `enableV1Signing = true` 仍不产出 v1）；
+- CI 增加**签名闸门**：必须检测到 `META-INF/*.RSA`，且按 API 21 校验 v1 与 v2/v3 均通过，否则流水线失败——这类问题不会再悄悄发出去；
+- CI 自己准备签名密钥：未配置 Secrets 时用 `keytool` 生成一把并缓存，使多次构建使用**同一把密钥**，可覆盖升级（此前每次构建密钥都不同，必然无法覆盖安装）。
+
+**本版本的签名证书**：`CN=Headscale Manager CI, O=CGG888, C=CN`（证书 SHA-256 `4e4fc743…`）。
 
 ## 升级说明
 
@@ -39,7 +41,7 @@ Android Gradle Plugin 在 `minSdk >= 24` 时默认只做 v2/v3 签名（这是�
 
 ## English summary
 
-- Fixes "package has no signature file" on install: APKs are now signed with v1 (JAR) **and** v2/v3. AGP only produces v2/v3 when minSdk >= 24, which some installers (older Android, custom ROMs, MDM) refuse.
-- CI now verifies the signature after building and fails if v1 or v2/v3 is missing, and caches the debug keystore so builds without a configured keystore still share one stable key.
+- Fixes "package has no signature file" on install: the APK now carries a v1 (JAR) signature (`META-INF/CI.RSA`) plus v2/v3. CI re-signs with apksigner instead of relying on AGP, which does not emit v1 for minSdk >= 24 even when enableV1Signing is set.
+- CI now verifies the signature after building (META-INF entry plus apksigner at API 21) and fails the run otherwise, and uses one keystore cached across runs so consecutive builds share a stable key.
 - Also includes the two v2.2.1 fixes (ACL policy 500, public IP lookup).
 - If an older build of this app is installed (Play Store or a previous CI build), uninstall it once before installing this one - the signing keys differ.
