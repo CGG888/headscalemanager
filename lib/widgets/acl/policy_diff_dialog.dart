@@ -1,30 +1,31 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class PolicyDiffDialog extends StatelessWidget {
   final Map<String, dynamic> currentPolicy;
   final Map<String, dynamic> newPolicy;
-  final bool isFr;
+  final L10n l10n;
 
   const PolicyDiffDialog({
     super.key,
     required this.currentPolicy,
     required this.newPolicy,
-    required this.isFr,
+    required this.l10n,
   });
 
   static Future<bool?> show(
     BuildContext context, {
     required Map<String, dynamic> currentPolicy,
     required Map<String, dynamic> newPolicy,
-    required bool isFr,
+    required L10n l10n,
   }) {
     return showDialog<bool>(
       context: context,
       builder: (_) => PolicyDiffDialog(
         currentPolicy: currentPolicy,
         newPolicy: newPolicy,
-        isFr: isFr,
+        l10n: l10n,
       ),
     );
   }
@@ -33,9 +34,7 @@ class PolicyDiffDialog extends StatelessWidget {
     final grants = (policy['grants'] as List?)?.length ?? 0;
     final acls = (policy['acls'] as List?)?.length ?? 0;
     final groups = (policy['groups'] as Map?)?.length ?? 0;
-    return isFr
-        ? '$grants grants, $acls acls, $groups groupes'
-        : '$grants grants, $acls acls, $groups groups';
+    return l10n.t('$grants grants, $acls acls, $groups groupes', '$grants grants, $acls acls, $groups groups');
   }
 
   @override
@@ -44,7 +43,7 @@ class PolicyDiffDialog extends StatelessWidget {
     final changed = encoder.convert(currentPolicy) != encoder.convert(newPolicy);
 
     return AlertDialog(
-      title: Text(isFr ? 'Aperçu des changements' : 'Change preview'),
+      title: Text(l10n.t('Aperçu des changements', 'Change preview')),
       content: SizedBox(
         width: double.maxFinite,
         child: SingleChildScrollView(
@@ -52,22 +51,18 @@ class PolicyDiffDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(isFr ? 'Politique actuelle :' : 'Current policy:',
+              Text(l10n.t('Politique actuelle :', 'Current policy:'),
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               Text(_summarize(currentPolicy)),
               const SizedBox(height: 12),
-              Text(isFr ? 'Nouvelle politique :' : 'New policy:',
+              Text(l10n.t('Nouvelle politique :', 'New policy:'),
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               Text(_summarize(newPolicy)),
               const SizedBox(height: 12),
               Text(
                 changed
-                    ? (isFr
-                        ? 'Le JSON sera modifié avant export.'
-                        : 'JSON will be modified before export.')
-                    : (isFr
-                        ? 'Aucune différence détectée.'
-                        : 'No difference detected.'),
+                    ? (l10n.t('Le JSON sera modifié avant export.', 'JSON will be modified before export.'))
+                    : (l10n.t('Aucune différence détectée.', 'No difference detected.')),
                 style: TextStyle(
                   color: changed ? Colors.orange : Colors.green,
                   fontWeight: FontWeight.w600,
@@ -80,11 +75,11 @@ class PolicyDiffDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
         ),
         ElevatedButton(
           onPressed: changed ? () => Navigator.pop(context, true) : null,
-          child: Text(isFr ? 'Confirmer export' : 'Confirm export'),
+          child: Text(l10n.t('Confirmer export', 'Confirm export')),
         ),
       ],
     );

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
 import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
 import 'dart:convert';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 /// Dialogue pour renommer un nœud.
 ///
@@ -47,25 +48,21 @@ class _RenameNodeDialogState extends State<RenameNodeDialog> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(isFr ? 'Renommer l\'appareil' : 'Rename Device'),
+      title: Text(l10n.t('Renommer l\'appareil', 'Rename Device')),
       content: Form(
         key: _formKey,
         child: TextFormField(
           controller: _nameController,
           decoration: InputDecoration(
-            labelText: isFr ? 'Nouveau nom' : 'New name',
-            hintText: isFr
-                ? 'Entrez le nouveau nom de l\'appareil'
-                : 'Enter the new device name',
+            labelText: l10n.t('Nouveau nom', 'New name'),
+            hintText: l10n.t('Entrez le nouveau nom de l\'appareil', 'Enter the new device name'),
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return isFr
-                  ? 'Le nom ne peut pas être vide.'
-                  : 'Name cannot be empty.';
+              return l10n.t('Le nom ne peut pas être vide.', 'Name cannot be empty.');
             }
             return null;
           },
@@ -74,11 +71,11 @@ class _RenameNodeDialogState extends State<RenameNodeDialog> {
       ),
       actions: [
         TextButton(
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(isFr ? 'Renommer' : 'Rename'),
+          child: Text(l10n.t('Renommer', 'Rename')),
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
               final newName = _nameController.text.trim();
@@ -90,22 +87,18 @@ class _RenameNodeDialogState extends State<RenameNodeDialog> {
                     context: context,
                     builder: (ctx) => AlertDialog(
                           title:
-                              Text(isFr ? 'Format Invalide' : 'Invalid Format'),
-                          content: Text(isFr
-                              ? 'Le nom "$newName" ne respecte pas le format DNS (RFC 1123).\n\nCaractères autorisés : a-z, 0-9 et tirets.\nPas de majuscules ni de caractères spéciaux.\n\nVoulez-vous utiliser "$sanitized" à la place ?'
-                              : 'The name "$newName" does not match DNS format (RFC 1123).\n\nAllowed: a-z, 0-9, and dashes.\nNo uppercase or special characters.\n\nDo you want to use "$sanitized" instead?'),
+                              Text(l10n.t('Format Invalide', 'Invalid Format')),
+                          content: Text(l10n.t('Le nom "$newName" ne respecte pas le format DNS (RFC 1123).\n\nCaractères autorisés : a-z, 0-9 et tirets.\nPas de majuscules ni de caractères spéciaux.\n\nVoulez-vous utiliser "$sanitized" à la place ?', 'The name "$newName" does not match DNS format (RFC 1123).\n\nAllowed: a-z, 0-9, and dashes.\nNo uppercase or special characters.\n\nDo you want to use "$sanitized" instead?')),
                           actions: [
                             TextButton(
                                 onPressed: () => Navigator.pop(ctx),
-                                child: Text(isFr ? 'Annuler' : 'Cancel')),
+                                child: Text(l10n.t('Annuler', 'Cancel'))),
                             TextButton(
                                 onPressed: () {
                                   Navigator.pop(ctx);
                                   _nameController.text = sanitized;
                                 },
-                                child: Text(isFr
-                                    ? 'Utiliser corrigé'
-                                    : 'Use corrected')),
+                                child: Text(l10n.t('Utiliser corrigé', 'Use corrected'))),
                           ],
                         ));
                 return;
@@ -123,7 +116,7 @@ class _RenameNodeDialogState extends State<RenameNodeDialog> {
                 if (serverId != null) {
                   if (!context.mounted) return;
                   showSafeSnackBar(context,
-                      isFr ? 'Mise à jour des ACLs...' : 'Updating ACLs...');
+                      l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
                   final allUsers = await apiService.getUsers();
                   final allNodes = await apiService.getNodes();
                   final tempRules = await appProvider.storageService
@@ -147,15 +140,11 @@ class _RenameNodeDialogState extends State<RenameNodeDialog> {
                 Navigator.of(context).pop();
                 showSafeSnackBar(
                     context,
-                    isFr
-                        ? 'Appareil renommé et ACLs mises à jour.'
-                        : 'Device renamed and ACLs updated.');
+                    l10n.t('Appareil renommé et ACLs mises à jour.', 'Device renamed and ACLs updated.'));
               } catch (e) {
                 showSafeSnackBar(
                     context,
-                    isFr
-                        ? 'Erreur lors du renommage: $e'
-                        : 'Error while renaming: $e');
+                    l10n.t('Erreur lors du renommage: $e', 'Error while renaming: $e'));
               }
             }
           },

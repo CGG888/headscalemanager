@@ -16,6 +16,7 @@ import 'package:headscalemanager/models/version_info.dart';
 import 'package:headscalemanager/widgets/grants_migration_dialog.dart';
 import 'package:headscalemanager/widgets/legacy_migration_dialog.dart';
 import 'package:headscalemanager/widgets/whats_new_dialog.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -136,13 +137,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     final titles = [
-      isFr ? 'Tableau de bord' : 'Dashboard',
-      isFr ? 'Utilisateurs' : 'Users',
+      l10n.t('Tableau de bord', 'Dashboard'),
+      l10n.t('Utilisateurs', 'Users'),
       'ACLs',
-      isFr ? 'Réseau' : 'Network',
+      l10n.t('Réseau', 'Network'),
       'DNS',
     ];
 
@@ -173,14 +174,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   provider.usersViewMode == 'grid' ? 'list' : 'grid',
                 );
               },
-              tooltip: isFr ? 'Changer l\'affichage' : 'Change layout',
+              tooltip: l10n.t('Changer l\'affichage', 'Change layout'),
             ),
           IconButton(
             icon: Icon(Icons.help_outline, color: theme.colorScheme.primary),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) =>
-                      isFr ? const HelpScreen() : const HelpScreenEn()));
+                      l10n.isFr ? const HelpScreen() : const HelpScreenEn()));
             },
           ),
           IconButton(

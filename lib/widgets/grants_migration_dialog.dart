@@ -4,6 +4,7 @@ import 'package:headscalemanager/models/acl_engine_mode.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class GrantsMigrationDialog extends StatefulWidget {
   const GrantsMigrationDialog({super.key});
@@ -18,7 +19,7 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
   bool _processing = false;
   String? _error;
 
-  bool get _isFr => context.read<AppProvider>().locale.languageCode == 'fr';
+  L10n get _l10n => L10n(context.read<AppProvider>().locale);
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +38,12 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
 
   String _title() {
     if (_step == 0) {
-      return _isFr ? 'Migration Grants V29' : 'Grants V29 Migration';
+      return _l10n.t('Migration Grants V29', 'Grants V29 Migration');
     }
     if (_step == 1) {
-      return _isFr ? 'Migration en cours…' : 'Migration in progress…';
+      return _l10n.t('Migration en cours…', 'Migration in progress…');
     }
-    return _isFr ? 'Migration terminée' : 'Migration completed';
+    return _l10n.t('Migration terminée', 'Migration completed');
   }
 
   Widget _buildIntro() {
@@ -51,15 +52,11 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _isFr
-              ? 'Votre serveur Headscale ≥ 0.29 supporte les grants avec routage via. Cette migration bascule le moteur ACL vers Grants V29 et régénère la politique.'
-              : 'Your Headscale server ≥ 0.29 supports grants with via routing. This migration switches the ACL engine to Grants V29 and regenerates the policy.',
+          _l10n.t('Votre serveur Headscale ≥ 0.29 supporte les grants avec routage via. Cette migration bascule le moteur ACL vers Grants V29 et régénère la politique.', 'Your Headscale server ≥ 0.29 supports grants with via routing. This migration switches the ACL engine to Grants V29 and regenerates the policy.'),
         ),
         const SizedBox(height: 12),
         Text(
-          _isFr
-              ? 'Recommandé si plusieurs utilisateurs partagent le même sous-réseau LAN (ex. 192.168.1.0/24).'
-              : 'Recommended when multiple users share the same LAN subnet (e.g. 192.168.1.0/24).',
+          _l10n.t('Recommandé si plusieurs utilisateurs partagent le même sous-réseau LAN (ex. 192.168.1.0/24).', 'Recommended when multiple users share the same LAN subnet (e.g. 192.168.1.0/24).'),
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         if (_error != null) ...[
@@ -91,11 +88,11 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
       return [
         TextButton(
           onPressed: _processing ? null : _dismissLater,
-          child: Text(_isFr ? 'Plus tard' : 'Later'),
+          child: Text(_l10n.t('Plus tard', 'Later')),
         ),
         TextButton(
           onPressed: _processing ? null : _startMigration,
-          child: Text(_isFr ? 'Démarrer' : 'Start'),
+          child: Text(_l10n.t('Démarrer', 'Start')),
         ),
       ];
     }
@@ -103,7 +100,7 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
     return [
       ElevatedButton(
         onPressed: () => Navigator.of(context).pop(true),
-        child: Text(_isFr ? 'OK' : 'OK'),
+        child: Text(_l10n.t('OK', 'OK')),
       ),
     ];
   }
@@ -132,7 +129,7 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
     final serverId = provider.activeServer?.id;
     if (serverId == null) {
       setState(() {
-        _error = _isFr ? 'Aucun serveur actif.' : 'No active server.';
+        _error = _l10n.t('Aucun serveur actif.', 'No active server.');
         _step = 0;
         _processing = false;
       });
@@ -140,16 +137,16 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
     }
 
     try {
-      _log(_isFr ? 'Activation moteur Grants V29…' : 'Enabling Grants V29 engine…');
+      _log(_l10n.t('Activation moteur Grants V29…', 'Enabling Grants V29 engine…'));
       await provider.setAclEngineMode(AclEngineMode.grantsV29);
 
-      _log(_isFr ? 'Récupération utilisateurs et nœuds…' : 'Fetching users and nodes…');
+      _log(_l10n.t('Récupération utilisateurs et nœuds…', 'Fetching users and nodes…'));
       final users = await provider.apiService.getUsers();
       final nodes = await provider.apiService.getNodes();
       final tempRules =
           await provider.storageService.getTemporaryRules(serverId);
 
-      _log(_isFr ? 'Génération politique grants…' : 'Generating grants policy…');
+      _log(_l10n.t('Génération politique grants…', 'Generating grants policy…'));
       final orchestrator = AclPolicyOrchestrator();
       final policy = orchestrator.generatePolicy(
         engineMode: AclEngineMode.grantsV29,
@@ -160,7 +157,7 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
         serverVersion: provider.serverVersion,
       );
 
-      _log(_isFr ? 'Envoi vers le serveur…' : 'Pushing to server…');
+      _log(_l10n.t('Envoi vers le serveur…', 'Pushing to server…'));
       final jsonPolicy =
           const JsonEncoder.withIndent('  ').convert(policy);
       await provider.apiService.setAclPolicy(jsonPolicy);
@@ -172,7 +169,7 @@ class _GrantsMigrationDialogState extends State<GrantsMigrationDialog> {
       await provider.storageService.setGrantsMigrationBannerDismissed(
           serverId, false);
 
-      _log(_isFr ? 'Migration réussie !' : 'Migration successful!');
+      _log(_l10n.t('Migration réussie !', 'Migration successful!'));
       if (mounted) setState(() => _step = 2);
     } catch (e) {
       _log('ERROR: $e');

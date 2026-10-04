@@ -3,6 +3,7 @@ import 'package:headscalemanager/models/user.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 // For debugPrint
 
 /// Dialogue de confirmation pour la suppression d'un utilisateur.
@@ -26,20 +27,18 @@ class DeleteUserDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.read<AppProvider>();
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(isFr ? 'Supprimer l\'utilisateur ?' : 'Delete user?'),
-      content: Text(isFr
-          ? 'Êtes-vous sûr de vouloir supprimer ${user.name} ?\n\nNote : La suppression échouera si l\'utilisateur possède encore des appareils.'
-          : 'Are you sure you want to delete ${user.name}?\n\nNote: Deletion will fail if the user still owns devices.'),
+      title: Text(l10n.t('Supprimer l\'utilisateur ?', 'Delete user?')),
+      content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer ${user.name} ?\n\nNote : La suppression échouera si l\'utilisateur possède encore des appareils.', 'Are you sure you want to delete ${user.name}?\n\nNote: Deletion will fail if the user still owns devices.')),
       actions: [
         TextButton(
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(isFr ? 'Supprimer' : 'Delete',
+          child: Text(l10n.t('Supprimer', 'Delete'),
               style: const TextStyle(color: Colors.red)),
           onPressed: () async {
             try {
@@ -49,18 +48,14 @@ class DeleteUserDialog extends StatelessWidget {
               onUserDeleted(); // Appelle le callback pour rafraîchir la liste
               showSafeSnackBar(
                   context,
-                  isFr
-                      ? 'Utilisateur ${user.name} supprimé.'
-                      : 'User ${user.name} deleted.');
+                  l10n.t('Utilisateur ${user.name} supprimé.', 'User ${user.name} deleted.'));
             } catch (e) {
               debugPrint(
                   'Erreur lors de la suppression de l\'utilisateur : $e');
               Navigator.of(context).pop();
               showSafeSnackBar(
                   context,
-                  isFr
-                      ? 'Échec de la suppression de l\'utilisateur : $e'
-                      : 'Failed to delete user: $e');
+                  l10n.t('Échec de la suppression de l\'utilisateur : $e', 'Failed to delete user: $e'));
             }
           },
         ),

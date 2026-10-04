@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:headscalemanager/models/client_command.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class CommandFiltersSection extends StatelessWidget {
-  final bool isFr;
+  final L10n l10n;
   final TextEditingController searchController;
   final String selectedPlatform;
   final CommandCategory? selectedCategory;
@@ -15,7 +16,7 @@ class CommandFiltersSection extends StatelessWidget {
 
   const CommandFiltersSection({
     super.key,
-    required this.isFr,
+    required this.l10n,
     required this.searchController,
     required this.selectedPlatform,
     required this.selectedCategory,
@@ -48,7 +49,7 @@ class CommandFiltersSection extends StatelessWidget {
             controller: searchController,
             decoration: InputDecoration(
               hintText:
-                  isFr ? 'Rechercher une commande...' : 'Search command...',
+                  l10n.t('Rechercher une commande...', 'Search command...'),
               prefixIcon: const Icon(Icons.search),
               suffixIcon: searchController.text.isNotEmpty
                   ? IconButton(
@@ -73,7 +74,7 @@ class CommandFiltersSection extends StatelessWidget {
                 child: DropdownButtonFormField<String>(
                   initialValue: selectedPlatform,
                   decoration: InputDecoration(
-                    labelText: isFr ? 'Plateforme' : 'Platform',
+                    labelText: l10n.t('Plateforme', 'Platform'),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -107,7 +108,7 @@ class CommandFiltersSection extends StatelessWidget {
                 child: DropdownButtonFormField<CommandCategory?>(
                   initialValue: selectedCategory,
                   decoration: InputDecoration(
-                    labelText: isFr ? 'Catégorie' : 'Category',
+                    labelText: l10n.t('Catégorie', 'Category'),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -117,12 +118,12 @@ class CommandFiltersSection extends StatelessWidget {
                   items: [
                     DropdownMenuItem<CommandCategory?>(
                       value: null,
-                      child: Text(isFr ? 'Toutes' : 'All'),
+                      child: Text(l10n.t('Toutes', 'All')),
                     ),
                     ...categories.map((category) {
                       return DropdownMenuItem<CommandCategory?>(
                         value: category,
-                        child: Text(category.label(isFr)),
+                        child: Text(category.label(l10n)),
                       );
                     }),
                   ],
@@ -136,15 +137,11 @@ class CommandFiltersSection extends StatelessWidget {
           // Filtre élévation
           CheckboxListTile(
             title: Text(
-              isFr
-                  ? 'Commandes privilégiées uniquement'
-                  : 'Elevated commands only',
+              l10n.t('Commandes privilégiées uniquement', 'Elevated commands only'),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             subtitle: Text(
-              isFr
-                  ? 'Nécessitent des droits administrateur'
-                  : 'Require administrator rights',
+              l10n.t('Nécessitent des droits administrateur', 'Require administrator rights'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             value: showOnlyElevated,

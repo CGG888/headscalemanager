@@ -3,6 +3,7 @@ import 'package:flutter/services.dart'; // For Clipboard
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/utils/snack_bar_utils.dart'; // For showSafeSnackBar
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 /// Dialogue pour afficher une commande Tailscale et des instructions spécifiques à la plateforme.
 ///
@@ -37,7 +38,7 @@ class SubnetCommandDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return DefaultTabController(
       length: 3, // Linux, Windows, Mobile
@@ -112,21 +113,17 @@ class SubnetCommandDialog extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            child: Text(isFr ? 'Fermer' : 'Close'),
+            child: Text(l10n.t('Fermer', 'Close')),
             onPressed: () => Navigator.of(context).pop(),
           ),
           TextButton(
-            child: Text(isFr
-                ? 'Copier la commande Tailscale'
-                : 'Copy Tailscale Command'),
+            child: Text(l10n.t('Copier la commande Tailscale', 'Copy Tailscale Command')),
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: tailscaleCommand));
               if (!context.mounted) return;
               showSafeSnackBar(
                   context,
-                  isFr
-                      ? 'Commande Tailscale copiée dans le presse-papiers !'
-                      : 'Tailscale command copied to clipboard!');
+                  l10n.t('Commande Tailscale copiée dans le presse-papiers !', 'Tailscale command copied to clipboard!'));
             },
           ),
         ],

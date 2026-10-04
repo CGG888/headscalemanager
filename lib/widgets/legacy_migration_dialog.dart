@@ -7,6 +7,7 @@ import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/services/tag_migration_service.dart';
 import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class LegacyMigrationDialog extends StatefulWidget {
   const LegacyMigrationDialog({super.key});
@@ -22,7 +23,7 @@ class _LegacyMigrationDialogState extends State<LegacyMigrationDialog> {
   String? _errorMessage;
 
   // I18n helper
-  bool get _isFr => context.read<AppProvider>().locale.languageCode == 'fr';
+  L10n get _l10n => L10n(context.read<AppProvider>().locale);
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +42,11 @@ class _LegacyMigrationDialogState extends State<LegacyMigrationDialog> {
 
   String _getTitle() {
     if (_currentStep == 0) {
-      return _isFr
-          ? 'Configuration Non Conforme Détectée'
-          : 'Non-Compliant Configuration Detected';
+      return _l10n.t('Configuration Non Conforme Détectée', 'Non-Compliant Configuration Detected');
     } else if (_currentStep == 1) {
-      return _isFr ? 'Migration en cours...' : 'Migration in progress...';
+      return _l10n.t('Migration en cours...', 'Migration in progress...');
     } else {
-      return _isFr ? 'Migration Terminée' : 'Migration Completed';
+      return _l10n.t('Migration Terminée', 'Migration Completed');
     }
   }
 
@@ -58,9 +57,7 @@ class _LegacyMigrationDialogState extends State<LegacyMigrationDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            _isFr
-                ? 'Des tags "fusionnés" (Legacy) ont été détectés. Cette configuration est obsolète et peut poser des problèmes de routage.'
-                : 'Merged (Legacy) tags have been detected. This configuration is obsolete and may cause routing issues.',
+            _l10n.t('Des tags "fusionnés" (Legacy) ont été détectés. Cette configuration est obsolète et peut poser des problèmes de routage.', 'Merged (Legacy) tags have been detected. This configuration is obsolete and may cause routing issues.'),
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
@@ -80,7 +77,7 @@ class _LegacyMigrationDialogState extends State<LegacyMigrationDialog> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        _isFr ? 'ATTENTION REQUISE' : 'ATTENTION REQUIRED',
+                        _l10n.t('ATTENTION REQUISE', 'ATTENTION REQUIRED'),
                         style: const TextStyle(
                             color: Colors.orange, fontWeight: FontWeight.bold),
                       ),
@@ -89,9 +86,7 @@ class _LegacyMigrationDialogState extends State<LegacyMigrationDialog> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _isFr
-                      ? 'Avant de continuer, vous DEVEZ désactiver votre VPN sur cet appareil pour éviter toute coupure de connexion pendant la mise à jour.'
-                      : 'Before proceeding, you MUST disable your VPN on this device to avoid connection loss during the update.',
+                  _l10n.t('Avant de continuer, vous DEVEZ désactiver votre VPN sur cet appareil pour éviter toute coupure de connexion pendant la mise à jour.', 'Before proceeding, you MUST disable your VPN on this device to avoid connection loss during the update.'),
                 ),
               ],
             ),
@@ -152,13 +147,11 @@ class _LegacyMigrationDialogState extends State<LegacyMigrationDialog> {
             // Close dialog without migrating
             Navigator.of(context).pop();
           },
-          child: Text(_isFr ? "Plus tard" : "Later"),
+          child: Text(_l10n.t("Plus tard", "Later")),
         ),
         TextButton(
           onPressed: _isProcessing ? null : _testConnectionAndStart,
-          child: Text(_isFr
-              ? "J'ai coupé mon VPN, Démarrer"
-              : "I disabled my VPN, Start"),
+          child: Text(_l10n.t("J'ai coupé mon VPN, Démarrer", "I disabled my VPN, Start")),
         ),
       ];
     } else if (_currentStep == 1) {
@@ -171,7 +164,7 @@ class _LegacyMigrationDialogState extends State<LegacyMigrationDialog> {
             exit(0);
           },
           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-          child: Text(_isFr ? 'Fermer l\'application' : 'Close Application'),
+          child: Text(_l10n.t('Fermer l\'application', 'Close Application')),
         ),
       ];
     }
@@ -199,9 +192,7 @@ class _LegacyMigrationDialogState extends State<LegacyMigrationDialog> {
       if (!mounted) return;
       setState(() {
         _isProcessing = false;
-        _errorMessage = _isFr
-            ? "Impossible de joindre le serveur. Vérifiez votre connexion internet (hors VPN)."
-            : "Cannot reach server. Check your internet connection (outside VPN).";
+        _errorMessage = _l10n.t("Impossible de joindre le serveur. Vérifiez votre connexion internet (hors VPN).", "Cannot reach server. Check your internet connection (outside VPN).");
       });
     }
   }
@@ -215,7 +206,7 @@ class _LegacyMigrationDialogState extends State<LegacyMigrationDialog> {
     void log(String fr, String en) {
       if (!mounted) return;
       setState(() {
-        _logs.add(_isFr ? fr : en);
+        _logs.add(_l10n.isFr ? fr : en);
       });
     }
 
@@ -284,9 +275,7 @@ class _LegacyMigrationDialogState extends State<LegacyMigrationDialog> {
       if (!mounted) return;
       setState(() {
         _currentStep = 2;
-        _logs.add(_isFr
-            ? "Terminé. L'application doit maintenant se fermer pour rafraîchir ses données."
-            : "Finished. Application must now close to refresh data.");
+        _logs.add(_l10n.t("Terminé. L'application doit maintenant se fermer pour rafraîchir ses données.", "Finished. Application must now close to refresh data."));
       });
     } catch (e) {
       if (!mounted) return;

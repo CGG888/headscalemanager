@@ -14,6 +14,7 @@ import 'package:headscalemanager/services/tag_migration_service.dart';
 import 'package:headscalemanager/widgets/server_list_tile.dart';
 import 'package:headscalemanager/widgets/grants_migration_dialog.dart';
 import 'package:headscalemanager/screens/api_keys_screen.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -42,12 +43,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final appProvider = context.watch<AppProvider>();
-    final isFr = appProvider.locale.languageCode == 'fr';
+    final l10n = L10n(appProvider.locale);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(isFr ? 'Paramètres' : 'Settings',
+        title: Text(l10n.t('Paramètres', 'Settings'),
             style: theme.appBarTheme.titleTextStyle),
         backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
@@ -59,7 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(isFr ? 'Serveurs' : 'Servers',
+              Text(l10n.t('Serveurs', 'Servers'),
                   style: theme.textTheme.headlineSmall),
               const SizedBox(height: 16),
               Expanded(
@@ -75,14 +76,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(
-                            isFr
-                                ? 'Notifications en arrière-plan'
-                                : 'Background Notifications',
+                            l10n.t('Notifications en arrière-plan', 'Background Notifications'),
                             style: theme.textTheme.titleMedium),
                         subtitle: Text(
-                            isFr
-                                ? 'Vérifie périodiquement les nouvelles demandes d\'approbation.'
-                                : 'Periodically check for new approval requests.',
+                            l10n.t('Vérifie périodiquement les nouvelles demandes d\'approbation.', 'Periodically check for new approval requests.'),
                             style: theme.textTheme.bodySmall),
                         value: _notificationsEnabled,
                         onChanged: (bool value) async {
@@ -112,9 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      isFr
-                                          ? 'Moteur ACL & Migration'
-                                          : 'ACL Engine & Migration',
+                                      l10n.t('Moteur ACL & Migration', 'ACL Engine & Migration'),
                                       style: theme.textTheme.titleMedium
                                           ?.copyWith(
                                               fontWeight: FontWeight.bold),
@@ -124,52 +119,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     icon: const Icon(Icons.help_outline,
                                         color: Colors.blue),
                                     onPressed: () =>
-                                        _showMigrationHelpDialog(context, isFr),
-                                    tooltip: isFr ? 'Aide' : 'Help',
+                                        _showMigrationHelpDialog(context, l10n),
+                                    tooltip: l10n.t('Aide', 'Help'),
                                   ),
                                 ],
                               ),
                               const Divider(),
                               Text(
-                                isFr
-                                    ? 'Moteur de génération ACL'
-                                    : 'ACL Generation Engine',
+                                l10n.t('Moteur de génération ACL', 'ACL Generation Engine'),
                                 style: theme.textTheme.bodyLarge
                                     ?.copyWith(fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 4),
                               _AclEngineModeTile(
-                                isFr: isFr,
+                                l10n: l10n,
                                 mode: AclEngineMode.legacy,
                                 groupValue: appProvider.aclEngineMode,
-                                title: isFr ? 'Legacy' : 'Legacy',
-                                subtitle: isFr
-                                    ? 'Tags fusionnés (ancien format).'
-                                    : 'Merged tags (legacy format).',
+                                title: l10n.t('Legacy', 'Legacy'),
+                                subtitle: l10n.t('Tags fusionnés (ancien format).', 'Merged tags (legacy format).'),
                                 onChanged: (mode) =>
                                     appProvider.setAclEngineMode(mode),
                               ),
                               _AclEngineModeTile(
-                                isFr: isFr,
+                                l10n: l10n,
                                 mode: AclEngineMode.standard,
                                 groupValue: appProvider.aclEngineMode,
-                                title: isFr ? 'Standard' : 'Standard',
-                                subtitle: isFr
-                                    ? 'Tags séparés (Identity vs Capability).'
-                                    : 'Split tags (Identity vs Capability).',
+                                title: l10n.t('Standard', 'Standard'),
+                                subtitle: l10n.t('Tags séparés (Identity vs Capability).', 'Split tags (Identity vs Capability).'),
                                 onChanged: (mode) =>
                                     appProvider.setAclEngineMode(mode),
                               ),
                               _AclEngineModeTile(
-                                isFr: isFr,
+                                l10n: l10n,
                                 mode: AclEngineMode.grantsV29,
                                 groupValue: appProvider.aclEngineMode,
-                                title: isFr
-                                    ? 'Grants V29 (via)'
-                                    : 'Grants V29 (via)',
-                                subtitle: isFr
-                                    ? 'Headscale ≥ 0.29 — routage via pour LAN/exit.'
-                                    : 'Headscale ≥ 0.29 — via routing for LAN/exit.',
+                                title: l10n.t('Grants V29 (via)', 'Grants V29 (via)'),
+                                subtitle: l10n.t('Headscale ≥ 0.29 — routage via pour LAN/exit.', 'Headscale ≥ 0.29 — via routing for LAN/exit.'),
                                 enabled: VersionInfo.checkVersionAtLeast(
                                   appProvider.serverVersion,
                                   '0.29.0',
@@ -185,9 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   padding: const EdgeInsets.only(
                                       left: 16, bottom: 8),
                                   child: Text(
-                                    isFr
-                                        ? 'Grants V29 nécessite Headscale 0.29.0+.'
-                                        : 'Grants V29 requires Headscale 0.29.0+.',
+                                    l10n.t('Grants V29 nécessite Headscale 0.29.0+.', 'Grants V29 requires Headscale 0.29.0+.'),
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: Colors.orange,
                                     ),
@@ -199,9 +182,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 leading: const Icon(Icons.info_outline,
                                     color: Colors.blue),
                                 title: Text(
-                                  isFr
-                                      ? 'Version du serveur'
-                                      : 'Server Version',
+                                  l10n.t('Version du serveur', 'Server Version'),
                                   style: theme.textTheme.bodyLarge,
                                 ),
                                 trailing: Text(
@@ -215,21 +196,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               const SizedBox(height: 8),
                               // Danger Zone Header inside Card
                               Text(
-                                isFr
-                                    ? 'Zone de Danger / Migration'
-                                    : 'Danger / Migration Zone',
+                                l10n.t('Zone de Danger / Migration', 'Danger / Migration Zone'),
                                 style: theme.textTheme.titleSmall?.copyWith(
                                     color: Colors.red,
                                     fontWeight: FontWeight.bold),
                               ),
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: Text(isFr
-                                    ? 'Migrer vers Grants V29'
-                                    : 'Migrate to Grants V29'),
-                                subtitle: Text(isFr
-                                    ? 'Régénère la politique avec routage via.'
-                                    : 'Regenerates policy with via routing.'),
+                                title: Text(l10n.t('Migrer vers Grants V29', 'Migrate to Grants V29')),
+                                subtitle: Text(l10n.t('Régénère la politique avec routage via.', 'Regenerates policy with via routing.')),
                                 trailing: const Icon(Icons.alt_route,
                                     color: Colors.green),
                                 enabled: VersionInfo.checkVersionAtLeast(
@@ -249,24 +224,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: Text(isFr
-                                    ? 'Rollback Grants → Standard'
-                                    : 'Rollback Grants → Standard'),
-                                subtitle: Text(isFr
-                                    ? 'Revient au moteur Standard (tags séparés).'
-                                    : 'Reverts to Standard engine (split tags).'),
+                                title: Text(l10n.t('Rollback Grants → Standard', 'Rollback Grants → Standard')),
+                                subtitle: Text(l10n.t('Revient au moteur Standard (tags séparés).', 'Reverts to Standard engine (split tags).')),
                                 trailing: const Icon(Icons.undo,
                                     color: Colors.orange),
                                 onTap: appProvider.aclEngineMode ==
                                         AclEngineMode.grantsV29
                                     ? () => _confirmAction(
                                           context,
-                                          isFr
-                                              ? 'Revenir au moteur Standard ?'
-                                              : 'Revert to Standard engine?',
-                                          isFr
-                                              ? 'Les grants via ne seront plus générés. Régénérez la politique ACL ensuite.'
-                                              : 'Via grants will no longer be generated. Regenerate ACL policy afterwards.',
+                                          l10n.t('Revenir au moteur Standard ?', 'Revert to Standard engine?'),
+                                          l10n.t('Les grants via ne seront plus générés. Régénérez la politique ACL ensuite.', 'Via grants will no longer be generated. Regenerate ACL policy afterwards.'),
                                           () async {
                                             await appProvider.setAclEngineMode(
                                                 AclEngineMode.standard);
@@ -274,9 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 SnackBar(
-                                                  content: Text(isFr
-                                                      ? 'Moteur Standard activé.'
-                                                      : 'Standard engine enabled.'),
+                                                  content: Text(l10n.t('Moteur Standard activé.', 'Standard engine enabled.')),
                                                 ),
                                               );
                                             }
@@ -286,43 +251,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: Text(isFr
-                                    ? 'Migrer vers Standard'
-                                    : 'Migrate to Standard'),
-                                subtitle: Text(isFr
-                                    ? 'Convertit les tags fusionnés.'
-                                    : 'Converts merged tags.'),
+                                title: Text(l10n.t('Migrer vers Standard', 'Migrate to Standard')),
+                                subtitle: Text(l10n.t('Convertit les tags fusionnés.', 'Converts merged tags.')),
                                 trailing: const Icon(Icons.arrow_forward,
                                     color: Colors.orange),
                                 onTap: () => _confirmAction(
                                     context,
-                                    isFr
-                                        ? 'Migrer tous les nœuds ?'
-                                        : 'Migrate all nodes?',
-                                    isFr
-                                        ? 'Ceci va modifier les tags de TOUS vos nœuds. Assurez-vous d\'avoir activé le moteur Standard avant.'
-                                        : 'This will modify tags for ALL nodes. Ensure Standard Engine is enabled first.',
+                                    l10n.t('Migrer tous les nœuds ?', 'Migrate all nodes?'),
+                                    l10n.t('Ceci va modifier les tags de TOUS vos nœuds. Assurez-vous d\'avoir activé le moteur Standard avant.', 'This will modify tags for ALL nodes. Ensure Standard Engine is enabled first.'),
                                     () => _performMigration(
                                         context, appProvider)),
                               ),
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: Text(isFr
-                                    ? 'Rollback vers Legacy'
-                                    : 'Rollback to Legacy'),
-                                subtitle: Text(isFr
-                                    ? 'Re-fusionne les tags.'
-                                    : 'Re-merges tags.'),
+                                title: Text(l10n.t('Rollback vers Legacy', 'Rollback to Legacy')),
+                                subtitle: Text(l10n.t('Re-fusionne les tags.', 'Re-merges tags.')),
                                 trailing: const Icon(Icons.history,
                                     color: Colors.red),
                                 onTap: () => _confirmAction(
                                     context,
-                                    isFr
-                                        ? 'Annuler la migration ?'
-                                        : 'Rollback migration?',
-                                    isFr
-                                        ? 'Ceci va remettre les tags au format fusionné (legacy).'
-                                        : 'This will revert tags to the merged format.',
+                                    l10n.t('Annuler la migration ?', 'Rollback migration?'),
+                                    l10n.t('Ceci va remettre les tags au format fusionné (legacy).', 'This will revert tags to the merged format.'),
                                     () =>
                                         _performRollback(context, appProvider)),
                               ),
@@ -342,7 +291,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           );
                         },
-                        child: Text(isFr ? 'Besoin d\'aide ?' : 'Need help?',
+                        child: Text(l10n.t('Besoin d\'aide ?', 'Need help?'),
                             style: theme.textTheme.labelLarge
                                 ?.copyWith(color: theme.colorScheme.primary)),
                       ),
@@ -356,7 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             borderRadius: BorderRadius.circular(12.0),
                           ),
                         ),
-                        child: Text(isFr ? 'Fermer' : 'Close',
+                        child: Text(l10n.t('Fermer', 'Close'),
                             style: theme.textTheme.labelLarge?.copyWith(
                                 fontSize: 16,
                                 color: theme.colorScheme.onPrimary)),
@@ -378,7 +327,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           SpeedDialChild(
             child: const Icon(Icons.add),
-            label: isFr ? 'Ajouter un serveur' : 'Add Server',
+            label: l10n.t('Ajouter un serveur', 'Add Server'),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const AddEditServerScreen()),
@@ -387,7 +336,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SpeedDialChild(
             child: const Icon(Icons.security),
-            label: isFr ? 'Sécurité' : 'Security',
+            label: l10n.t('Sécurité', 'Security'),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -397,7 +346,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SpeedDialChild(
             child: const Icon(Icons.vpn_key),
-            label: isFr ? 'Clés API' : 'API Keys',
+            label: l10n.t('Clés API', 'API Keys'),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ApiKeysScreen()),
@@ -405,10 +354,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           SpeedDialChild(
-            child: Text(isFr ? 'EN' : 'FR'),
-            label: isFr ? 'Switch to English' : 'Passer en Français',
+            child: Text(l10n.t('EN', 'FR')),
+            label: l10n.t('Switch to English', 'Passer en Français'),
             onTap: () {
-              final newLocale = isFr ? const Locale('en') : const Locale('fr');
+              final newLocale = l10n.isFr ? const Locale('en') : const Locale('fr');
               appProvider.setLocale(newLocale);
             },
           ),
@@ -442,7 +391,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _confirmAction(BuildContext context, String title,
       String content, VoidCallback onConfirm) async {
-    final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.read<AppProvider>().locale);
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -450,10 +399,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Text(content),
         actions: [
           TextButton(
-              child: Text(isFr ? 'Annuler' : 'Cancel'),
+              child: Text(l10n.t('Annuler', 'Cancel')),
               onPressed: () => Navigator.of(ctx).pop()),
           TextButton(
-              child: Text(isFr ? 'Confirmer' : 'Confirm'),
+              child: Text(l10n.t('Confirmer', 'Confirm')),
               onPressed: () {
                 Navigator.of(ctx).pop();
                 onConfirm();
@@ -466,7 +415,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _performMigration(
       BuildContext context, AppProvider appProvider) async {
     final migrationService = TagMigrationService(appProvider.apiService);
-    final isFr = appProvider.locale.languageCode == 'fr';
+    final l10n = L10n(appProvider.locale);
 
     showDialog(
         barrierDismissible: false,
@@ -481,7 +430,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       showDialog(
           context: context,
           builder: (_) => AlertDialog(
-                title: Text(isFr ? 'Résultat Migration' : 'Migration Result'),
+                title: Text(l10n.t('Résultat Migration', 'Migration Result')),
                 content: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -509,7 +458,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _performRollback(
       BuildContext context, AppProvider appProvider) async {
     final migrationService = TagMigrationService(appProvider.apiService);
-    final isFr = appProvider.locale.languageCode == 'fr';
+    final l10n = L10n(appProvider.locale);
 
     showDialog(
         barrierDismissible: false,
@@ -524,7 +473,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       showDialog(
           context: context,
           builder: (_) => AlertDialog(
-                title: Text(isFr ? 'Résultat Rollback' : 'Rollback Result'),
+                title: Text(l10n.t('Résultat Rollback', 'Rollback Result')),
                 content: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -549,35 +498,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _showMigrationHelpDialog(BuildContext context, bool isFr) {
+  void _showMigrationHelpDialog(BuildContext context, L10n l10n) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(isFr ? 'Aide Migration ACL' : 'ACL Migration Help'),
+        title: Text(l10n.t('Aide Migration ACL', 'ACL Migration Help')),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHelpSection(
                 context,
-                isFr ? '1. Principe' : '1. Principle',
-                isFr
-                    ? 'Le moteur Legacy utilise des tags "fusionnés" (ex: tag:user;exit-node). Le moteur Standard sépare l\'identité (tag:user-client) des capacités (tag:user-exit-node) pour une meilleure gestion.'
-                    : 'Legacy engine uses "merged" tags (e.g. tag:user;exit-node). Standard engine splits identity (tag:user-client) from capabilities (tag:user-exit-node) for better management.',
+                l10n.t('1. Principe', '1. Principle'),
+                l10n.t('Le moteur Legacy utilise des tags "fusionnés" (ex: tag:user;exit-node). Le moteur Standard sépare l\'identité (tag:user-client) des capacités (tag:user-exit-node) pour une meilleure gestion.', 'Legacy engine uses "merged" tags (e.g. tag:user;exit-node). Standard engine splits identity (tag:user-client) from capabilities (tag:user-exit-node) for better management.'),
               ),
               _buildHelpSection(
                 context,
-                isFr ? '2. Procédure de Migration' : '2. Migration Procedure',
-                isFr
-                    ? 'A. Activez "Utiliser le moteur ACL standard".\nB. Cliquez sur "Migrer vers Standard".\nC. Redémarrez si nécessaire et vérifiez la connectivité.'
-                    : 'A. Enable "Use Standard ACL Engine".\nB. Click "Migrate to Standard".\nC. Restart if needed and check connectivity.',
+                l10n.t('2. Procédure de Migration', '2. Migration Procedure'),
+                l10n.t('A. Activez "Utiliser le moteur ACL standard".\nB. Cliquez sur "Migrer vers Standard".\nC. Redémarrez si nécessaire et vérifiez la connectivité.', 'A. Enable "Use Standard ACL Engine".\nB. Click "Migrate to Standard".\nC. Restart if needed and check connectivity.'),
               ),
               _buildHelpSection(
                 context,
-                isFr ? '3. Procédure de Rollback' : '3. Rollback Procedure',
-                isFr
-                    ? 'A. Cliquez sur "Rollback vers Legacy".\nB. Désactivez "Utiliser le moteur ACL standard".\nC. Vérifiez que vos anciens tags sont revenus.'
-                    : 'A. Click "Rollback to Legacy".\nB. Disable "Use Standard ACL Engine".\nC. Verify your old tags are back.',
+                l10n.t('3. Procédure de Rollback', '3. Rollback Procedure'),
+                l10n.t('A. Cliquez sur "Rollback vers Legacy".\nB. Désactivez "Utiliser le moteur ACL standard".\nC. Vérifiez que vos anciens tags sont revenus.', 'A. Click "Rollback to Legacy".\nB. Disable "Use Standard ACL Engine".\nC. Verify your old tags are back.'),
               ),
             ],
           ),
@@ -610,7 +553,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 }
 
 class _AclEngineModeTile extends StatelessWidget {
-  final bool isFr;
+  final L10n l10n;
   final AclEngineMode mode;
   final AclEngineMode groupValue;
   final String title;
@@ -619,7 +562,7 @@ class _AclEngineModeTile extends StatelessWidget {
   final ValueChanged<AclEngineMode> onChanged;
 
   const _AclEngineModeTile({
-    required this.isFr,
+    required this.l10n,
     required this.mode,
     required this.groupValue,
     required this.title,

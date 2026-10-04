@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class GrantsListView extends StatelessWidget {
   final List<dynamic> grants;
-  final bool isFr;
+  final L10n l10n;
   final void Function(int networkIndex, Map<String, dynamic> grant)? onEditGrant;
   final void Function(int networkIndex)? onDeleteGrant;
 
   const GrantsListView({
     super.key,
     required this.grants,
-    required this.isFr,
+    required this.l10n,
     this.onEditGrant,
     this.onDeleteGrant,
   });
@@ -48,9 +49,7 @@ class GrantsListView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            isFr
-                ? 'Aucun grant réseau dans la politique.'
-                : 'No network grants in policy.',
+            l10n.t('Aucun grant réseau dans la politique.', 'No network grants in policy.'),
             style: TextStyle(color: Colors.grey[600]),
           ),
         ),
@@ -62,13 +61,13 @@ class GrantsListView extends StatelessWidget {
       children: [
         if (networkEntries.isNotEmpty) ...[
           Text(
-            isFr ? 'Grants réseau (ip + via)' : 'Network grants (ip + via)',
+            l10n.t('Grants réseau (ip + via)', 'Network grants (ip + via)'),
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
           ...networkEntries.map((e) => _GrantTile(
                 grant: e.grant,
-                isFr: isFr,
+                l10n: l10n,
                 onTap: onEditGrant != null
                     ? () => onEditGrant!(e.index, e.grant)
                     : null,
@@ -80,13 +79,13 @@ class GrantsListView extends StatelessWidget {
         if (taildriveGrants.isNotEmpty) ...[
           const SizedBox(height: 16),
           Text(
-            isFr ? 'Grants Taildrive' : 'Taildrive grants',
+            l10n.t('Grants Taildrive', 'Taildrive grants'),
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
           ...taildriveGrants.map((g) => _GrantTile(
                 grant: g,
-                isFr: isFr,
+                l10n: l10n,
                 isTaildrive: true,
               )),
         ],
@@ -97,14 +96,14 @@ class GrantsListView extends StatelessWidget {
 
 class _GrantTile extends StatelessWidget {
   final Map<String, dynamic> grant;
-  final bool isFr;
+  final L10n l10n;
   final bool isTaildrive;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
   const _GrantTile({
     required this.grant,
-    required this.isFr,
+    required this.l10n,
     this.isTaildrive = false,
     this.onTap,
     this.onDelete,
@@ -131,14 +130,14 @@ class _GrantTile extends StatelessWidget {
           children: [
             if (via != null)
               Text(
-                isFr ? 'Via : $via' : 'Via: $via',
+                l10n.t('Via : $via', 'Via: $via'),
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, color: Colors.purple),
               ),
-            Text(isFr ? 'IP : $ip' : 'IP: $ip'),
+            Text(l10n.t('IP : $ip', 'IP: $ip')),
             if (onTap != null)
               Text(
-                isFr ? 'Appuyer pour modifier' : 'Tap to edit',
+                l10n.t('Appuyer pour modifier', 'Tap to edit'),
                 style: TextStyle(fontSize: 10, color: Colors.grey[600]),
               ),
           ],

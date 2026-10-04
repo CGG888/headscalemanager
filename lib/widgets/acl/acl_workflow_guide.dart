@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 /// Indicateur compact + aide contextuelle pour le mode brouillon local.
 class AclWorkflowGuide extends StatelessWidget {
-  final bool isFr;
+  final L10n l10n;
 
-  const AclWorkflowGuide({super.key, required this.isFr});
+  const AclWorkflowGuide({super.key, required this.l10n});
 
-  static Future<void> showHelpDialog(BuildContext context, {required bool isFr}) {
+  static Future<void> showHelpDialog(BuildContext context, {required L10n l10n}) {
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -16,7 +17,7 @@ class AclWorkflowGuide extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                isFr ? 'Brouillon local' : 'Local draft',
+                l10n.t('Brouillon local', 'Local draft'),
                 style: const TextStyle(fontSize: 18),
               ),
             ),
@@ -28,43 +29,33 @@ class AclWorkflowGuide extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                isFr
-                    ? 'Le serveur n\'a pas été modifié. Vous pouvez tester sans risque.'
-                    : 'The server has not been changed. You can test safely.',
+                l10n.t('Le serveur n\'a pas été modifié. Vous pouvez tester sans risque.', 'The server has not been changed. You can test safely.'),
               ),
               const SizedBox(height: 16),
               Text(
-                isFr ? 'Que faire :' : 'What to do:',
+                l10n.t('Que faire :', 'What to do:'),
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               _stepText(
-                isFr,
+                l10n,
                 '1',
-                isFr
-                    ? '« Composer une règle » — inutile d\'effacer vos ACL/grants existants'
-                    : '« Compose a rule » — no need to erase existing ACLs/grants',
+                l10n.t('« Composer une règle » — inutile d\'effacer vos ACL/grants existants', '« Compose a rule » — no need to erase existing ACLs/grants'),
               ),
               _stepText(
-                isFr,
+                l10n,
                 '2',
-                isFr
-                    ? 'Ajoutez vos grants (onglet Grants)'
-                    : 'Add your grants (Grants tab)',
+                l10n.t('Ajoutez vos grants (onglet Grants)', 'Add your grants (Grants tab)'),
               ),
               _stepText(
-                isFr,
+                l10n,
                 '3',
-                isFr
-                    ? 'Supprimez « tout autoriser » (onglet ACLs) si présent'
-                    : 'Remove « allow all » (ACLs tab) if present',
+                l10n.t('Supprimez « tout autoriser » (onglet ACLs) si présent', 'Remove « allow all » (ACLs tab) if present'),
               ),
               _stepText(
-                isFr,
+                l10n,
                 '4',
-                isFr
-                    ? 'Menu ⋮ > « Exporter vers le serveur » pour publier'
-                    : '⋮ menu > « Export to Server » to publish',
+                l10n.t('Menu ⋮ > « Exporter vers le serveur » pour publier', '⋮ menu > « Export to Server » to publish'),
               ),
             ],
           ),
@@ -72,14 +63,14 @@ class AclWorkflowGuide extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(isFr ? 'Compris' : 'Got it'),
+            child: Text(l10n.t('Compris', 'Got it')),
           ),
         ],
       ),
     );
   }
 
-  static Widget _stepText(bool isFr, String number, String text) {
+  static Widget _stepText(L10n l10n, String number, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -102,7 +93,7 @@ class AclWorkflowGuide extends StatelessWidget {
           Icon(Icons.circle, size: 8, color: Colors.amber.shade700),
           const SizedBox(width: 6),
           Text(
-            isFr ? 'Brouillon local' : 'Local draft',
+            l10n.t('Brouillon local', 'Local draft'),
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -111,11 +102,11 @@ class AclWorkflowGuide extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(Icons.help_outline, size: 20, color: Colors.amber.shade800),
-            tooltip: isFr ? 'Aide brouillon' : 'Draft help',
+            tooltip: l10n.t('Aide brouillon', 'Draft help'),
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            onPressed: () => showHelpDialog(context, isFr: isFr),
+            onPressed: () => showHelpDialog(context, l10n: l10n),
           ),
         ],
       ),

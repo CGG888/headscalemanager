@@ -3,6 +3,7 @@ import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/services/security_service.dart';
 import 'package:headscalemanager/widgets/numpad_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class SetupPinScreen extends StatefulWidget {
   const SetupPinScreen({super.key});
@@ -23,9 +24,9 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Set initial message here to access context
-    final isFr = context.watch<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.watch<AppProvider>().locale);
     setState(() {
-      _message = isFr ? 'Créez votre code PIN' : 'Create your PIN';
+      _message = l10n.t('Créez votre code PIN', 'Create your PIN');
     });
   }
 
@@ -49,13 +50,13 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
   }
 
   void _submitPin() async {
-    final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.read<AppProvider>().locale);
     if (!_isConfirming) {
       setState(() {
         _firstPin = _enteredPin;
         _enteredPin = '';
         _isConfirming = true;
-        _message = isFr ? 'Confirmez votre code PIN' : 'Confirm your PIN';
+        _message = l10n.t('Confirmez votre code PIN', 'Confirm your PIN');
       });
     } else {
       if (_firstPin == _enteredPin) {
@@ -63,9 +64,7 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isFr
-                ? 'Code PIN enregistré avec succès !'
-                : 'PIN saved successfully!'),
+            content: Text(l10n.t('Code PIN enregistré avec succès !', 'PIN saved successfully!')),
             backgroundColor: Colors.green,
           ),
         );
@@ -75,21 +74,19 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
           _enteredPin = '';
           _firstPin = '';
           _isConfirming = false;
-          _message = isFr
-              ? 'Les codes ne correspondent pas. Réessayez.'
-              : 'PINs do not match. Try again.';
+          _message = l10n.t('Les codes ne correspondent pas. Réessayez.', 'PINs do not match. Try again.');
         });
       }
     }
   }
 
   void _clearPin() async {
-    final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.read<AppProvider>().locale);
     await _securityService.clearPin();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(isFr ? 'Code PIN supprimé.' : 'PIN deleted.'),
+        content: Text(l10n.t('Code PIN supprimé.', 'PIN deleted.')),
         backgroundColor: Colors.red,
       ),
     );
@@ -99,16 +96,16 @@ class _SetupPinScreenState extends State<SetupPinScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isFr = context.watch<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.watch<AppProvider>().locale);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isFr ? 'Configurer le code PIN' : 'Set up PIN Code'),
+        title: Text(l10n.t('Configurer le code PIN', 'Set up PIN Code')),
         backgroundColor: theme.appBarTheme.backgroundColor,
         actions: [
           TextButton(
             onPressed: _clearPin,
-            child: Text(isFr ? 'Supprimer' : 'Delete',
+            child: Text(l10n.t('Supprimer', 'Delete'),
                 style:
                     TextStyle(color: theme.appBarTheme.titleTextStyle?.color)),
           )

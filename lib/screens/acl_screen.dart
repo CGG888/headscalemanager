@@ -27,6 +27,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:headscalemanager/services/acl/policy_file_service.dart';
 import 'package:headscalemanager/widgets/acl/acl_workflow_guide.dart';
 import 'package:headscalemanager/screens/acl_puzzle_screen.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class AclScreen extends StatefulWidget {
   const AclScreen({super.key});
@@ -140,13 +141,11 @@ class _AclScreenState extends State<AclScreen> {
   Future<void> _openGrantComposer({Node? prefilledRouter}) async {
     final provider = context.read<AppProvider>();
     final locale = provider.locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     if (!_isComposerAvailable(provider)) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(isFr
-            ? 'Composeur disponible uniquement en mode Grants V29 (Headscale ≥ 0.29).'
-            : 'Composer available only in Grants V29 mode (Headscale ≥ 0.29).'),
+        content: Text(l10n.t('Composeur disponible uniquement en mode Grants V29 (Headscale ≥ 0.29).', 'Composer available only in Grants V29 mode (Headscale ≥ 0.29).')),
       ));
       return;
     }
@@ -163,7 +162,7 @@ class _AclScreenState extends State<AclScreen> {
       context,
       users: _users,
       nodes: _allNodes,
-      isFr: isFr,
+      l10n: l10n,
       prefilledRouterNode: prefilledRouter,
     );
 
@@ -182,15 +181,13 @@ class _AclScreenState extends State<AclScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(isFr
-          ? 'Règle ajoutée à la policy locale. Exportez pour appliquer au serveur.'
-          : 'Rule added to local policy. Export to apply to server.'),
+      content: Text(l10n.t('Règle ajoutée à la policy locale. Exportez pour appliquer au serveur.', 'Rule added to local policy. Export to apply to server.')),
     ));
   }
 
   Future<void> _onEditGrant(int networkIndex, Map<String, dynamic> grant) async {
     final provider = context.read<AppProvider>();
-    final isFr = provider.locale.languageCode == 'fr';
+    final l10n = L10n(provider.locale);
 
     if (!_isComposerAvailable(provider)) return;
 
@@ -199,7 +196,7 @@ class _AclScreenState extends State<AclScreen> {
       grant: grant,
       users: _users,
       nodes: _allNodes,
-      isFr: isFr,
+      l10n: l10n,
     );
 
     if (updated == null || !mounted) return;
@@ -227,7 +224,7 @@ class _AclScreenState extends State<AclScreen> {
   }
 
   Widget _buildScrollHeader({
-    required bool isFr,
+    required L10n l10n,
     required AppProvider appProvider,
     required int grantCount,
   }) {
@@ -243,16 +240,16 @@ class _AclScreenState extends State<AclScreen> {
                 serverVersion: appProvider.serverVersion,
                 users: _users,
                 nodes: _allNodes,
-                isFr: isFr,
+                l10n: l10n,
                 compact: true,
               ),
             ),
-            if (_isLocalDraft) AclWorkflowGuide(isFr: isFr),
+            if (_isLocalDraft) AclWorkflowGuide(l10n: l10n),
           ],
         ),
         if (!_isLocalDraft)
           GrantsMigrationBanner(
-            isFr: isFr,
+            l10n: l10n,
             grantCount: grantCount,
           ),
       ],
@@ -260,7 +257,7 @@ class _AclScreenState extends State<AclScreen> {
   }
 
   Widget _buildGrantsTab({
-    required bool isFr,
+    required L10n l10n,
     required AppProvider appProvider,
     required bool composerAvailable,
   }) {
@@ -275,19 +272,19 @@ class _AclScreenState extends State<AclScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildScrollHeader(
-              isFr: isFr,
+              l10n: l10n,
               appProvider: appProvider,
               grantCount: grantCount,
             ),
-            _buildComposerButton(isFr, appProvider),
+            _buildComposerButton(l10n, appProvider),
             if (composerAvailable)
-              _buildAdvancedExceptionsSection(isFr)
+              _buildAdvancedExceptionsSection(l10n)
             else
               _buildTemporaryRulesSection(),
             const SizedBox(height: 8),
             GrantsListView(
               grants: (_currentAclPolicy['grants'] as List?) ?? const [],
-              isFr: isFr,
+              l10n: l10n,
               onEditGrant: composerAvailable ? _onEditGrant : null,
               onDeleteGrant: composerAvailable ? _onDeleteGrant : null,
             ),
@@ -298,7 +295,7 @@ class _AclScreenState extends State<AclScreen> {
   }
 
   Widget _buildAclsTab({
-    required bool isFr,
+    required L10n l10n,
     required AppProvider appProvider,
   }) {
     final grantCount =
@@ -310,20 +307,20 @@ class _AclScreenState extends State<AclScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _buildScrollHeader(
-            isFr: isFr,
+            l10n: l10n,
             appProvider: appProvider,
             grantCount: grantCount,
           ),
           AclsListView(
             acls: (_currentAclPolicy['acls'] as List?) ?? const [],
-            isFr: isFr,
+            l10n: l10n,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildJsonTab({required bool isFr}) {
+  Widget _buildJsonTab({required L10n l10n}) {
     final appProvider = context.read<AppProvider>();
     final grantCount =
         GrantComposerService.countNetworkGrants(_currentAclPolicy);
@@ -336,7 +333,7 @@ class _AclScreenState extends State<AclScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildScrollHeader(
-              isFr: isFr,
+              l10n: l10n,
               appProvider: appProvider,
               grantCount: grantCount,
             ),
@@ -367,17 +364,15 @@ class _AclScreenState extends State<AclScreen> {
     );
   }
 
-  Widget _buildAdvancedExceptionsSection(bool isFr) {
+  Widget _buildAdvancedExceptionsSection(L10n l10n) {
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       title: Text(
-        isFr ? 'Mode avancé : exceptions manuelles' : 'Advanced: manual exceptions',
+        l10n.t('Mode avancé : exceptions manuelles', 'Advanced: manual exceptions'),
         style: Theme.of(context).textTheme.titleSmall,
       ),
       subtitle: Text(
-        isFr
-            ? 'Ancien formulaire nœud à nœud — le composeur suffit en général'
-            : 'Legacy node-to-node form — composer is usually enough',
+        l10n.t('Ancien formulaire nœud à nœud — le composeur suffit en général', 'Legacy node-to-node form — composer is usually enough'),
         style: Theme.of(context).textTheme.bodySmall,
       ),
       children: [
@@ -386,14 +381,14 @@ class _AclScreenState extends State<AclScreen> {
     );
   }
 
-  Widget _buildComposerButton(bool isFr, AppProvider provider) {
+  Widget _buildComposerButton(L10n l10n, AppProvider provider) {
     if (!_isComposerAvailable(provider)) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: FilledButton.icon(
         onPressed: () => _openGrantComposer(),
         icon: const Icon(Icons.auto_fix_high),
-        label: Text(isFr ? 'Composer une règle' : 'Compose a rule'),
+        label: Text(l10n.t('Composer une règle', 'Compose a rule')),
       ),
     );
   }
@@ -402,13 +397,13 @@ class _AclScreenState extends State<AclScreen> {
   Widget build(BuildContext context) {
     final appProvider = context.watch<AppProvider>();
     final locale = appProvider.locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     final composerAvailable = _isComposerAvailable(appProvider);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(isFr ? 'Gestion des ACLs' : 'ACL Management',
+        title: Text(l10n.t('Gestion des ACLs', 'ACL Management'),
             style: Theme.of(context).appBarTheme.titleTextStyle),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
@@ -425,21 +420,21 @@ class _AclScreenState extends State<AclScreen> {
                 children: [
                   TabBar(
                     tabs: [
-                      Tab(text: isFr ? 'Grants' : 'Grants'),
-                      Tab(text: isFr ? 'ACLs' : 'ACLs'),
-                      Tab(text: isFr ? 'JSON' : 'JSON'),
+                      Tab(text: l10n.t('Grants', 'Grants')),
+                      Tab(text: l10n.t('ACLs', 'ACLs')),
+                      Tab(text: l10n.t('JSON', 'JSON')),
                     ],
                   ),
                   Expanded(
                     child: TabBarView(
                       children: [
                         _buildGrantsTab(
-                          isFr: isFr,
+                          l10n: l10n,
                           appProvider: appProvider,
                           composerAvailable: composerAvailable,
                         ),
-                        _buildAclsTab(isFr: isFr, appProvider: appProvider),
-                        _buildJsonTab(isFr: isFr),
+                        _buildAclsTab(l10n: l10n, appProvider: appProvider),
+                        _buildJsonTab(l10n: l10n),
                       ],
                     ),
                   ),
@@ -453,14 +448,14 @@ class _AclScreenState extends State<AclScreen> {
           if (composerAvailable)
             SpeedDialChild(
               child: const Icon(Icons.auto_fix_high),
-              label: isFr ? 'Composeur de grants' : 'Grant composer',
+              label: l10n.t('Composeur de grants', 'Grant composer'),
               backgroundColor: Colors.teal,
               foregroundColor: Colors.white,
               onTap: () => _openGrantComposer(),
             ),
           SpeedDialChild(
             child: const Icon(Icons.account_tree_outlined),
-            label: isFr ? 'Vue Graphe' : 'Graph View',
+            label: l10n.t('Vue Graphe', 'Graph View'),
             backgroundColor: Theme.of(context).colorScheme.secondary,
             onTap: () {
               Navigator.of(context).push(
@@ -470,7 +465,7 @@ class _AclScreenState extends State<AclScreen> {
           ),
           SpeedDialChild(
             child: const Icon(Icons.extension),
-            label: isFr ? 'Vue Puzzle (Builder)' : 'Puzzle View (Builder)',
+            label: l10n.t('Vue Puzzle (Builder)', 'Puzzle View (Builder)'),
             backgroundColor: Colors.purple,
             labelBackgroundColor: Colors.purple,
             labelStyle: const TextStyle(color: Colors.white),
@@ -483,7 +478,7 @@ class _AclScreenState extends State<AclScreen> {
           ),
           SpeedDialChild(
             child: const Icon(Icons.folder_shared),
-            label: isFr ? 'Partages Taildrive' : 'Taildrive Shares',
+            label: l10n.t('Partages Taildrive', 'Taildrive Shares'),
             backgroundColor: Theme.of(context).colorScheme.tertiary,
             labelBackgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
             labelStyle: TextStyle(color: Theme.of(context).colorScheme.onTertiaryContainer),
@@ -496,7 +491,7 @@ class _AclScreenState extends State<AclScreen> {
           ),
           SpeedDialChild(
             child: const Icon(Icons.settings_backup_restore),
-            label: isFr ? 'Générer Politique' : 'Generate Policy',
+            label: l10n.t('Générer Politique', 'Generate Policy'),
             backgroundColor: Theme.of(context).colorScheme.secondary,
             onTap: () => _generateNewAclPolicy(showSnackbar: true),
           ),
@@ -508,7 +503,7 @@ class _AclScreenState extends State<AclScreen> {
   PopupMenuButton<String> _buildActionsMenu() {
     // This is inside build, so watch is fine. The onSelected callback is the issue.
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return PopupMenuButton<String>(
       onSelected: (value) {
@@ -540,34 +535,34 @@ class _AclScreenState extends State<AclScreen> {
           child: ListTile(
               leading: const Icon(Icons.cloud_upload),
               title:
-                  Text(isFr ? 'Exporter vers le serveur' : 'Export to Server')),
+                  Text(l10n.t('Exporter vers le serveur', 'Export to Server'))),
         ),
         PopupMenuItem<String>(
           value: 'fetch',
           child: ListTile(
               leading: const Icon(Icons.cloud_download),
-              title: Text(isFr ? 'Récupérer du serveur' : 'Fetch from Server')),
+              title: Text(l10n.t('Récupérer du serveur', 'Fetch from Server'))),
         ),
         const PopupMenuDivider(),
         PopupMenuItem<String>(
           value: 'backup',
           child: ListTile(
             leading: const Icon(Icons.save_alt),
-            title: Text(isFr ? 'Exporter backup JSON' : 'Export JSON Backup'),
+            title: Text(l10n.t('Exporter backup JSON', 'Export JSON Backup')),
           ),
         ),
         PopupMenuItem<String>(
           value: 'import',
           child: ListTile(
             leading: const Icon(Icons.upload_file),
-            title: Text(isFr ? 'Importer depuis JSON' : 'Import from JSON'),
+            title: Text(l10n.t('Importer depuis JSON', 'Import from JSON')),
           ),
         ),
         PopupMenuItem<String>(
           value: 'share',
           child: ListTile(
               leading: const Icon(Icons.share),
-              title: Text(isFr ? 'Partager en fichier' : 'Share as File')),
+              title: Text(l10n.t('Partager en fichier', 'Share as File'))),
         ),
         const PopupMenuDivider(),
         PopupMenuItem<String>(
@@ -575,9 +570,7 @@ class _AclScreenState extends State<AclScreen> {
           child: ListTile(
             leading: const Icon(Icons.lock_open, color: Colors.orange),
             title: Text(
-                isFr
-                    ? 'Repartir : tout autoriser…'
-                    : 'Start over: allow all…',
+                l10n.t('Repartir : tout autoriser…', 'Start over: allow all…'),
                 style: const TextStyle(color: Colors.orange)),
           ),
         ),
@@ -635,11 +628,9 @@ class _AclScreenState extends State<AclScreen> {
           }
 
           final locale = appProvider.locale;
-          final isFr = locale.languageCode == 'fr';
+          final l10n = L10n(locale);
           await _generateAndExportPolicy(
-              message: isFr
-                  ? 'Règle supprimée et politique mise à jour.'
-                  : 'Rule deleted and policy updated.');
+              message: l10n.t('Règle supprimée et politique mise à jour.', 'Rule deleted and policy updated.'));
         },
       ),
     );
@@ -647,7 +638,7 @@ class _AclScreenState extends State<AclScreen> {
 
   Widget _buildTemporaryRulesSection() {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return Card(
       elevation: 0,
@@ -658,16 +649,14 @@ class _AclScreenState extends State<AclScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(isFr ? 'Autorisations Spécifiques' : 'Specific Permissions',
+            Text(l10n.t('Autorisations Spécifiques', 'Specific Permissions'),
                 style: Theme.of(context)
                     .textTheme
                     .titleLarge
                     ?.copyWith(fontSize: 20)),
             const SizedBox(height: 8),
             Text(
-              isFr
-                  ? 'Créez ici des exceptions pour autoriser la communication entre les appareils de différents utilisateurs.'
-                  : 'Create exceptions here to allow communication between devices of different users.',
+              l10n.t('Créez ici des exceptions pour autoriser la communication entre les appareils de différents utilisateurs.', 'Create exceptions here to allow communication between devices of different users.'),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
@@ -712,7 +701,7 @@ class _AclScreenState extends State<AclScreen> {
                   child: TextField(
                     controller: _portController,
                     decoration: InputDecoration(
-                      labelText: isFr ? 'Port (Optionnel)' : 'Port (Optional)',
+                      labelText: l10n.t('Port (Optionnel)', 'Port (Optional)'),
                       hintText: 'ex: 80, 443',
                       border: const OutlineInputBorder(),
                     ),
@@ -724,13 +713,13 @@ class _AclScreenState extends State<AclScreen> {
                   child: DropdownButtonFormField<String>(
                     initialValue: _selectedProtocol,
                     decoration: InputDecoration(
-                      labelText: isFr ? 'Protocole' : 'Protocol',
+                      labelText: l10n.t('Protocole', 'Protocol'),
                       border: const OutlineInputBorder(),
                     ),
                     items: [
                       DropdownMenuItem(
                           value: 'any',
-                          child: Text(isFr ? 'Tous (Any)' : 'Any')),
+                          child: Text(l10n.t('Tous (Any)', 'Any'))),
                       const DropdownMenuItem(value: 'tcp', child: Text('TCP')),
                       const DropdownMenuItem(value: 'udp', child: Text('UDP')),
                     ],
@@ -750,7 +739,7 @@ class _AclScreenState extends State<AclScreen> {
               child: ElevatedButton.icon(
                 onPressed: _addTemporaryRule,
                 icon: const Icon(Icons.add_link, color: Colors.white),
-                label: Text(isFr ? 'Ajouter et Appliquer' : 'Add and Apply',
+                label: Text(l10n.t('Ajouter et Appliquer', 'Add and Apply'),
                     style: const TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
@@ -763,7 +752,7 @@ class _AclScreenState extends State<AclScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(isFr ? 'Règles actives:' : 'Active Rules:',
+                Text(l10n.t('Règles actives:', 'Active Rules:'),
                     style: Theme.of(context).textTheme.titleMedium),
                 IconButton(
                   icon: Icon(Icons.delete_sweep,
@@ -772,7 +761,7 @@ class _AclScreenState extends State<AclScreen> {
                           .onSurface
                           .withValues(alpha: 0.6)),
                   tooltip:
-                      isFr ? 'Effacer toutes les règles' : 'Clear All Rules',
+                      l10n.t('Effacer toutes les règles', 'Clear All Rules'),
                   onPressed: _clearTemporaryRules,
                 )
               ],
@@ -794,12 +783,12 @@ class _AclScreenState extends State<AclScreen> {
   DropdownButtonFormField<Node> _buildNodeDropdown(String label,
       Node? selectedNode, List<Node> nodes, ValueChanged<Node?> onChanged) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return DropdownButtonFormField<Node>(
       initialValue: selectedNode,
       decoration: _buildInputDecoration(
-          label, isFr ? 'Choisir un nœud' : 'Choose a node'),
+          label, l10n.t('Choisir un nœud', 'Choose a node')),
       items: nodes.map((Node node) {
         return DropdownMenuItem<Node>(
           value: node,
@@ -853,12 +842,10 @@ class _AclScreenState extends State<AclScreen> {
     }
   }
 
-  void _showIpMismatchError(BuildContext context, bool isFr, String dest) {
+  void _showIpMismatchError(BuildContext context, L10n l10n, String dest) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
-            isFr
-                ? 'Impossible de trouver une IP source compatible (IPv4/IPv6) pour la destination: $dest'
-                : 'Could not find a compatible source IP (IPv4/IPv6) for destination: $dest',
+            l10n.t('Impossible de trouver une IP source compatible (IPv4/IPv6) pour la destination: $dest', 'Could not find a compatible source IP (IPv4/IPv6) for destination: $dest'),
             style: TextStyle(color: Theme.of(context).colorScheme.onError)),
         backgroundColor: Theme.of(context).colorScheme.error));
   }
@@ -877,14 +864,12 @@ class _AclScreenState extends State<AclScreen> {
   Future<void> _addTemporaryRule() async {
     if (!mounted) return;
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     if (_selectedSourceNode == null || _selectedDestinationNode == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-              isFr
-                  ? 'Veuillez sélectionner un nœud source et un nœud destination.'
-                  : 'Please select a source and a destination node.',
+              l10n.t('Veuillez sélectionner un nœud source et un nœud destination.', 'Please select a source and a destination node.'),
               style: TextStyle(color: Theme.of(context).colorScheme.onError)),
           backgroundColor: Theme.of(context).colorScheme.error));
       return;
@@ -893,9 +878,7 @@ class _AclScreenState extends State<AclScreen> {
     if (_selectedSourceNode!.ipAddresses.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-              isFr
-                  ? 'Le nœud source doit avoir au moins une adresse IP.'
-                  : 'Source node must have at least one IP address.',
+              l10n.t('Le nœud source doit avoir au moins une adresse IP.', 'Source node must have at least one IP address.'),
               style: TextStyle(color: Theme.of(context).colorScheme.onError)),
           backgroundColor: Theme.of(context).colorScheme.error));
       return;
@@ -961,14 +944,12 @@ class _AclScreenState extends State<AclScreen> {
                 'proto': _selectedProtocol,
               });
             } else {
-              _showIpMismatchError(context, isFr, "Fallback IP");
+              _showIpMismatchError(context, l10n, "Fallback IP");
               return;
             }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(isFr
-                  ? 'Accès au sous-réseau non configuré et le nœud n\'a pas d\'IP pour une règle de base.'
-                  : 'Subnet access not configured and the node has no IP for a fallback rule.'),
+              content: Text(l10n.t('Accès au sous-réseau non configuré et le nœud n\'a pas d\'IP pour une règle de base.', 'Subnet access not configured and the node has no IP for a fallback rule.')),
             ));
             return;
           }
@@ -976,7 +957,7 @@ class _AclScreenState extends State<AclScreen> {
           for (var route in sharedLanRoutes) {
             final src = _getMatchingSourceIp(_selectedSourceNode!, route);
             if (src == null || src.isEmpty) {
-              _showIpMismatchError(context, isFr, route);
+              _showIpMismatchError(context, l10n, route);
               return;
             }
             newRulesToAdd.add({
@@ -1015,7 +996,7 @@ class _AclScreenState extends State<AclScreen> {
               final src = _getMatchingSourceIp(_selectedSourceNode!, firstDest);
 
               if (src == null || src.isEmpty) {
-                _showIpMismatchError(context, isFr, firstDest);
+                _showIpMismatchError(context, l10n, firstDest);
                 return;
               }
 
@@ -1036,9 +1017,7 @@ class _AclScreenState extends State<AclScreen> {
       if (_selectedDestinationNode!.ipAddresses.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
-                isFr
-                    ? 'Le nœud destination doit avoir au moins une adresse IP.'
-                    : 'Destination node must have at least one IP address.',
+                l10n.t('Le nœud destination doit avoir au moins une adresse IP.', 'Destination node must have at least one IP address.'),
                 style: TextStyle(color: Theme.of(context).colorScheme.onError)),
             backgroundColor: Theme.of(context).colorScheme.error));
         return;
@@ -1074,9 +1053,7 @@ class _AclScreenState extends State<AclScreen> {
         if (validSrc == validDest) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                  isFr
-                      ? 'Les nœuds source et destination ne peuvent pas être identiques.'
-                      : 'Source and destination nodes cannot be the same.',
+                  l10n.t('Les nœuds source et destination ne peuvent pas être identiques.', 'Source and destination nodes cannot be the same.'),
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.onError)),
               backgroundColor: Theme.of(context).colorScheme.error));
@@ -1093,9 +1070,7 @@ class _AclScreenState extends State<AclScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
-                isFr
-                    ? 'Impossible de trouver une paire d\'adresses IP compatibles (IPv4/IPv6) entre la source et la destination.'
-                    : 'Could not find a compatible IP pair (IPv4/IPv6) between source and destination.',
+                l10n.t('Impossible de trouver une paire d\'adresses IP compatibles (IPv4/IPv6) entre la source et la destination.', 'Could not find a compatible IP pair (IPv4/IPv6) between source and destination.'),
                 style: TextStyle(color: Theme.of(context).colorScheme.onError)),
             backgroundColor: Theme.of(context).colorScheme.error));
         return;
@@ -1121,7 +1096,7 @@ class _AclScreenState extends State<AclScreen> {
         debugPrint('DEBUG: Règle ignorée (existe déjà): $newRule');
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
-                '${isFr ? 'Règle ignorée car elle existe déjà:' : 'Skipped existing rule:'} ${newRule['dst']}',
+                '${l10n.t('Règle ignorée car elle existe déjà:', 'Skipped existing rule:')} ${newRule['dst']}',
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.onSecondaryContainer)),
             backgroundColor: Theme.of(context).colorScheme.secondaryContainer));
@@ -1138,14 +1113,12 @@ class _AclScreenState extends State<AclScreen> {
         await storage.saveTemporaryRules(serverId, _temporaryRules);
       }
       await _generateAndExportPolicy(
-          message: isFr
-              ? '$addedCount règle(s) ajoutée(s) et politique appliquée.'
-              : '$addedCount rule(s) added and policy applied.');
+          message: l10n.t('$addedCount règle(s) ajoutée(s) et politique appliquée.', '$addedCount rule(s) added and policy applied.'));
     } else {
       // Debug: Afficher un message si aucune règle n'a été ajoutée
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-              isFr ? 'Aucune règle n\'a été ajoutée.' : 'No rules were added.',
+              l10n.t('Aucune règle n\'a été ajoutée.', 'No rules were added.'),
               style: TextStyle(color: Theme.of(context).colorScheme.onError)),
           backgroundColor: Theme.of(context).colorScheme.error));
     }
@@ -1182,7 +1155,7 @@ class _AclScreenState extends State<AclScreen> {
       if (mounted) setState(() => _isLocalDraft = true);
 
       final locale = appProvider.locale;
-      final isFr = locale.languageCode == 'fr';
+      final l10n = L10n(locale);
 
       if (showSnackbar && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1192,16 +1165,12 @@ class _AclScreenState extends State<AclScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                    isFr
-                        ? 'Politique ACL avancée générée dans le champ de texte.'
-                        : 'Advanced ACL policy generated in the text field.',
+                    l10n.t('Politique ACL avancée générée dans le champ de texte.', 'Advanced ACL policy generated in the text field.'),
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimary)),
                 const SizedBox(height: 4),
                 Text(
-                    isFr
-                        ? 'Utilisez le menu (⋮) pour l\'exporter.'
-                        : 'Use the menu (⋮) to export it.',
+                    l10n.t('Utilisez le menu (⋮) pour l\'exporter.', 'Use the menu (⋮) to export it.'),
                     style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme
@@ -1219,11 +1188,11 @@ class _AclScreenState extends State<AclScreen> {
           'Erreur lors de la génération de la politique ACL avancée : $e');
       if (mounted) {
         final locale = context.read<AppProvider>().locale;
-        final isFr = locale.languageCode == 'fr';
+        final l10n = L10n(locale);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${isFr ? 'Échec de la génération de la politique ACL avancée' : 'Failed to generate advanced ACL policy'}: $e',
+                  '${l10n.t('Échec de la génération de la politique ACL avancée', 'Failed to generate advanced ACL policy')}: $e',
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.onError)),
               backgroundColor: Theme.of(context).colorScheme.error),
@@ -1239,21 +1208,19 @@ class _AclScreenState extends State<AclScreen> {
   Future<void> _clearTemporaryRules() async {
     if (!mounted) return;
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     final bool confirm = await showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(isFr ? 'Confirmer la suppression' : 'Confirm Deletion'),
-            content: Text(isFr
-                ? 'Cela va supprimer TOUTES les règles et appliquer la nouvelle politique au serveur. Continuer ?'
-                : 'This will delete ALL rules and apply the new policy to the server. Continue?'),
+            title: Text(l10n.t('Confirmer la suppression', 'Confirm Deletion')),
+            content: Text(l10n.t('Cela va supprimer TOUTES les règles et appliquer la nouvelle politique au serveur. Continuer ?', 'This will delete ALL rules and apply the new policy to the server. Continue?')),
             actions: [
               TextButton(
-                  child: Text(isFr ? 'Annuler' : 'Cancel'),
+                  child: Text(l10n.t('Annuler', 'Cancel')),
                   onPressed: () => Navigator.of(ctx).pop(false)),
               TextButton(
-                  child: Text(isFr ? 'Confirmer' : 'Confirm',
+                  child: Text(l10n.t('Confirmer', 'Confirm'),
                       style: const TextStyle(color: Colors.red)),
                   onPressed: () => Navigator.of(ctx).pop(true)),
             ],
@@ -1273,9 +1240,7 @@ class _AclScreenState extends State<AclScreen> {
       await storage.saveTemporaryRules(serverId, _temporaryRules);
     }
     await _generateAndExportPolicy(
-        message: isFr
-            ? 'Toutes les règles ont été supprimées et la politique a été mise à jour.'
-            : 'All rules have been deleted and the policy has been updated.');
+        message: l10n.t('Toutes les règles ont été supprimées et la politique a été mise à jour.', 'All rules have been deleted and the policy has been updated.'));
   }
 
   Future<void> _generateAndExportPolicy({String? message}) async {
@@ -1288,7 +1253,7 @@ class _AclScreenState extends State<AclScreen> {
       {bool showConfirmation = true, String? successMessage}) async {
     if (!mounted) return;
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     if (showConfirmation) {
       Map<String, dynamic> editedPolicy;
@@ -1305,7 +1270,7 @@ class _AclScreenState extends State<AclScreen> {
             ? _lastGeneratedPolicy
             : _currentAclPolicy,
         newPolicy: editedPolicy,
-        isFr: isFr,
+        l10n: l10n,
       );
       if (confirmed != true) return;
     }
@@ -1322,9 +1287,7 @@ class _AclScreenState extends State<AclScreen> {
           SnackBar(
               content: Text(
                   successMessage ??
-                      (isFr
-                          ? 'Politique ACL exportée avec succès vers le serveur.'
-                          : 'ACL policy successfully exported to the server.'),
+                      (l10n.t('Politique ACL exportée avec succès vers le serveur.', 'ACL policy successfully exported to the server.')),
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary)),
               backgroundColor: Theme.of(context).colorScheme.primary),
@@ -1337,7 +1300,7 @@ class _AclScreenState extends State<AclScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${isFr ? 'Échec de l\'exportation de la politique ACL' : 'Failed to export ACL policy'}: $e',
+                  '${l10n.t('Échec de l\'exportation de la politique ACL', 'Failed to export ACL policy')}: $e',
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.onError)),
               backgroundColor: Theme.of(context).colorScheme.error),
@@ -1360,15 +1323,13 @@ class _AclScreenState extends State<AclScreen> {
       _currentAclPolicy = json.decode(aclJsonString);
       _updateAclControllerText();
       final locale = appProvider.locale;
-      final isFr = locale.languageCode == 'fr';
+      final l10n = L10n(locale);
       if (mounted) {
         setState(() => _isLocalDraft = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  isFr
-                      ? 'Politique ACL récupérée du serveur.'
-                      : 'ACL policy fetched from the server.',
+                  l10n.t('Politique ACL récupérée du serveur.', 'ACL policy fetched from the server.'),
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary)),
               backgroundColor: Theme.of(context).colorScheme.primary),
@@ -1379,11 +1340,11 @@ class _AclScreenState extends State<AclScreen> {
           'Erreur lors de la récupération de la politique ACL du serveur : $e');
       if (mounted) {
         final locale = context.read<AppProvider>().locale;
-        final isFr = locale.languageCode == 'fr';
+        final l10n = L10n(locale);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${isFr ? 'Échec de la récupération de la politique ACL' : 'Failed to fetch ACL policy'}: $e',
+                  '${l10n.t('Échec de la récupération de la politique ACL', 'Failed to fetch ACL policy')}: $e',
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.onError)),
               backgroundColor: Theme.of(context).colorScheme.error),
@@ -1424,16 +1385,15 @@ class _AclScreenState extends State<AclScreen> {
   Future<void> _showPolicyStagingDialog() async {
     if (!mounted) return;
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     final choice = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(isFr ? 'Repartir de zéro' : 'Start from scratch'),
+        title: Text(l10n.t('Repartir de zéro', 'Start from scratch')),
         content: SingleChildScrollView(
           child: Text(
-            isFr
-                ? 'Approche recommandée :\n\n'
+            l10n.isFr ? 'Approche recommandée :\n\n'
                     '1. Chargez un brouillon « tout autoriser » (local uniquement — le serveur reste inchangé)\n'
                     '2. Ajoutez vos grants spécifiques via le composeur\n'
                     '3. Supprimez la règle « tout autoriser » quand vos règles sont prêtes\n'
@@ -1450,19 +1410,19 @@ class _AclScreenState extends State<AclScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(isFr ? 'Annuler' : 'Cancel'),
+            child: Text(l10n.t('Annuler', 'Cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop('local'),
             child: Text(
-              isFr ? 'Brouillon local' : 'Local draft',
+              l10n.t('Brouillon local', 'Local draft'),
               style: const TextStyle(color: Colors.orange),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop('publish'),
             child: Text(
-              isFr ? 'Publier tout autoriser' : 'Publish allow all',
+              l10n.t('Publier tout autoriser', 'Publish allow all'),
               style: TextStyle(color: Theme.of(ctx).colorScheme.error),
             ),
           ),
@@ -1481,7 +1441,7 @@ class _AclScreenState extends State<AclScreen> {
 
   Future<void> _loadAllowAllDraftLocal() async {
     if (!mounted) return;
-    final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.read<AppProvider>().locale);
 
     _applyPolicyLocally(
       PolicyFileService.allowAllTemplate(),
@@ -1493,9 +1453,7 @@ class _AclScreenState extends State<AclScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isFr
-                ? 'Brouillon « tout autoriser » chargé localement. Le serveur n\'a pas été modifié.'
-                : '« Allow all » draft loaded locally. Server was not changed.',
+            l10n.t('Brouillon « tout autoriser » chargé localement. Le serveur n\'a pas été modifié.', '« Allow all » draft loaded locally. Server was not changed.'),
             style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
           ),
           backgroundColor: Theme.of(context).colorScheme.primary,
@@ -1507,26 +1465,24 @@ class _AclScreenState extends State<AclScreen> {
   Future<void> _publishAllowAllToServer() async {
     if (!mounted) return;
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     final confirm = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(isFr ? 'Publier tout autoriser' : 'Publish allow all'),
+            title: Text(l10n.t('Publier tout autoriser', 'Publish allow all')),
             content: Text(
-              isFr
-                  ? 'La policy actuelle du serveur sera remplacée par « tout autoriser » immédiatement. Continuer ?'
-                  : 'The server policy will be replaced with « allow all » immediately. Continue?',
+              l10n.t('La policy actuelle du serveur sera remplacée par « tout autoriser » immédiatement. Continuer ?', 'The server policy will be replaced with « allow all » immediately. Continue?'),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(isFr ? 'Annuler' : 'Cancel'),
+                child: Text(l10n.t('Annuler', 'Cancel')),
               ),
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
                 child: Text(
-                  isFr ? 'Publier' : 'Publish',
+                  l10n.t('Publier', 'Publish'),
                   style: TextStyle(color: Theme.of(ctx).colorScheme.error),
                 ),
               ),
@@ -1551,9 +1507,7 @@ class _AclScreenState extends State<AclScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isFr
-                ? 'Aucun serveur actif sélectionné.'
-                : 'No active server selected.'),
+            content: Text(l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.')),
             backgroundColor: Colors.red,
           ),
         );
@@ -1563,16 +1517,14 @@ class _AclScreenState extends State<AclScreen> {
 
     await _exportAclPolicyToServer(
       showConfirmation: false,
-      successMessage: isFr
-          ? 'Policy publiée : tout le trafic est maintenant autorisé.'
-          : 'Policy published: all traffic is now allowed.',
+      successMessage: l10n.t('Policy publiée : tout le trafic est maintenant autorisé.', 'Policy published: all traffic is now allowed.'),
     );
   }
 
   Future<void> _exportPolicyBackup() async {
     if (!mounted) return;
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     try {
       Map<String, dynamic> policy;
@@ -1593,9 +1545,7 @@ class _AclScreenState extends State<AclScreen> {
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path)],
-          text: isFr
-              ? 'Backup de votre policy Headscale.'
-              : 'Backup of your Headscale policy.',
+          text: l10n.t('Backup de votre policy Headscale.', 'Backup of your Headscale policy.'),
         ),
       );
     } catch (e) {
@@ -1604,7 +1554,7 @@ class _AclScreenState extends State<AclScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${isFr ? 'Échec de l\'export backup' : 'Backup export failed'}: $e',
+              '${l10n.t('Échec de l\'export backup', 'Backup export failed')}: $e',
               style: TextStyle(color: Theme.of(context).colorScheme.onError),
             ),
             backgroundColor: Theme.of(context).colorScheme.error,
@@ -1617,7 +1567,7 @@ class _AclScreenState extends State<AclScreen> {
   Future<void> _importPolicyFromFile() async {
     if (!mounted) return;
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -1631,7 +1581,7 @@ class _AclScreenState extends State<AclScreen> {
       final picked = result.files.single;
       final path = picked.path;
       if (path == null) {
-        throw Exception(isFr ? 'Chemin fichier inaccessible' : 'File path unavailable');
+        throw Exception(l10n.t('Chemin fichier inaccessible', 'File path unavailable'));
       }
 
       final raw = await File(path).readAsString();
@@ -1642,27 +1592,25 @@ class _AclScreenState extends State<AclScreen> {
       final publish = await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: Text(isFr ? 'Importer la policy' : 'Import policy'),
+              title: Text(l10n.t('Importer la policy', 'Import policy')),
               content: Text(
-                isFr
-                    ? 'Charger en brouillon local (recommandé) ou publier immédiatement sur le serveur ?'
-                    : 'Load as local draft (recommended) or publish immediately to the server?',
+                l10n.t('Charger en brouillon local (recommandé) ou publier immédiatement sur le serveur ?', 'Load as local draft (recommended) or publish immediately to the server?'),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  child: Text(isFr ? 'Annuler' : 'Cancel'),
+                  child: Text(l10n.t('Annuler', 'Cancel')),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(false),
                   child: Text(
-                    isFr ? 'Brouillon local' : 'Local draft',
+                    l10n.t('Brouillon local', 'Local draft'),
                     style: const TextStyle(color: Colors.orange),
                   ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(true),
-                  child: Text(isFr ? 'Publier' : 'Publish'),
+                  child: Text(l10n.t('Publier', 'Publish')),
                 ),
               ],
             ),
@@ -1675,17 +1623,13 @@ class _AclScreenState extends State<AclScreen> {
       if (publish) {
         await _exportAclPolicyToServer(
           showConfirmation: true,
-          successMessage: isFr
-              ? 'Policy importée et publiée sur le serveur.'
-              : 'Policy imported and published to the server.',
+          successMessage: l10n.t('Policy importée et publiée sur le serveur.', 'Policy imported and published to the server.'),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              isFr
-                  ? 'Policy importée en brouillon local. Le serveur n\'a pas été modifié.'
-                  : 'Policy imported as local draft. Server was not changed.',
+              l10n.t('Policy importée en brouillon local. Le serveur n\'a pas été modifié.', 'Policy imported as local draft. Server was not changed.'),
               style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
             backgroundColor: Theme.of(context).colorScheme.primary,
@@ -1698,7 +1642,7 @@ class _AclScreenState extends State<AclScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${isFr ? 'Échec de l\'import' : 'Import failed'}: $e',
+              '${l10n.t('Échec de l\'import', 'Import failed')}: $e',
               style: TextStyle(color: Theme.of(context).colorScheme.onError),
             ),
             backgroundColor: Theme.of(context).colorScheme.error,

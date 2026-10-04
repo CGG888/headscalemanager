@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class AclsListView extends StatelessWidget {
   final List<dynamic> acls;
-  final bool isFr;
+  final L10n l10n;
 
   const AclsListView({
     super.key,
     required this.acls,
-    required this.isFr,
+    required this.l10n,
   });
 
   @override
@@ -17,7 +18,7 @@ class AclsListView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            isFr ? 'Aucune règle ACL classique.' : 'No classic ACL rules.',
+            l10n.t('Aucune règle ACL classique.', 'No classic ACL rules.'),
             style: TextStyle(color: Colors.grey[600]),
           ),
         ),

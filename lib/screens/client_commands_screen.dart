@@ -7,6 +7,7 @@ import 'package:headscalemanager/widgets/client_commands/commands_list.dart';
 import 'package:headscalemanager/widgets/client_commands/parameter_config_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class ClientCommandsScreen extends StatefulWidget {
   const ClientCommandsScreen({super.key});
@@ -37,7 +38,7 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
   void _loadCommands() async {
     if (!mounted) return;
     final appProvider = context.read<AppProvider>();
-    final isFr = appProvider.locale.languageCode == 'fr';
+    final l10n = L10n(appProvider.locale);
 
     try {
       final serverUrl = appProvider.activeServer?.url;
@@ -50,17 +51,15 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
         nodes: nodes,
         authKeys: authKeys,
         users: users,
-        isFr: isFr,
+        l10n: l10n,
       );
     } catch (e) {
       // Fallback to static commands in case of an API error
-      _allCommands = DynamicCommandGenerator.generateAllCommands(isFr: isFr);
+      _allCommands = DynamicCommandGenerator.generateAllCommands(l10n: l10n);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isFr
-                ? 'Échec du chargement des commandes dynamiques: ${e.toString()}'
-                : 'Failed to load dynamic commands: ${e.toString()}'),
+            content: Text(l10n.t('Échec du chargement des commandes dynamiques: ${e.toString()}', 'Failed to load dynamic commands: ${e.toString()}')),
             backgroundColor: Colors.red,
           ),
         );
@@ -111,9 +110,9 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
   }
 
   /// 返回按当前语言展示名排序的分类列表；"全部" 由 null 表示，不在此列。
-  List<CommandCategory> _getCategories({required bool isFr}) {
+  List<CommandCategory> _getCategories({required L10n l10n}) {
     final categories = _allCommands.map((cmd) => cmd.category).toSet().toList();
-    categories.sort((a, b) => a.label(isFr).compareTo(b.label(isFr)));
+    categories.sort((a, b) => a.label(l10n).compareTo(b.label(l10n)));
     return categories;
   }
 
@@ -147,7 +146,7 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
       builder: (context) => ParameterConfigDialog(
         command: command,
         platform: _selectedPlatform,
-        isFr: context.read<AppProvider>().locale.languageCode == 'fr',
+        l10n: L10n(context.read<AppProvider>().locale),
       ),
     );
   }
@@ -155,13 +154,13 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          isFr ? 'Commandes Clients' : 'Client Commands',
+          l10n.t('Commandes Clients', 'Client Commands'),
           style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
@@ -172,12 +171,12 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
         child: Column(
           children: [
             CommandFiltersSection(
-              isFr: isFr,
+              l10n: l10n,
               searchController: _searchController,
               selectedPlatform: _selectedPlatform,
               selectedCategory: _selectedCategory,
               showOnlyElevated: _showOnlyElevated,
-              categories: _getCategories(isFr: isFr),
+              categories: _getCategories(l10n: l10n),
               onPlatformChanged: (value) {
                 if (value != null) {
                   setState(() {
@@ -208,7 +207,7 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
             Expanded(
               child: CommandsList(
                 filteredCommands: _filteredCommands,
-                isFr: isFr,
+                l10n: l10n,
                 selectedPlatform: _selectedPlatform,
                 onCopy: _copyToClipboard,
                 onShare: _shareCommand,

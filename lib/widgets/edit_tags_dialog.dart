@@ -7,6 +7,7 @@ import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
 import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class EditTagsDialog extends StatefulWidget {
   final Node node;
@@ -171,7 +172,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
   Future<void> _handleSave() async {
     final appProvider = context.read<AppProvider>();
     final apiService = appProvider.apiService;
-    final isFr = appProvider.locale.languageCode == 'fr';
+    final l10n = L10n(appProvider.locale);
 
     try {
       // Tenter d'enregistrer les tags directement
@@ -214,7 +215,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
       }
 
       if (!mounted) return;
-      showSafeSnackBar(context, isFr ? 'Tags mis à jour.' : 'Tags updated.');
+      showSafeSnackBar(context, l10n.t('Tags mis à jour.', 'Tags updated.'));
 
       // Check for ACL mode
       bool aclMode = true;
@@ -229,17 +230,15 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
         final bool? updateAcls = await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: Text(isFr ? 'Mettre à jour les ACLs ?' : 'Update ACLs?'),
-            content: Text(isFr
-                ? 'Voulez-vous régénérer et appliquer la politique ACL pour que ces changements prennent effet ?'
-                : 'Do you want to regenerate and apply the ACL policy for these changes to take effect?'),
+            title: Text(l10n.t('Mettre à jour les ACLs ?', 'Update ACLs?')),
+            content: Text(l10n.t('Voulez-vous régénérer et appliquer la politique ACL pour que ces changements prennent effet ?', 'Do you want to regenerate and apply the ACL policy for these changes to take effect?')),
             actions: [
               TextButton(
-                child: Text(isFr ? 'Non' : 'No'),
+                child: Text(l10n.t('Non', 'No')),
                 onPressed: () => Navigator.of(dialogContext).pop(false),
               ),
               TextButton(
-                child: Text(isFr ? 'Oui' : 'Yes'),
+                child: Text(l10n.t('Oui', 'Yes')),
                 onPressed: () => Navigator.of(dialogContext).pop(true),
               ),
             ],
@@ -248,7 +247,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
 
         if (updateAcls == true && mounted) {
           showSafeSnackBar(
-              context, isFr ? 'Mise à jour des ACLs...' : 'Updating ACLs...');
+              context, l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
           final allUsers = await apiService.getUsers();
           final allNodes = await apiService.getNodes();
           final serverId = appProvider.activeServer?.id;
@@ -256,9 +255,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
             if (!mounted) return;
             showSafeSnackBar(
                 context,
-                isFr
-                    ? 'Aucun serveur actif sélectionné.'
-                    : 'No active server selected.');
+                l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.'));
             return;
           }
           final tempRules =
@@ -279,7 +276,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
 
           if (!mounted) return;
           showSafeSnackBar(
-              context, isFr ? 'ACLs mises à jour !' : 'ACLs updated!');
+              context, l10n.t('ACLs mises à jour !', 'ACLs updated!'));
         }
       }
 
@@ -290,20 +287,20 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
       }
     } catch (e) {
       if (!mounted) return;
-      showSafeSnackBar(context, isFr ? 'Échec: $e' : 'Failed: $e');
+      showSafeSnackBar(context, l10n.t('Échec: $e', 'Failed: $e'));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isFr = context.watch<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.watch<AppProvider>().locale);
 
     final clientTag = baseTag;
     final hasExitNode = hasCapabilityTag('exit-node');
     final hasLanSharer = hasCapabilityTag('lan-sharer');
 
     return AlertDialog(
-      title: Text(isFr ? 'Modifier les tags' : 'Edit tags'),
+      title: Text(l10n.t('Modifier les tags', 'Edit tags')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -323,16 +320,14 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      isFr
-                          ? 'Note : Avec Headscale v0.26+, les tags sont stricts. Un appareil ne peut plus être "dé-tagué" une fois tagué.'
-                          : 'Note: With Headscale v0.26+, tags are strict. A device cannot be "un-tagged" once tagged.',
+                      l10n.t('Note : Avec Headscale v0.26+, les tags sont stricts. Un appareil ne peut plus être "dé-tagué" une fois tagué.', 'Note: With Headscale v0.26+, tags are strict. A device cannot be "un-tagged" once tagged.'),
                       style: const TextStyle(color: Colors.blue, fontSize: 13),
                     ),
                   ),
                 ],
               ),
             ),
-            Text(isFr ? 'Tags Actuels' : 'Current Tags',
+            Text(l10n.t('Tags Actuels', 'Current Tags'),
                 style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             Wrap(
@@ -342,7 +337,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                   _currentTags.map((tag) => Chip(label: Text(tag))).toList(),
             ),
             const SizedBox(height: 24),
-            Text(isFr ? 'Suggestions' : 'Suggestions',
+            Text(l10n.t('Suggestions', 'Suggestions'),
                 style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             if (clientTag.isNotEmpty) ...[
@@ -350,14 +345,14 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                 ElevatedButton.icon(
                   onPressed: () => _addCapability('exit-node'),
                   icon: const Icon(Icons.add),
-                  label: Text(isFr ? 'Ajouter ;exit-node' : 'Add ;exit-node'),
+                  label: Text(l10n.t('Ajouter ;exit-node', 'Add ;exit-node')),
                 ),
               if (hasExitNode)
                 ElevatedButton.icon(
                   onPressed: () => _removeCapability('exit-node'),
                   icon: const Icon(Icons.remove),
                   label:
-                      Text(isFr ? 'Retirer ;exit-node' : 'Remove ;exit-node'),
+                      Text(l10n.t('Retirer ;exit-node', 'Remove ;exit-node')),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 ),
               const SizedBox(height: 8),
@@ -365,21 +360,19 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                 ElevatedButton.icon(
                   onPressed: () => _addCapability('lan-sharer'),
                   icon: const Icon(Icons.add),
-                  label: Text(isFr ? 'Ajouter ;lan-sharer' : 'Add ;lan-sharer'),
+                  label: Text(l10n.t('Ajouter ;lan-sharer', 'Add ;lan-sharer')),
                 ),
               if (hasLanSharer)
                 ElevatedButton.icon(
                   onPressed: () => _removeCapability('lan-sharer'),
                   icon: const Icon(Icons.remove),
                   label:
-                      Text(isFr ? 'Retirer ;lan-sharer' : 'Remove ;lan-sharer'),
+                      Text(l10n.t('Retirer ;lan-sharer', 'Remove ;lan-sharer')),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 ),
             ] else ...[
               Text(
-                  isFr
-                      ? 'Aucun tag trouvé. Pour intégrer cet appareil aux ACLs, il doit avoir un tag d\'identité.'
-                      : 'No tags found. To include this device in ACLs, it must have an identity tag.',
+                  l10n.t('Aucun tag trouvé. Pour intégrer cet appareil aux ACLs, il doit avoir un tag d\'identité.', 'No tags found. To include this device in ACLs, it must have an identity tag.'),
                   style: const TextStyle(color: Colors.orange)),
               const SizedBox(height: 12),
               ElevatedButton.icon(
@@ -412,9 +405,7 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
                   String userName = normalizeUserName(rawName);
                   if (userName.isEmpty) userName = 'user';
 
-                  return Text(isFr
-                      ? 'Initialiser le Tag (tag:$userName-client)'
-                      : 'Initialize Tag (tag:$userName-client)');
+                  return Text(l10n.t('Initialiser le Tag (tag:$userName-client)', 'Initialize Tag (tag:$userName-client)'));
                 }),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
@@ -427,12 +418,12 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
       ),
       actions: [
         TextButton(
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
           onPressed: _handleSave,
-          child: Text(isFr ? 'Sauvegarder' : 'Save'),
+          child: Text(l10n.t('Sauvegarder', 'Save')),
         ),
       ],
     );

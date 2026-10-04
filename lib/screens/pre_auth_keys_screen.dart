@@ -7,6 +7,7 @@ import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:headscalemanager/widgets/create_pre_auth_key_dialog.dart';
 import 'package:qr_flutter/qr_flutter.dart'; // Importation pour le QR code
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class PreAuthKeysScreen extends StatefulWidget {
   const PreAuthKeysScreen({super.key});
@@ -37,13 +38,13 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-            isFr ? 'Clés de Pré-authentification' : 'Pre-authentication Keys',
+            l10n.t('Clés de Pré-authentification', 'Pre-authentication Keys'),
             style: theme.appBarTheme.titleTextStyle),
         backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
@@ -59,15 +60,13 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
           }
           if (snapshot.hasError) {
             return Center(
-                child: Text('${isFr ? 'Erreur' : 'Error'}: ${snapshot.error}',
+                child: Text('${l10n.t('Erreur', 'Error')}: ${snapshot.error}',
                     style: theme.textTheme.bodyMedium));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
                 child: Text(
-                    isFr
-                        ? 'Aucune clé de pré-authentification trouvée.'
-                        : 'No pre-authentication keys found.',
+                    l10n.t('Aucune clé de pré-authentification trouvée.', 'No pre-authentication keys found.'),
                     style: theme.textTheme.bodyMedium));
           }
 
@@ -81,9 +80,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
           if (activeKeys.isEmpty) {
             return Center(
                 child: Text(
-                    isFr
-                        ? 'Aucune clé de pré-authentification active.'
-                        : 'No active pre-authentication keys.',
+                    l10n.t('Aucune clé de pré-authentification active.', 'No active pre-authentication keys.'),
                     style: theme.textTheme.bodyMedium));
           }
 
@@ -103,9 +100,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createNewKey,
-        tooltip: isFr
-            ? 'Créer une clé de pré-authentification'
-            : 'Create a pre-authentication key',
+        tooltip: l10n.t('Créer une clé de pré-authentification', 'Create a pre-authentication key'),
         backgroundColor: theme.colorScheme.primary,
         child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
       ),
@@ -114,7 +109,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
 
   Future<void> _createNewKey() async {
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     final result = await showDialog<PreAuthKey?>(
       context: context,
       builder: (ctx) => CreatePreAuthKeyDialog(usersFuture: _usersFuture),
@@ -124,9 +119,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
       _refreshData();
       showSafeSnackBar(
           context,
-          isFr
-              ? 'Clé de pré-authentification créée.'
-              : 'Pre-authentication key created.');
+          l10n.t('Clé de pré-authentification créée.', 'Pre-authentication key created.'));
       final appProvider = context.read<AppProvider>();
       final serverUrl = appProvider.activeServer?.url;
       final String loginServer = serverUrl?.endsWith('/') == true
@@ -140,23 +133,21 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
       BuildContext context, PreAuthKey key, String loginServer) {
     final theme = Theme.of(context);
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     final fullCommand =
         'tailscale up --login-server=$loginServer --authkey=${key.key}';
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-            isFr ? 'Commande d\'enregistrement' : 'Registration Command',
+            l10n.t('Commande d\'enregistrement', 'Registration Command'),
             style: theme.textTheme.titleLarge),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                isFr
-                    ? 'Copiez et exécutez cette commande sur votre appareil pour vous connecter.'
-                    : 'Copy and run this command on your device to connect.',
+                l10n.t('Copiez et exécutez cette commande sur votre appareil pour vous connecter.', 'Copy and run this command on your device to connect.'),
                 style: theme.textTheme.bodyMedium),
             const SizedBox(height: 16),
             SelectableText(fullCommand,
@@ -166,7 +157,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
         ),
         actions: [
           TextButton(
-            child: Text(isFr ? 'Expirer la clé' : 'Expire Key',
+            child: Text(l10n.t('Expirer la clé', 'Expire Key'),
                 style: theme.textTheme.labelLarge?.copyWith(color: Colors.red)),
             onPressed: () async {
               try {
@@ -177,12 +168,10 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
                 Navigator.of(context).pop();
                 showSafeSnackBar(
                     context,
-                    isFr
-                        ? 'Clé expirée avec succès.'
-                        : 'Key expired successfully.');
+                    l10n.t('Clé expirée avec succès.', 'Key expired successfully.'));
               } catch (e) {
                 showSafeSnackBar(context,
-                    '${isFr ? 'Erreur lors de l\'expiration de la clé' : 'Error expiring key'}: $e');
+                    '${l10n.t('Erreur lors de l\'expiration de la clé', 'Error expiring key')}: $e');
               }
             },
           ),
@@ -201,7 +190,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
           ),
           ElevatedButton.icon(
             icon: Icon(Icons.copy, color: theme.colorScheme.onPrimary),
-            label: Text(isFr ? 'Copier' : 'Copy',
+            label: Text(l10n.t('Copier', 'Copy'),
                 style: theme.textTheme.labelLarge
                     ?.copyWith(color: theme.colorScheme.onPrimary)),
             onPressed: () async {
@@ -209,9 +198,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
               if (!context.mounted) return;
               showSafeSnackBar(
                   context,
-                  isFr
-                      ? 'Commande copiée dans le presse-papiers !'
-                      : 'Command copied to clipboard!');
+                  l10n.t('Commande copiée dans le presse-papiers !', 'Command copied to clipboard!'));
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary),
@@ -224,11 +211,11 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
   void _showQrCodeDialog(BuildContext context, String data) {
     final theme = Theme.of(context);
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isFr ? 'QR Code pour la commande' : 'QR Code for command',
+        title: Text(l10n.t('QR Code pour la commande', 'QR Code for command'),
             style: theme.textTheme.titleLarge),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -258,16 +245,14 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-                isFr
-                    ? 'Scannez ce QR code avec votre appareil mobile pour obtenir la commande.'
-                    : 'Scan this QR code with your mobile device to get the command.',
+                l10n.t('Scannez ce QR code avec votre appareil mobile pour obtenir la commande.', 'Scan this QR code with your mobile device to get the command.'),
                 style: theme.textTheme.bodyMedium),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(isFr ? 'Fermer' : 'Close',
+            child: Text(l10n.t('Fermer', 'Close'),
                 style: theme.textTheme.labelLarge),
           ),
         ],
@@ -291,7 +276,7 @@ class _PreAuthKeyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return Card(
       elevation: 0,
       color: theme.cardColor,
@@ -304,7 +289,7 @@ class _PreAuthKeyCard extends StatelessWidget {
         title: Text(
             apiKey.key.startsWith('hskey-auth-')
                 ? 'Prefix: ${apiKey.key}'
-                : '${isFr ? 'Clé' : 'Key'}: ...${apiKey.key.length > 6 ? apiKey.key.substring(apiKey.key.length - 6) : apiKey.key}',
+                : '${l10n.t('Clé', 'Key')}: ...${apiKey.key.length > 6 ? apiKey.key.substring(apiKey.key.length - 6) : apiKey.key}',
             style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w500, fontFamily: 'monospace')),
         subtitle: Column(
@@ -312,19 +297,19 @@ class _PreAuthKeyCard extends StatelessWidget {
           children: [
             const SizedBox(height: 4),
             Text(
-                '${isFr ? 'Utilisateur' : 'User'}: ${apiKey.user?.name ?? 'N/A'}',
+                '${l10n.t('Utilisateur', 'User')}: ${apiKey.user?.name ?? 'N/A'}',
                 style: theme.textTheme.bodyMedium),
             Text(
-                '${isFr ? 'Expiration' : 'Expiration'}: ${apiKey.expiration?.toLocal() ?? (isFr ? 'Jamais' : 'Never')}',
+                '${l10n.t('Expiration', 'Expiration')}: ${apiKey.expiration?.toLocal() ?? (l10n.t('Jamais', 'Never'))}',
                 style: theme.textTheme.bodyMedium),
             Row(
               children: [
                 Text(
-                    '${isFr ? 'Réutilisable' : 'Reusable'}: ${apiKey.reusable ? (isFr ? 'Oui' : 'Yes') : (isFr ? 'Non' : 'No')}',
+                    '${l10n.t('Réutilisable', 'Reusable')}: ${apiKey.reusable ? (l10n.t('Oui', 'Yes')) : (l10n.t('Non', 'No'))}',
                     style: theme.textTheme.bodyMedium),
                 const SizedBox(width: 8),
                 Text(
-                    '${isFr ? 'Éphémère' : 'Ephemeral'}: ${apiKey.ephemeral ? (isFr ? 'Oui' : 'Yes') : (isFr ? 'Non' : 'No')}',
+                    '${l10n.t('Éphémère', 'Ephemeral')}: ${apiKey.ephemeral ? (l10n.t('Oui', 'Yes')) : (l10n.t('Non', 'No'))}',
                     style: theme.textTheme.bodyMedium),
               ],
             ),
@@ -332,7 +317,7 @@ class _PreAuthKeyCard extends StatelessWidget {
         ),
         trailing: IconButton(
           icon: const Icon(Icons.timer_off, color: Colors.redAccent),
-          tooltip: isFr ? 'Expirer la clé' : 'Expire key',
+          tooltip: l10n.t('Expirer la clé', 'Expire key'),
           onPressed: () => _expireKey(context),
         ),
         onTap: () => _handleTap(context),
@@ -343,25 +328,23 @@ class _PreAuthKeyCard extends StatelessWidget {
   Future<void> _expireKey(BuildContext context) async {
     final theme = Theme.of(context);
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     final confirm = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(isFr ? 'Expirer la clé ?' : 'Expire key?',
+            title: Text(l10n.t('Expirer la clé ?', 'Expire key?'),
                 style: theme.textTheme.titleLarge),
             content: Text(
-                isFr
-                    ? 'Voulez-vous vraiment faire expirer cette clé ? L\'action est irréversible.'
-                    : 'Do you really want to expire this key? The action is irreversible.',
+                l10n.t('Voulez-vous vraiment faire expirer cette clé ? L\'action est irréversible.', 'Do you really want to expire this key? The action is irreversible.'),
                 style: theme.textTheme.bodyMedium),
             actions: [
               TextButton(
                   onPressed: () => Navigator.of(ctx).pop(false),
-                  child: Text(isFr ? 'Annuler' : 'Cancel',
+                  child: Text(l10n.t('Annuler', 'Cancel'),
                       style: theme.textTheme.labelLarge)),
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(isFr ? 'Expirer' : 'Expire',
+                child: Text(l10n.t('Expirer', 'Expire'),
                     style: theme.textTheme.labelLarge
                         ?.copyWith(color: Colors.red)),
               ),
@@ -377,11 +360,11 @@ class _PreAuthKeyCard extends StatelessWidget {
             serverVersion: provider.serverVersion, keyId: apiKey.id);
         if (!context.mounted) return;
         showSafeSnackBar(context,
-            isFr ? 'Clé expirée avec succès.' : 'Key expired successfully.');
+            l10n.t('Clé expirée avec succès.', 'Key expired successfully.'));
         onAction(); // This will trigger the refresh
       } catch (e) {
         showSafeSnackBar(context,
-            '${isFr ? 'Erreur lors de l\'expiration de la clé' : 'Error expiring key'}: $e');
+            '${l10n.t('Erreur lors de l\'expiration de la clé', 'Error expiring key')}: $e');
       }
     }
   }
@@ -389,7 +372,7 @@ class _PreAuthKeyCard extends StatelessWidget {
   void _handleTap(BuildContext context) async {
     final theme = Theme.of(context);
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     final appProvider = context.read<AppProvider>();
     final serverUrl = appProvider.activeServer?.url;
     final String loginServer = serverUrl?.endsWith('/') == true
@@ -402,7 +385,7 @@ class _PreAuthKeyCard extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-            isFr ? 'Commande d\'enregistrement' : 'Registration Command',
+            l10n.t('Commande d\'enregistrement', 'Registration Command'),
             style: theme.textTheme.titleLarge),
         content: SelectableText(fullCommand,
             style:
@@ -422,21 +405,21 @@ class _PreAuthKeyCard extends StatelessWidget {
           ),
           ElevatedButton.icon(
             icon: Icon(Icons.copy, color: theme.colorScheme.onPrimary),
-            label: Text(isFr ? 'Copier' : 'Copy',
+            label: Text(l10n.t('Copier', 'Copy'),
                 style: theme.textTheme.labelLarge
                     ?.copyWith(color: theme.colorScheme.onPrimary)),
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: fullCommand));
               if (!context.mounted) return;
               showSafeSnackBar(
-                  context, isFr ? 'Commande copiée !' : 'Command copied!');
+                  context, l10n.t('Commande copiée !', 'Command copied!'));
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(isFr ? 'Fermer' : 'Close',
+            child: Text(l10n.t('Fermer', 'Close'),
                 style: theme.textTheme.labelLarge),
           ),
         ],

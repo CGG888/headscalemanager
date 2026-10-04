@@ -4,13 +4,14 @@ import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/models/user.dart';
 import 'package:headscalemanager/models/version_info.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class AclEngineBanner extends StatelessWidget {
   final AclEngineMode engineMode;
   final String serverVersion;
   final List<User> users;
   final List<Node> nodes;
-  final bool isFr;
+  final L10n l10n;
   final bool compact;
 
   const AclEngineBanner({
@@ -19,7 +20,7 @@ class AclEngineBanner extends StatelessWidget {
     required this.serverVersion,
     required this.users,
     required this.nodes,
-    required this.isFr,
+    required this.l10n,
     this.compact = false,
   });
 
@@ -44,11 +45,11 @@ class AclEngineBanner extends StatelessWidget {
   String _engineLabel() {
     switch (engineMode) {
       case AclEngineMode.legacy:
-        return isFr ? 'Legacy (tags fusionnés)' : 'Legacy (merged tags)';
+        return l10n.t('Legacy (tags fusionnés)', 'Legacy (merged tags)');
       case AclEngineMode.standard:
-        return isFr ? 'Standard (tags séparés)' : 'Standard (split tags)';
+        return l10n.t('Standard (tags séparés)', 'Standard (split tags)');
       case AclEngineMode.grantsV29:
-        return isFr ? 'Grants V29 (via)' : 'Grants V29 (via)';
+        return l10n.t('Grants V29 (via)', 'Grants V29 (via)');
     }
   }
 
@@ -78,7 +79,7 @@ class AclEngineBanner extends StatelessWidget {
                 size: 18, color: _engineColor(context)),
             const SizedBox(width: 6),
             Text(
-              isFr ? 'Moteur :' : 'Engine:',
+              l10n.t('Moteur :', 'Engine:'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(width: 6),
@@ -95,7 +96,7 @@ class AclEngineBanner extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  isFr ? 'Fallback Standard (< 0.29)' : 'Standard fallback (< 0.29)',
+                  l10n.t('Fallback Standard (< 0.29)', 'Standard fallback (< 0.29)'),
                   style: TextStyle(color: Colors.orange[800], fontSize: 11),
                 ),
               ),
@@ -118,7 +119,7 @@ class AclEngineBanner extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    isFr ? 'Moteur actif : ' : 'Active engine: ',
+                    l10n.t('Moteur actif : ', 'Active engine: '),
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
@@ -136,9 +137,7 @@ class AclEngineBanner extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  isFr
-                      ? 'Serveur < 0.29 : fallback Standard appliqué à la génération.'
-                      : 'Server < 0.29: Standard fallback used for generation.',
+                  l10n.t('Serveur < 0.29 : fallback Standard appliqué à la génération.', 'Server < 0.29: Standard fallback used for generation.'),
                   style: TextStyle(color: Colors.orange[800], fontSize: 12),
                 ),
               ),
@@ -153,9 +152,7 @@ class AclEngineBanner extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        isFr
-                            ? 'Utilisateurs sans nœud tagué (aucune règle auto) : ${untagged.join(", ")}'
-                            : 'Users without tagged nodes (no auto rules): ${untagged.join(", ")}',
+                        l10n.t('Utilisateurs sans nœud tagué (aucune règle auto) : ${untagged.join(", ")}', 'Users without tagged nodes (no auto rules): ${untagged.join(", ")}'),
                         style: TextStyle(
                             color: Colors.amber[900], fontSize: 12),
                       ),

@@ -13,6 +13,7 @@ import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 
 /// Écran de gestion des utilisateurs Headscale.
@@ -86,7 +87,7 @@ class _UsersScreenState extends State<UsersScreen> {
     final theme = Theme.of(context);
     final provider = context.watch<AppProvider>();
     final locale = provider.locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     final viewMode = provider.usersViewMode;
 
     return Scaffold(
@@ -104,13 +105,13 @@ class _UsersScreenState extends State<UsersScreen> {
               debugPrint(
                   'Erreur lors du chargement des utilisateurs : ${snapshot.error}');
               return Center(
-                  child: Text('${isFr ? 'Erreur' : 'Error'}: ${snapshot.error}',
+                  child: Text('${l10n.t('Erreur', 'Error')}: ${snapshot.error}',
                       style: theme.textTheme.bodyMedium));
             }
             if (!snapshot.hasData || snapshot.data!.users.isEmpty) {
               return Center(
                   child: Text(
-                      isFr ? 'Aucun utilisateur trouvé.' : 'No users found.',
+                      l10n.t('Aucun utilisateur trouvé.', 'No users found.'),
                       style: theme.textTheme.bodyMedium));
             }
 
@@ -165,7 +166,7 @@ class _UsersScreenState extends State<UsersScreen> {
   Widget _buildFloatingActionButtons(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -175,7 +176,7 @@ class _UsersScreenState extends State<UsersScreen> {
                 MaterialPageRoute(builder: (_) => const PreAuthKeysScreen()));
           },
           heroTag: 'managePreAuthKeys',
-          tooltip: isFr ? 'Gérer les clés d\'accès' : 'Manage pre-auth keys',
+          tooltip: l10n.t('Gérer les clés d\'accès', 'Manage pre-auth keys'),
           backgroundColor: theme.colorScheme.primary,
           child: Icon(Icons.vpn_key, color: theme.colorScheme.onPrimary),
         ),
@@ -191,14 +192,12 @@ class _UsersScreenState extends State<UsersScreen> {
               if (context.mounted) {
                 showSafeSnackBar(
                     context,
-                    isFr
-                        ? 'Utilisateur créé avec succès.'
-                        : 'User created successfully.');
+                    l10n.t('Utilisateur créé avec succès.', 'User created successfully.'));
               }
             }
           },
           heroTag: 'createUser',
-          tooltip: isFr ? 'Créer un utilisateur' : 'Create user',
+          tooltip: l10n.t('Créer un utilisateur', 'Create user'),
           backgroundColor: theme.colorScheme.primary,
           child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
         ),
@@ -221,7 +220,7 @@ class _UserCard extends StatelessWidget {
   void _showIconPickerDialog(BuildContext context, AppProvider provider) {
     final theme = Theme.of(context);
     final locale = provider.locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     showDialog(
       context: context,
@@ -235,7 +234,7 @@ class _UserCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isFr ? 'Personnaliser l\'icône' : 'Customize Icon',
+                  l10n.t('Personnaliser l\'icône', 'Customize Icon'),
                   style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
@@ -297,7 +296,7 @@ class _UserCard extends StatelessWidget {
                     }
                   },
                   icon: const Icon(Icons.photo_library),
-                  label: Text(isFr ? 'Importer une photo' : 'Import a photo'),
+                  label: Text(l10n.t('Importer une photo', 'Import a photo')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.colorScheme.primary,
                     foregroundColor: theme.colorScheme.onPrimary,
@@ -308,7 +307,7 @@ class _UserCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: Text(isFr ? 'Annuler' : 'Cancel'),
+                  child: Text(l10n.t('Annuler', 'Cancel')),
                 ),
               ],
             ),
@@ -323,7 +322,7 @@ class _UserCard extends StatelessWidget {
     final theme = Theme.of(context);
     final provider = context.watch<AppProvider>();
     final locale = provider.locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     final iconKey = provider.getUserIcon(user.id);
     final isCustomImage = iconKey.contains('/') || iconKey.contains('\\');
@@ -417,7 +416,7 @@ class _UserCard extends StatelessWidget {
                       ),
                     const SizedBox(height: 2),
                     Text(
-                      '${isFr ? 'Créé le' : 'Created on'}: ${user.createdAt?.toLocal().toString().substring(0, 10) ?? 'N/A'}',
+                      '${l10n.t('Créé le', 'Created on')}: ${user.createdAt?.toLocal().toString().substring(0, 10) ?? 'N/A'}',
                       style: theme.textTheme.bodySmall?.copyWith(
                           color:
                               theme.colorScheme.onPrimary.withValues(alpha: 0.7),
@@ -451,7 +450,7 @@ class _UserCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '$connectedNodes/${userNodes.length} ${isFr ? 'connectés' : 'online'}',
+                            '$connectedNodes/${userNodes.length} ${l10n.t('connectés', 'online')}',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,
@@ -494,9 +493,9 @@ class _UserCard extends StatelessWidget {
                       child: ListTile(
                         leading: Icon(Icons.image,
                             color: theme.colorScheme.onSurface,
-                            semanticLabel: isFr ? 'Personnaliser l\'icône' : 'Customize icon'),
+                            semanticLabel: l10n.t('Personnaliser l\'icône', 'Customize icon')),
                         title: Text(
-                            isFr ? 'Personnaliser l\'icône' : 'Customize icon',
+                            l10n.t('Personnaliser l\'icône', 'Customize icon'),
                             style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface)),
                       ),
@@ -508,7 +507,7 @@ class _UserCard extends StatelessWidget {
                           color: Colors.red,
                           semanticLabel: 'Delete user'),
                       title: Text(
-                          isFr ? 'Supprimer l\'utilisateur' : 'Delete user',
+                          l10n.t('Supprimer l\'utilisateur', 'Delete user'),
                           style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.onSurface)),
                     ),
@@ -520,7 +519,7 @@ class _UserCard extends StatelessWidget {
                           color: theme.colorScheme.onSurface,
                           semanticLabel: 'Rename user'),
                       title: Text(
-                          isFr ? 'Renommer l\'utilisateur' : 'Rename user',
+                          l10n.t('Renommer l\'utilisateur', 'Rename user'),
                           style: theme.textTheme.bodyMedium
                               ?.copyWith(color: theme.colorScheme.onSurface)),
                     ),
@@ -549,7 +548,7 @@ class _UserListTile extends StatelessWidget {
   void _showIconPickerDialog(BuildContext context, AppProvider provider) {
     final theme = Theme.of(context);
     final locale = provider.locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     showDialog(
       context: context,
@@ -563,7 +562,7 @@ class _UserListTile extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isFr ? 'Personnaliser l\'icône' : 'Customize Icon',
+                  l10n.t('Personnaliser l\'icône', 'Customize Icon'),
                   style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
@@ -625,7 +624,7 @@ class _UserListTile extends StatelessWidget {
                     }
                   },
                   icon: const Icon(Icons.photo_library),
-                  label: Text(isFr ? 'Importer une photo' : 'Import a photo'),
+                  label: Text(l10n.t('Importer une photo', 'Import a photo')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.colorScheme.primary,
                     foregroundColor: theme.colorScheme.onPrimary,
@@ -636,7 +635,7 @@ class _UserListTile extends StatelessWidget {
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: Text(isFr ? 'Annuler' : 'Cancel'),
+                  child: Text(l10n.t('Annuler', 'Cancel')),
                 ),
               ],
             ),
@@ -651,7 +650,7 @@ class _UserListTile extends StatelessWidget {
     final theme = Theme.of(context);
     final provider = context.watch<AppProvider>();
     final locale = provider.locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     final iconKey = provider.getUserIcon(user.id);
     final isCustomImage = iconKey.contains('/') || iconKey.contains('\\');
@@ -749,7 +748,7 @@ class _UserListTile extends StatelessWidget {
               ),
             const SizedBox(height: 2),
             Text(
-              '${isFr ? 'Créé le' : 'Created on'}: ${user.createdAt?.toLocal().toString().substring(0, 10) ?? 'N/A'}',
+              '${l10n.t('Créé le', 'Created on')}: ${user.createdAt?.toLocal().toString().substring(0, 10) ?? 'N/A'}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
                 fontSize: 10,
@@ -825,7 +824,7 @@ class _UserListTile extends StatelessWidget {
                     child: ListTile(
                       leading: Icon(Icons.image, color: theme.colorScheme.onSurface),
                       title: Text(
-                        isFr ? 'Personnaliser l\'icône' : 'Customize icon',
+                        l10n.t('Personnaliser l\'icône', 'Customize icon'),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface,
                         ),
@@ -837,7 +836,7 @@ class _UserListTile extends StatelessWidget {
                   child: ListTile(
                     leading: const Icon(Icons.delete, color: Colors.red),
                     title: Text(
-                      isFr ? 'Supprimer l\'utilisateur' : 'Delete user',
+                      l10n.t('Supprimer l\'utilisateur', 'Delete user'),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurface,
                       ),
@@ -849,7 +848,7 @@ class _UserListTile extends StatelessWidget {
                   child: ListTile(
                     leading: Icon(Icons.edit, color: theme.colorScheme.onSurface),
                     title: Text(
-                      isFr ? 'Renommer l\'utilisateur' : 'Rename user',
+                      l10n.t('Renommer l\'utilisateur', 'Rename user'),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurface,
                       ),

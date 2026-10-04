@@ -4,20 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/models/user.dart';
 import 'package:headscalemanager/services/acl/grant_composer_service.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 /// Édition inline d'un grant réseau existant.
 class GrantEditSheet extends StatefulWidget {
   final Map<String, dynamic> grant;
   final List<User> users;
   final List<Node> nodes;
-  final bool isFr;
+  final L10n l10n;
 
   const GrantEditSheet({
     super.key,
     required this.grant,
     required this.users,
     required this.nodes,
-    required this.isFr,
+    required this.l10n,
   });
 
   static Future<Map<String, dynamic>?> show(
@@ -25,7 +26,7 @@ class GrantEditSheet extends StatefulWidget {
     required Map<String, dynamic> grant,
     required List<User> users,
     required List<Node> nodes,
-    required bool isFr,
+    required L10n l10n,
   }) {
     return showModalBottomSheet<Map<String, dynamic>>(
       context: context,
@@ -35,7 +36,7 @@ class GrantEditSheet extends StatefulWidget {
         grant: grant,
         users: users,
         nodes: nodes,
-        isFr: isFr,
+        l10n: l10n,
       ),
     );
   }
@@ -113,7 +114,7 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                widget.isFr ? 'Modifier le grant' : 'Edit grant',
+                widget.l10n.t('Modifier le grant', 'Edit grant'),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
@@ -122,7 +123,7 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
                 shrinkWrap: true,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
-                  Text(widget.isFr ? 'Source(s)' : 'Source(s)',
+                  Text(widget.l10n.t('Source(s)', 'Source(s)'),
                       style: Theme.of(context).textTheme.titleSmall),
                   ...srcOptions.map((o) => CheckboxListTile(
                         value: _src.contains(o.value),
@@ -134,7 +135,7 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
                         title: Text(o.label),
                       )),
                   const Divider(),
-                  Text(widget.isFr ? 'Via (routeur)' : 'Via (router)',
+                  Text(widget.l10n.t('Via (routeur)', 'Via (router)'),
                       style: Theme.of(context).textTheme.titleSmall),
                   RadioGroup<String?>(
                     groupValue: _via,
@@ -143,9 +144,7 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
                       children: [
                         RadioListTile<String?>(
                           value: null,
-                          title: Text(widget.isFr
-                              ? 'Aucun (direct)'
-                              : 'None (direct)'),
+                          title: Text(widget.l10n.t('Aucun (direct)', 'None (direct)')),
                         ),
                         ...routers.map((r) => RadioListTile<String?>(
                               value: r.viaTag,
@@ -155,7 +154,7 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
                     ),
                   ),
                   const Divider(),
-                  Text(widget.isFr ? 'Destination(s)' : 'Destination(s)',
+                  Text(widget.l10n.t('Destination(s)', 'Destination(s)'),
                       style: Theme.of(context).textTheme.titleSmall),
                   ...uniqueDst.values.map((o) => CheckboxListTile(
                         value: _dst.contains(o.value),
@@ -188,14 +187,14 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text(widget.isFr ? 'Annuler' : 'Cancel'),
+                    child: Text(widget.l10n.t('Annuler', 'Cancel')),
                   ),
                   const Spacer(),
                   FilledButton(
                     onPressed: _src.isNotEmpty && _dst.isNotEmpty
                         ? () => Navigator.pop(context, _buildGrant())
                         : null,
-                    child: Text(widget.isFr ? 'Enregistrer' : 'Save'),
+                    child: Text(widget.l10n.t('Enregistrer', 'Save')),
                   ),
                 ],
               ),

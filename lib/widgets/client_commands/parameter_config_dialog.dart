@@ -4,18 +4,19 @@ import 'package:headscalemanager/models/client_command.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 // Dialogue de configuration des paramètres
 class ParameterConfigDialog extends StatefulWidget {
   final ClientCommand command;
   final String platform;
-  final bool isFr;
+  final L10n l10n;
 
   const ParameterConfigDialog({
     super.key,
     required this.command,
     required this.platform,
-    required this.isFr,
+    required this.l10n,
   });
 
   @override
@@ -106,9 +107,7 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          widget.isFr
-              ? 'Commande copiée dans le presse-papiers'
-              : 'Command copied to clipboard',
+          widget.l10n.t('Commande copiée dans le presse-papiers', 'Command copied to clipboard'),
         ),
         duration: const Duration(seconds: 2),
       ),
@@ -191,13 +190,13 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
               : TextInputType.text,
       validator: (value) {
         if (param.required && (value == null || value.isEmpty)) {
-          return widget.isFr ? 'Ce champ est requis' : 'This field is required';
+          return widget.l10n.t('Ce champ est requis', 'This field is required');
         }
 
         if (value != null && value.isNotEmpty && param.validation != null) {
           final regex = RegExp(param.validation!);
           if (!regex.hasMatch(value)) {
-            return widget.isFr ? 'Format invalide' : 'Invalid format';
+            return widget.l10n.t('Format invalide', 'Invalid format');
           }
         }
 
@@ -213,7 +212,7 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        widget.isFr ? 'Configurer les paramètres' : 'Configure Parameters',
+        widget.l10n.t('Configurer les paramètres', 'Configure Parameters'),
         style: Theme.of(context).textTheme.titleLarge,
       ),
       content: SizedBox(
@@ -263,7 +262,7 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
                 if (_generatedCommand != null) ...[
                   const SizedBox(height: 24),
                   Text(
-                    widget.isFr ? 'Commande Générée' : 'Generated Command',
+                    widget.l10n.t('Commande Générée', 'Generated Command'),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
@@ -287,13 +286,13 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
                       OutlinedButton.icon(
                         onPressed: () => _shareCommand(_generatedCommand!),
                         icon: const Icon(Icons.share, size: 16),
-                        label: Text(widget.isFr ? 'Partager' : 'Share'),
+                        label: Text(widget.l10n.t('Partager', 'Share')),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton.icon(
                         onPressed: () => _copyToClipboard(_generatedCommand!),
                         icon: const Icon(Icons.copy, size: 16),
-                        label: Text(widget.isFr ? 'Copier' : 'Copy'),
+                        label: Text(widget.l10n.t('Copier', 'Copy')),
                       ),
                     ],
                   )
@@ -306,12 +305,12 @@ class _ParameterConfigDialogState extends State<ParameterConfigDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(widget.isFr ? 'Fermer' : 'Close'),
+          child: Text(widget.l10n.t('Fermer', 'Close')),
         ),
         ElevatedButton.icon(
           onPressed: _generateCommand,
           icon: const Icon(Icons.build_circle_outlined),
-          label: Text(widget.isFr ? 'Générer' : 'Generate'),
+          label: Text(widget.l10n.t('Générer', 'Generate')),
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Colors.white,

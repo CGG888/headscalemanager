@@ -11,6 +11,7 @@ import 'package:headscalemanager/widgets/rename_node_dialog.dart';
 import 'package:headscalemanager/widgets/move_node_dialog.dart';
 import 'package:headscalemanager/widgets/exit_node_command_dialog.dart';
 import 'package:headscalemanager/widgets/share_subnet_dialog.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 /// Un widget réutilisable pour afficher un nœud et fournir des actions de gestion.
 ///
@@ -52,7 +53,7 @@ class NodeManagementTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.read<AppProvider>();
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -82,7 +83,7 @@ class NodeManagementTile extends StatelessWidget {
           children: [
             Text(node.ipAddresses.join(', ')),
             Text(
-                '${isFr ? 'Dernière connexion' : 'Last seen'}: ${node.lastSeen.toLocal()}',
+                '${l10n.t('Dernière connexion', 'Last seen')}: ${node.lastSeen.toLocal()}',
                 style: const TextStyle(fontSize: 12, color: Colors.grey)),
           ],
         ),
@@ -109,9 +110,7 @@ class NodeManagementTile extends StatelessWidget {
                 if (moved == true && context.mounted) {
                   showSafeSnackBar(
                     context,
-                    isFr
-                        ? 'Appareil déplacé. Redémarrage de Headscale recommandé.'
-                        : 'Device moved. Headscale restart recommended.',
+                    l10n.t('Appareil déplacé. Redémarrage de Headscale recommandé.', 'Device moved. Headscale restart recommended.'),
                   );
                 }
                 break;
@@ -128,7 +127,7 @@ class NodeManagementTile extends StatelessWidget {
                 _runAction(
                     context,
                     () => provider.apiService.setNodeRoutes(node.id, []),
-                    isFr ? 'Nœud de sortie désactivé.' : 'Exit node disabled.');
+                    l10n.t('Nœud de sortie désactivé.', 'Exit node disabled.'));
                 break;
               case 'share_subnet':
                 // Affiche le dialogue pour partager un sous-réseau.
@@ -143,9 +142,7 @@ class NodeManagementTile extends StatelessWidget {
                 _runAction(
                     context,
                     () => provider.apiService.setNodeRoutes(node.id, []),
-                    isFr
-                        ? 'Routes de sous-réseau désactivées.'
-                        : 'Subnet routes disabled.');
+                    l10n.t('Routes de sous-réseau désactivées.', 'Subnet routes disabled.'));
                 break;
               case 'delete_device':
                 // Affiche le dialogue de confirmation de suppression.
@@ -153,23 +150,21 @@ class NodeManagementTile extends StatelessWidget {
                   context: context,
                   builder: (dialogCtx) => AlertDialog(
                     title: Text(
-                        isFr ? 'Supprimer l\'appareil ?' : 'Delete device?'),
-                    content: Text(isFr
-                        ? 'Êtes-vous sûr de vouloir supprimer ${node.name} ?'
-                        : 'Are you sure you want to delete ${node.name}?'),
+                        l10n.t('Supprimer l\'appareil ?', 'Delete device?')),
+                    content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer ${node.name} ?', 'Are you sure you want to delete ${node.name}?')),
                     actions: <Widget>[
                       TextButton(
-                          child: Text(isFr ? 'Annuler' : 'Cancel'),
+                          child: Text(l10n.t('Annuler', 'Cancel')),
                           onPressed: () => Navigator.of(dialogCtx).pop()),
                       TextButton(
-                        child: Text(isFr ? 'Confirmer' : 'Confirm',
+                        child: Text(l10n.t('Confirmer', 'Confirm'),
                             style: const TextStyle(color: Colors.red)),
                         onPressed: () {
                           Navigator.of(dialogCtx).pop();
                           _runAction(
                               context,
                               () => provider.apiService.deleteNode(node.id),
-                              isFr ? 'Appareil supprimé.' : 'Device deleted.');
+                              l10n.t('Appareil supprimé.', 'Device deleted.'));
                         },
                       ),
                     ],
@@ -183,14 +178,14 @@ class NodeManagementTile extends StatelessWidget {
               value: 'rename',
               child: ListTile(
                 leading: const Icon(Icons.edit),
-                title: Text(isFr ? 'Renommer l\'appareil' : 'Rename Device'),
+                title: Text(l10n.t('Renommer l\'appareil', 'Rename Device')),
               ),
             ),
             PopupMenuItem<String>(
               value: 'move',
               child: ListTile(
                 leading: const Icon(Icons.move_up),
-                title: Text(isFr ? 'Déplacer l\'appareil' : 'Move Device'),
+                title: Text(l10n.t('Déplacer l\'appareil', 'Move Device')),
               ),
             ),
             PopupMenuItem<String>(
@@ -198,25 +193,21 @@ class NodeManagementTile extends StatelessWidget {
               child: ListTile(
                 leading: const Icon(Icons.exit_to_app),
                 title: Text(
-                    isFr ? 'Activer le nœud de sortie' : 'Enable Exit Node'),
+                    l10n.t('Activer le nœud de sortie', 'Enable Exit Node')),
               ),
             ),
             PopupMenuItem<String>(
               value: 'disable_exit_node',
               child: ListTile(
                 leading: const Icon(Icons.remove_circle_outline),
-                title: Text(isFr
-                    ? 'Désactiver le nœud de sortie'
-                    : 'Disable Exit Node'),
+                title: Text(l10n.t('Désactiver le nœud de sortie', 'Disable Exit Node')),
               ),
             ),
             PopupMenuItem<String>(
               value: 'share_subnet',
               child: ListTile(
                 leading: const Icon(Icons.router_outlined),
-                title: Text(isFr
-                    ? 'Partager le sous-réseau local'
-                    : 'Share Local Subnet'),
+                title: Text(l10n.t('Partager le sous-réseau local', 'Share Local Subnet')),
               ),
             ),
             PopupMenuItem<String>(
@@ -224,9 +215,7 @@ class NodeManagementTile extends StatelessWidget {
               child: ListTile(
                 leading: const Icon(Icons
                     .router_outlined), // Réutilisation de l'icône pour l'instant
-                title: Text(isFr
-                    ? 'Désactiver les routes de sous-réseau'
-                    : 'Disable Subnet Routes'),
+                title: Text(l10n.t('Désactiver les routes de sous-réseau', 'Disable Subnet Routes')),
               ),
             ),
             const PopupMenuDivider(),
@@ -234,7 +223,7 @@ class NodeManagementTile extends StatelessWidget {
               value: 'delete_device',
               child: ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
-                title: Text(isFr ? 'Supprimer l\'appareil' : 'Delete Device'),
+                title: Text(l10n.t('Supprimer l\'appareil', 'Delete Device')),
               ),
             ),
           ],

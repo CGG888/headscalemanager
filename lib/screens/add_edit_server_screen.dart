@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:headscalemanager/models/server.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class AddEditServerScreen extends StatefulWidget {
   final Server? server;
@@ -38,15 +39,15 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isFr = context.watch<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.watch<AppProvider>().locale);
     final isEditing = widget.server != null;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           isEditing
-              ? (isFr ? 'Modifier le serveur' : 'Edit Server')
-              : (isFr ? 'Ajouter un serveur' : 'Add Server'),
+              ? (l10n.t('Modifier le serveur', 'Edit Server'))
+              : (l10n.t('Ajouter un serveur', 'Add Server')),
         ),
       ),
       body: Form(
@@ -58,13 +59,11 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: isFr ? 'Nom du serveur' : 'Server Name',
+                  labelText: l10n.t('Nom du serveur', 'Server Name'),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return isFr
-                        ? 'Veuillez entrer un nom'
-                        : 'Please enter a name';
+                    return l10n.t('Veuillez entrer un nom', 'Please enter a name');
                   }
                   return null;
                 },
@@ -73,15 +72,13 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
               TextFormField(
                 controller: _urlController,
                 decoration: InputDecoration(
-                  labelText: isFr ? 'URL du serveur' : 'Server URL',
+                  labelText: l10n.t('URL du serveur', 'Server URL'),
                 ),
                 validator: (value) {
                   if (value == null ||
                       value.isEmpty ||
                       !Uri.parse(value).isAbsolute) {
-                    return isFr
-                        ? 'Veuillez entrer une URL valide'
-                        : 'Please enter a valid URL';
+                    return l10n.t('Veuillez entrer une URL valide', 'Please enter a valid URL');
                   }
                   return null;
                 },
@@ -91,7 +88,7 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
                 controller: _apiKeyController,
                 obscureText: _obscureApiKey,
                 decoration: InputDecoration(
-                  labelText: isFr ? 'Clé API' : 'API Key',
+                  labelText: l10n.t('Clé API', 'API Key'),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureApiKey ? Icons.visibility_off : Icons.visibility,
@@ -105,9 +102,7 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return isFr
-                        ? 'Veuillez entrer une clé API'
-                        : 'Please enter an API key';
+                    return l10n.t('Veuillez entrer une clé API', 'Please enter an API key');
                   }
                   return null;
                 },
@@ -115,7 +110,7 @@ class _AddEditServerScreenState extends State<AddEditServerScreen> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _saveServer,
-                child: Text(isFr ? 'Enregistrer' : 'Save'),
+                child: Text(l10n.t('Enregistrer', 'Save')),
               ),
             ],
           ),

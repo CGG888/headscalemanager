@@ -13,30 +13,31 @@ import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/models/user.dart';
 import 'package:headscalemanager/utils/string_utils.dart'; // For normalizeUserName
+import 'package:headscalemanager/l10n/l10n.dart';
 
 void _showEntityRenameDialog(BuildContext context, PuzzleEntity entity, VoidCallback onSaved) {
   final appProvider = context.read<AppProvider>();
-  final isFr = appProvider.locale.languageCode == 'fr';
+  final l10n = L10n(appProvider.locale);
   final currentAlias = appProvider.getEntityAlias(entity.value) ?? '';
   final controller = TextEditingController(text: currentAlias);
 
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: Text(isFr ? 'Renommer l\'entité' : 'Rename Entity'),
+      title: Text(l10n.t('Renommer l\'entité', 'Rename Entity')),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${isFr ? "Valeur d'origine" : "Original Value"}: ${entity.value}',
+            '${l10n.t("Valeur d'origine", "Original Value")}: ${entity.value}',
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: controller,
             decoration: InputDecoration(
-              labelText: isFr ? 'Nom personnalisé (Alias)' : 'Custom Name (Alias)',
+              labelText: l10n.t('Nom personnalisé (Alias)', 'Custom Name (Alias)'),
               hintText: entity.displayLabel,
               border: const OutlineInputBorder(),
             ),
@@ -47,7 +48,7 @@ void _showEntityRenameDialog(BuildContext context, PuzzleEntity entity, VoidCall
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx),
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
         ),
         ElevatedButton(
           onPressed: () async {
@@ -57,7 +58,7 @@ void _showEntityRenameDialog(BuildContext context, PuzzleEntity entity, VoidCall
               Navigator.pop(ctx);
             }
           },
-          child: Text(isFr ? 'Enregistrer' : 'Save'),
+          child: Text(l10n.t('Enregistrer', 'Save')),
         ),
       ],
     ),
@@ -109,7 +110,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
     try {
       final appProvider = context.read<AppProvider>();
       final apiService = appProvider.apiService;
-      final isFr = appProvider.locale.languageCode == 'fr';
+      final l10n = L10n(appProvider.locale);
 
       final users = await apiService.getUsers();
       final nodes = await apiService.getNodes();
@@ -135,7 +136,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
       setState(() {
         _users = users;
         _nodes = nodes;
-        _buildAvailableEntities(isFr);
+        _buildAvailableEntities(l10n);
 
         if (currentPolicy.isNotEmpty) {
           _puzzleRules.clear();
@@ -160,7 +161,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
     }
   }
 
-  void _buildAvailableEntities(bool isFr) {
+  void _buildAvailableEntities(L10n l10n) {
     _availableEntities.clear();
 
     // 1. Groups & Tag Owners (Implicit from Users)
@@ -170,7 +171,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
         id: 'group:${user.name}',
         type: PuzzleEntityType.group,
         value: 'group:${user.name}',
-        displayLabel: isFr ? 'Groupe: ${user.name}' : 'Group: ${user.name}',
+        displayLabel: l10n.t('Groupe: ${user.name}', 'Group: ${user.name}'),
       ));
 
       // User Tag Entity (e.g. tag:tom-client)
@@ -241,9 +242,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
             id: entityId,
             type: PuzzleEntityType.host,
             value: viaTag,
-            displayLabel: isFr
-                ? 'Routeur: ${node.name} ($role)'
-                : 'Router: ${node.name} ($role)',
+            displayLabel: l10n.t('Routeur: ${node.name} ($role)', 'Router: ${node.name} ($role)'),
           ));
         }
       }
@@ -254,7 +253,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
       id: 'autogroup:internet',
       type: PuzzleEntityType.internet,
       value: 'autogroup:internet',
-      displayLabel: isFr ? 'Internet (Monde)' : 'Internet (World)',
+      displayLabel: l10n.t('Internet (Monde)', 'Internet (World)'),
     ));
 
     // 4. LAN Subnets (extracted from nodes routes)
@@ -271,7 +270,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
         id: route,
         type: PuzzleEntityType.cidr,
         value: route,
-        displayLabel: isFr ? 'Sous-réseau: $route' : 'Subnet: $route',
+        displayLabel: l10n.t('Sous-réseau: $route', 'Subnet: $route'),
       ));
     }
   }
@@ -301,7 +300,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
   }
 
   Future<void> _applyPolicy() async {
-    final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.read<AppProvider>().locale);
     final appProvider = context.read<AppProvider>();
     
     // Clean up obsolete lan-sharer tags before ACL generation
@@ -333,18 +332,14 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(isFr
-              ? 'Politique ACL (Puzzle) appliquée avec succès !'
-              : 'ACL Puzzle Policy applied successfully!'),
+          content: Text(l10n.t('Politique ACL (Puzzle) appliquée avec succès !', 'ACL Puzzle Policy applied successfully!')),
           backgroundColor: Colors.green,
         ));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(isFr
-              ? 'Erreur lors de l\'application : $e'
-              : 'Error applying policy: $e'),
+          content: Text(l10n.t('Erreur lors de l\'application : $e', 'Error applying policy: $e')),
           backgroundColor: Colors.red,
         ));
       }
@@ -383,16 +378,16 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isFr = context.watch<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.watch<AppProvider>().locale);
 
     return Scaffold(
       appBar: AppBar(
         title:
-            Text(isFr ? 'Constructeur ACL (Puzzle)' : 'ACL Builder (Puzzle)'),
+            Text(l10n.t('Constructeur ACL (Puzzle)', 'ACL Builder (Puzzle)')),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_sweep),
-            tooltip: isFr ? 'Tout effacer' : 'Clear all',
+            tooltip: l10n.t('Tout effacer', 'Clear all'),
             onPressed: () {
               setState(() {
                 _puzzleRules.clear();
@@ -401,7 +396,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.save),
-            tooltip: isFr ? 'Appliquer au serveur' : 'Apply to server',
+            tooltip: l10n.t('Appliquer au serveur', 'Apply to server'),
             onPressed: _applyPolicy,
           ),
         ],
@@ -418,9 +413,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
                             size: 64, color: Colors.grey),
                         const SizedBox(height: 16),
                         Text(
-                          isFr
-                              ? 'Aucune pièce de puzzle'
-                              : 'No puzzle pieces yet',
+                          l10n.t('Aucune pièce de puzzle', 'No puzzle pieces yet'),
                           style: Theme.of(context)
                               .textTheme
                               .titleLarge
@@ -428,9 +421,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          isFr
-                              ? 'Appuyez sur + pour commencer'
-                              : 'Tap + to start building',
+                          l10n.t('Appuyez sur + pour commencer', 'Tap + to start building'),
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -464,7 +455,7 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addRule,
         icon: const Icon(Icons.add),
-        label: Text(isFr ? 'Ajouter une pièce' : 'Add Piece'),
+        label: Text(l10n.t('Ajouter une pièce', 'Add Piece')),
       ),
     );
   }
@@ -558,7 +549,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
 
   void _showBlockCustomizerDialog(BuildContext context, String signature) {
     final appProvider = context.read<AppProvider>();
-    final isFr = appProvider.locale.languageCode == 'fr';
+    final l10n = L10n(appProvider.locale);
     final meta = appProvider.getBlockMeta(signature) ?? {};
     final nameController = TextEditingController(text: meta['name'] ?? '');
     String? selectedIcon = meta['iconKey'];
@@ -566,16 +557,16 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
     String? selectedColorHex = meta['colorHex'];
 
     final List<Map<String, String>> availableColors = [
-      {'name': isFr ? 'Bleu Royal' : 'Royal Blue', 'hex': '#1E88E5'},
-      {'name': isFr ? 'Violet Profond' : 'Deep Purple', 'hex': '#6A1B9A'},
-      {'name': isFr ? 'Vert Forêt' : 'Forest Green', 'hex': '#2E7D32'},
-      {'name': isFr ? 'Orange Flamboyant' : 'Sunset Orange', 'hex': '#D84315'},
-      {'name': isFr ? 'Teal Profond' : 'Deep Teal', 'hex': '#00695C'},
-      {'name': isFr ? 'Bleu Ardoise' : 'Slate Blue', 'hex': '#2C5E8A'},
-      {'name': isFr ? 'Rose Crimson' : 'Crimson Rose', 'hex': '#C2185B'},
-      {'name': isFr ? 'Indigo Impérial' : 'Imperial Indigo', 'hex': '#1A237E'},
-      {'name': isFr ? 'Rouge Rubis' : 'Ruby Red', 'hex': '#B71C1C'},
-      {'name': isFr ? 'Gris Anthracite' : 'Charcoal Grey', 'hex': '#37474F'},
+      {'name': l10n.t('Bleu Royal', 'Royal Blue'), 'hex': '#1E88E5'},
+      {'name': l10n.t('Violet Profond', 'Deep Purple'), 'hex': '#6A1B9A'},
+      {'name': l10n.t('Vert Forêt', 'Forest Green'), 'hex': '#2E7D32'},
+      {'name': l10n.t('Orange Flamboyant', 'Sunset Orange'), 'hex': '#D84315'},
+      {'name': l10n.t('Teal Profond', 'Deep Teal'), 'hex': '#00695C'},
+      {'name': l10n.t('Bleu Ardoise', 'Slate Blue'), 'hex': '#2C5E8A'},
+      {'name': l10n.t('Rose Crimson', 'Crimson Rose'), 'hex': '#C2185B'},
+      {'name': l10n.t('Indigo Impérial', 'Imperial Indigo'), 'hex': '#1A237E'},
+      {'name': l10n.t('Rouge Rubis', 'Ruby Red'), 'hex': '#B71C1C'},
+      {'name': l10n.t('Gris Anthracite', 'Charcoal Grey'), 'hex': '#37474F'},
     ];
 
     showModalBottomSheet(
@@ -612,7 +603,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    isFr ? 'Personnaliser le bloc de règle' : 'Customize Rule Block',
+                    l10n.t('Personnaliser le bloc de règle', 'Customize Rule Block'),
                     style: Theme.of(stCtx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
@@ -620,8 +611,8 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                   TextField(
                     controller: nameController,
                     decoration: InputDecoration(
-                      labelText: isFr ? 'Nom du bloc' : 'Block Name',
-                      hintText: isFr ? 'Ex: Accès Web Invités' : 'Ex: Guest Web Access',
+                      labelText: l10n.t('Nom du bloc', 'Block Name'),
+                      hintText: l10n.t('Ex: Accès Web Invités', 'Ex: Guest Web Access'),
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.title),
                     ),
@@ -630,7 +621,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                   
                   // --- SECTION PHOTO ---
                   Text(
-                    isFr ? 'Illustration (Photo)' : 'Illustration (Photo)',
+                    l10n.t('Illustration (Photo)', 'Illustration (Photo)'),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
@@ -666,7 +657,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                                 }
                               },
                               icon: const Icon(Icons.photo_library),
-                              label: Text(isFr ? 'Choisir une photo' : 'Choose Photo'),
+                              label: Text(l10n.t('Choisir une photo', 'Choose Photo')),
                             ),
                             if (selectedImagePath != null && selectedImagePath!.isNotEmpty)
                               TextButton.icon(
@@ -677,7 +668,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                                 },
                                 icon: const Icon(Icons.delete, color: Colors.red),
                                 label: Text(
-                                  isFr ? 'Supprimer la photo' : 'Remove Photo',
+                                  l10n.t('Supprimer la photo', 'Remove Photo'),
                                   style: const TextStyle(color: Colors.red),
                                 ),
                               ),
@@ -691,7 +682,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
 
                   // --- SECTION COULEUR DE L'EN-TÊTE ---
                   Text(
-                    isFr ? 'Couleur de l\'en-tête' : 'Header Color',
+                    l10n.t('Couleur de l\'en-tête', 'Header Color'),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 10),
@@ -747,7 +738,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                   
                   // --- SECTION PALETTE D'ICÔNES ---
                   Text(
-                    isFr ? 'Sélectionner une icône (Palette riche)' : 'Select an Icon (Rich Palette)',
+                    l10n.t('Sélectionner une icône (Palette riche)', 'Select an Icon (Rich Palette)'),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 10),
@@ -828,7 +819,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                             Navigator.pop(ctx);
                             setState(() {});
                           },
-                          child: Text(isFr ? 'Réinitialiser' : 'Reset'),
+                          child: Text(l10n.t('Réinitialiser', 'Reset')),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -847,7 +838,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                               setState(() {});
                             }
                           },
-                          child: Text(isFr ? 'Enregistrer' : 'Save'),
+                          child: Text(l10n.t('Enregistrer', 'Save')),
                         ),
                       ),
                     ],
@@ -865,7 +856,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isFr = context.watch<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.watch<AppProvider>().locale);
     final appProvider = context.watch<AppProvider>();
 
     final sig = widget.rule.signature;
@@ -893,7 +884,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
 
     final String displayName = (customName != null && customName.isNotEmpty)
         ? customName
-        : (isFr ? 'Règle non nommée' : 'Unnamed Rule');
+        : (l10n.t('Règle non nommée', 'Unnamed Rule'));
 
     final isCustomColor = customHeaderColor != null;
     final isLight = isCustomColor ? customHeaderColor.computeLuminance() > 0.5 : true;
@@ -1009,7 +1000,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                     ),
                     IconButton(
                       icon: Icon(Icons.tune, size: 20, color: headerActionIconColor),
-                      tooltip: isFr ? 'Personnaliser le bloc' : 'Customize block',
+                      tooltip: l10n.t('Personnaliser le bloc', 'Customize block'),
                       onPressed: () => _showBlockCustomizerDialog(context, sig),
                     ),
                   ],
@@ -1027,7 +1018,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      isFr ? 'Règle non nommée' : 'Unnamed Rule',
+                      l10n.t('Règle non nommée', 'Unnamed Rule'),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -1037,7 +1028,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.tune, size: 18, color: Colors.grey),
-                      tooltip: isFr ? 'Nommer ou illustrer le bloc' : 'Name or illustrate block',
+                      tooltip: l10n.t('Nommer ou illustrer le bloc', 'Name or illustrate block'),
                       onPressed: () => _showBlockCustomizerDialog(context, sig),
                     ),
                   ],
@@ -1047,7 +1038,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
 
           // Partie visuelle interactive
           InkWell(
-            onTap: () => _showDetailsDialog(context, isFr),
+            onTap: () => _showDetailsDialog(context, l10n),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
@@ -1061,9 +1052,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                           .map((e) => Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                                 child: Tooltip(
-                                  message: isFr 
-                                      ? 'Valeur: ${e.value}\n(Cliquer pour renommer)' 
-                                      : 'Value: ${e.value}\n(Click to rename)',
+                                  message: l10n.t('Valeur: ${e.value}\n(Cliquer pour renommer)', 'Value: ${e.value}\n(Click to rename)'),
                                   child: InkWell(
                                     onTap: () {
                                       _showEntityRenameDialog(context, e, () {
@@ -1118,7 +1107,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                           ? [
                               Center(
                                 child: Text(
-                                  isFr ? 'direct' : 'direct',
+                                  l10n.t('direct', 'direct'),
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: Colors.grey[600],
@@ -1181,7 +1170,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                             color: Colors.green, size: 20),
                         const SizedBox(height: 2),
                         Text(
-                          isFr ? 'AUTOR.' : 'ALLOW',
+                          l10n.t('AUTOR.', 'ALLOW'),
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
@@ -1200,9 +1189,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                           .map((e) => Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                                 child: Tooltip(
-                                  message: isFr 
-                                      ? 'Valeur: ${e.value}\n(Cliquer pour renommer)' 
-                                      : 'Value: ${e.value}\n(Click to rename)',
+                                  message: l10n.t('Valeur: ${e.value}\n(Cliquer pour renommer)', 'Value: ${e.value}\n(Click to rename)'),
                                   child: InkWell(
                                     onTap: () {
                                       _showEntityRenameDialog(context, e, () {
@@ -1275,8 +1262,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
                       size: 16, color: theme.colorScheme.primary),
                   const SizedBox(width: 8),
                   Text(
-                    isFr
-                        ? (_showCode ? 'Masquer le code' : 'Voir le code JSON')
+                    l10n.isFr ? (_showCode ? 'Masquer le code' : 'Voir le code JSON')
                         : (_showCode ? 'Hide code' : 'View JSON code'),
                     style: TextStyle(
                         fontSize: 11,
@@ -1323,22 +1309,22 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
     }
   }
 
-  void _showDetailsDialog(BuildContext context, bool isFr) {
+  void _showDetailsDialog(BuildContext context, L10n l10n) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(isFr ? 'Détails de la règle' : 'Rule Details'),
+        title: Text(l10n.t('Détails de la règle', 'Rule Details')),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildDetailSection(ctx, isFr ? 'SOURCES' : 'SOURCES',
+              _buildDetailSection(ctx, l10n.t('SOURCES', 'SOURCES'),
                   widget.rule.sources, Colors.blue),
               const Divider(),
               Center(
                 child: Chip(
-                  label: Text(isFr ? 'ACTION: AUTORISER' : 'ACTION: ALLOW',
+                  label: Text(l10n.t('ACTION: AUTORISER', 'ACTION: ALLOW'),
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                   backgroundColor: Colors.green.withAlpha(51),
                   avatar: const Icon(Icons.check_circle, color: Colors.green),
@@ -1347,11 +1333,11 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
               const Divider(),
               _buildDetailSection(
                   ctx,
-                  isFr ? 'VIA (routage)' : 'VIA (routing)',
+                  l10n.t('VIA (routage)', 'VIA (routing)'),
                   widget.rule.via,
                   Colors.purple),
               const Divider(),
-              _buildDetailSection(ctx, isFr ? 'DESTINATIONS' : 'DESTINATIONS',
+              _buildDetailSection(ctx, l10n.t('DESTINATIONS', 'DESTINATIONS'),
                   widget.rule.destinations, Colors.orange),
             ],
           ),
@@ -1412,21 +1398,17 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
   final List<PuzzleEntity> _selectedDestinations = [];
   int _currentStep = 0;
 
-  String _stepTitle(bool isFr, bool useGrants) {
+  String _stepTitle(L10n l10n, bool useGrants) {
     switch (_currentStep) {
       case 0:
-        return isFr ? 'Étape 1: QUI ? (Source)' : 'Step 1: WHO? (Source)';
+        return l10n.t('Étape 1: QUI ? (Source)', 'Step 1: WHO? (Source)');
       case 1:
         if (!useGrants) {
-          return isFr
-              ? 'Étape 2: VERS QUOI ? (Destination)'
-              : 'Step 2: TO WHAT? (Destination)';
+          return l10n.t('Étape 2: VERS QUOI ? (Destination)', 'Step 2: TO WHAT? (Destination)');
         }
-        return isFr ? 'Étape 2: VIA ? (Routage)' : 'Step 2: VIA? (Routing)';
+        return l10n.t('Étape 2: VIA ? (Routage)', 'Step 2: VIA? (Routing)');
       default:
-        return isFr
-            ? 'Étape 3: VERS QUOI ? (Destination)'
-            : 'Step 3: TO WHAT? (Destination)';
+        return l10n.t('Étape 3: VERS QUOI ? (Destination)', 'Step 3: TO WHAT? (Destination)');
     }
   }
 
@@ -1438,7 +1420,7 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final isFr = context.watch<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.watch<AppProvider>().locale);
     final useGrants =
         context.watch<AppProvider>().aclEngineMode == AclEngineMode.grantsV29;
     final maxStep = useGrants ? 2 : 1;
@@ -1451,7 +1433,7 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              _stepTitle(isFr, useGrants),
+              _stepTitle(l10n, useGrants),
               style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
@@ -1459,16 +1441,14 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  isFr
-                      ? 'Optionnel — laissez vide pour un accès direct (intra-flotte).'
-                      : 'Optional — leave empty for direct access (intra-fleet).',
+                  l10n.t('Optionnel — laissez vide pour un accès direct (intra-flotte).', 'Optional — leave empty for direct access (intra-fleet).'),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ),
             const SizedBox(height: 16),
             Expanded(
-              child: _buildEntityList(_currentSelection(useGrants), isFr, useGrants),
+              child: _buildEntityList(_currentSelection(useGrants), l10n, useGrants),
             ),
             const SizedBox(height: 16),
             Row(
@@ -1477,7 +1457,7 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
                 if (_currentStep > 0)
                   TextButton(
                     onPressed: () => setState(() => _currentStep--),
-                    child: Text(isFr ? 'Précédent' : 'Back'),
+                    child: Text(l10n.t('Précédent', 'Back')),
                   )
                 else
                   const SizedBox(),
@@ -1486,9 +1466,7 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
                     if (_currentStep == 0) {
                       if (_selectedSources.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(isFr
-                                ? 'Veuillez sélectionner au moins une source.'
-                                : 'Please select at least one source.'),
+                            content: Text(l10n.t('Veuillez sélectionner au moins une source.', 'Please select at least one source.')),
                             backgroundColor: Colors.orange));
                         return;
                       }
@@ -1498,9 +1476,7 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
                     } else if (_currentStep == maxStep) {
                       if (_selectedDestinations.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(isFr
-                                ? 'Veuillez sélectionner au moins une destination.'
-                                : 'Please select at least one destination.'),
+                            content: Text(l10n.t('Veuillez sélectionner au moins une destination.', 'Please select at least one destination.')),
                             backgroundColor: Colors.orange));
                         return;
                       }
@@ -1519,8 +1495,8 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
                     }
                   },
                   child: Text(_currentStep < maxStep
-                      ? (isFr ? 'Suivant' : 'Next')
-                      : (isFr ? 'Ajouter la pièce' : 'Add Piece')),
+                      ? (l10n.t('Suivant', 'Next'))
+                      : (l10n.t('Ajouter la pièce', 'Add Piece'))),
                 ),
               ],
             )
@@ -1531,7 +1507,7 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
   }
 
   Widget _buildEntityList(
-      List<PuzzleEntity> selectedList, bool isFr, bool useGrants) {
+      List<PuzzleEntity> selectedList, L10n l10n, bool useGrants) {
     // Group entities by type for better UI
     final grouped = <PuzzleEntityType, List<PuzzleEntity>>{};
 
@@ -1577,16 +1553,14 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
 
     if (grouped.isEmpty) {
       return Center(
-          child: Text(isFr
-              ? 'Aucune destination disponible (déjà configuré ?)'
-              : 'No available destinations (already configured?)'));
+          child: Text(l10n.t('Aucune destination disponible (déjà configuré ?)', 'No available destinations (already configured?)')));
     }
 
     return ListView(
       children: grouped.entries.map((entry) {
         return ExpansionTile(
           initiallyExpanded: true,
-          title: Text(_getLocalizedEntityType(entry.key, isFr)),
+          title: Text(_getLocalizedEntityType(entry.key, l10n)),
           children: entry.value.map((entity) {
             final isSelected = selectedList.any((e) => e.id == entity.id);
             final alias = context.watch<AppProvider>().getEntityAlias(entity.value);
@@ -1623,13 +1597,13 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
               ),
               subtitle: Text(
                 hasAlias 
-                    ? '${entity.value} • ${isFr ? "Cliquer sur le crayon pour modifier" : "Click pencil to edit"}'
-                    : (isFr ? "Cliquer sur le crayon pour donner un nom" : "Click pencil to name"),
+                    ? '${entity.value} • ${l10n.t("Cliquer sur le crayon pour modifier", "Click pencil to edit")}'
+                    : (l10n.t("Cliquer sur le crayon pour donner un nom", "Click pencil to name")),
                 style: TextStyle(fontSize: 10, color: Colors.grey[600]),
               ),
               trailing: IconButton(
                 icon: const Icon(Icons.edit_outlined, size: 20),
-                tooltip: isFr ? 'Modifier le nom' : 'Edit name',
+                tooltip: l10n.t('Modifier le nom', 'Edit name'),
                 onPressed: () {
                   _showEntityRenameDialog(context, entity, () {
                     setState(() {});
@@ -1657,8 +1631,8 @@ class _RuleEditorDialogState extends State<_RuleEditorDialog> {
     );
   }
 
-  String _getLocalizedEntityType(PuzzleEntityType type, bool isFr) {
-    if (!isFr) return type.toString().split('.').last.toUpperCase();
+  String _getLocalizedEntityType(PuzzleEntityType type, L10n l10n) {
+    if (!l10n.isFr) return type.toString().split('.').last.toUpperCase();
     switch (type) {
       case PuzzleEntityType.user:
         return 'UTILISATEUR';

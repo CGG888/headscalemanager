@@ -9,6 +9,7 @@ import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:headscalemanager/screens/node_detail_screen.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -52,7 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -67,7 +68,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             if (snapshot.hasError) {
               return Center(
                   child:
-                      Text('${isFr ? 'Erreur' : 'Error'}: ${snapshot.error}'));
+                      Text('${l10n.t('Erreur', 'Error')}: ${snapshot.error}'));
             }
             if (!snapshot.hasData || snapshot.data!.nodes.isEmpty) {
               return RefreshIndicator(
@@ -78,7 +79,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Padding(
                       padding: const EdgeInsets.all(32.0),
                       child:
-                          Text(isFr ? 'Aucun nœud trouvé.' : 'No node found.'),
+                          Text(l10n.t('Aucun nœud trouvé.', 'No node found.')),
                     ))
                   ],
                 ),
@@ -118,7 +119,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             }
 
             if (orphanNodes.isNotEmpty) {
-              final orphanKey = isFr ? 'Nœuds Orphelins' : 'Orphan Nodes';
+              final orphanKey = l10n.t('Nœuds Orphelins', 'Orphan Nodes');
               filteredNodesByUser[orphanKey] = orphanNodes;
             }
 
@@ -136,10 +137,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 children: [
                   if (oidcUsersMissingName.isNotEmpty)
-                    _buildOidcWarningBanner(context, isFr),
+                    _buildOidcWarningBanner(context, l10n),
                   _buildSummarySection(users.length, connectedNodesCount,
-                      disconnectedNodesCount, isFr),
-                  _buildFilterChips(isFr),
+                      disconnectedNodesCount, l10n),
+                  _buildFilterChips(l10n),
                   Expanded(
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -165,7 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildOidcWarningBanner(BuildContext context, bool isFr) {
+  Widget _buildOidcWarningBanner(BuildContext context, L10n l10n) {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -180,9 +181,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              isFr
-                  ? 'Un ou plusieurs nœuds OIDC ont un utilisateur sans nom. Ouvrez l\'écran Utilisateurs pour corriger automatiquement.'
-                  : 'One or more OIDC nodes have a nameless user. Open the Users screen to auto-fix.',
+              l10n.t('Un ou plusieurs nœuds OIDC ont un utilisateur sans nom. Ouvrez l\'écran Utilisateurs pour corriger automatiquement.', 'One or more OIDC nodes have a nameless user. Open the Users screen to auto-fix.'),
               style: const TextStyle(color: Colors.orange, fontSize: 13),
             ),
           ),
@@ -192,7 +191,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildSummarySection(
-      int userCount, int connectedCount, int disconnectedCount, bool isFr) {
+      int userCount, int connectedCount, int disconnectedCount, L10n l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Card(
@@ -206,7 +205,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _StatItem(
-                  title: isFr ? 'Utilisateurs' : 'Users',
+                  title: l10n.t('Utilisateurs', 'Users'),
                   value: userCount.toString(),
                   color: Theme.of(context).textTheme.bodyMedium!.color!,
                   icon: Icons.people),
@@ -215,7 +214,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: VerticalDivider(
                       thickness: 1, color: Theme.of(context).dividerColor)),
               _StatItem(
-                  title: isFr ? 'Connectés' : 'Connected',
+                  title: l10n.t('Connectés', 'Connected'),
                   value: connectedCount.toString(),
                   color: Colors.green,
                   icon: Icons.lan),
@@ -224,7 +223,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: VerticalDivider(
                       thickness: 1, color: Theme.of(context).dividerColor)),
               _StatItem(
-                  title: isFr ? 'Déconnectés' : 'Disconnected',
+                  title: l10n.t('Déconnectés', 'Disconnected'),
                   value: disconnectedCount.toString(),
                   color: Colors.red,
                   icon: Icons.phonelink_off),
@@ -235,14 +234,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildFilterChips(bool isFr) {
+  Widget _buildFilterChips(L10n l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FilterChip(
-            label: Text(isFr ? 'Tous' : 'All'),
+            label: Text(l10n.t('Tous', 'All')),
             selected: _filterStatus == 'all',
             onSelected: (selected) {
               if (selected) setState(() => _filterStatus = 'all');
@@ -250,7 +249,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(width: 8),
           FilterChip(
-            label: Text(isFr ? 'En ligne' : 'Online'),
+            label: Text(l10n.t('En ligne', 'Online')),
             selected: _filterStatus == 'online',
             onSelected: (selected) {
               if (selected) setState(() => _filterStatus = 'online');
@@ -258,7 +257,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(width: 8),
           FilterChip(
-            label: Text(isFr ? 'Hors ligne' : 'Offline'),
+            label: Text(l10n.t('Hors ligne', 'Offline')),
             selected: _filterStatus == 'offline',
             onSelected: (selected) {
               if (selected) setState(() => _filterStatus = 'offline');
@@ -443,7 +442,7 @@ class _UserNodeCard extends StatelessWidget {
 
   Widget _buildNodeTile(BuildContext context, Node node, List<Node> allNodes) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     final trailingIcon = _buildTrailingIcon(context, node, allNodes);
 
     return ListTile(
@@ -473,14 +472,14 @@ class _UserNodeCard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall),
           if (node.sharedRoutes.isNotEmpty)
             Text(
-              '${isFr ? 'Routes' : 'Routes'}: ${node.sharedRoutes.join(', ')}',
+              '${l10n.t('Routes', 'Routes')}: ${node.sharedRoutes.join(', ')}',
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
                   ?.copyWith(color: Theme.of(context).colorScheme.secondary),
             ),
           Text(
-              '${isFr ? 'Dernière connexion' : 'Last seen'}: ${node.lastSeen.toLocal()}',
+              '${l10n.t('Dernière connexion', 'Last seen')}: ${node.lastSeen.toLocal()}',
               style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
@@ -490,7 +489,7 @@ class _UserNodeCard extends StatelessWidget {
 
   Widget? _buildTrailingIcon(
       BuildContext context, Node node, List<Node> allNodes) {
-    final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.read<AppProvider>().locale);
     final List<Widget> icons = [];
 
     // 1. Logique pour les routes en attente (approbation ou conflit)
@@ -522,9 +521,7 @@ class _UserNodeCard extends StatelessWidget {
         icons.add(
           IconButton(
             icon: const Icon(Icons.help_outline, color: Colors.red),
-            tooltip: isFr
-                ? 'Certaines routes sont en conflit'
-                : 'Some routes are in conflict',
+            tooltip: l10n.t('Certaines routes sont en conflit', 'Some routes are in conflict'),
             onPressed: () => _showConflictInfoDialog(context, node, conflicts),
           ),
         );
@@ -534,7 +531,7 @@ class _UserNodeCard extends StatelessWidget {
         icons.add(
           IconButton(
             icon: const Icon(Icons.warning, color: Colors.amber),
-            tooltip: isFr ? 'Approbation requise' : 'Approval required',
+            tooltip: l10n.t('Approbation requise', 'Approval required'),
             onPressed: () => _showApprovalDialog(context, node, allNodes),
           ),
         );
@@ -553,9 +550,7 @@ class _UserNodeCard extends StatelessWidget {
           ),
           child: IconButton(
             icon: const Icon(Icons.warning, color: Colors.blue),
-            tooltip: isFr
-                ? 'Nettoyage de la configuration requis'
-                : 'Configuration cleanup required',
+            tooltip: l10n.t('Nettoyage de la configuration requis', 'Configuration cleanup required'),
             onPressed: () => _showCleanupDialog(context, node),
           ),
         ),
@@ -573,27 +568,23 @@ class _UserNodeCard extends StatelessWidget {
 
   void _showConflictInfoDialog(
       BuildContext context, Node node, Map<String, Node> conflicts) {
-    final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.read<AppProvider>().locale);
 
-    String content = isFr
-        ? 'Le nœud "${node.name}" ne peut pas partager les réseaux suivants car ils sont déjà utilisés :\n\n'
-        : 'Node "${node.name}" cannot share the following networks as they are already in use:\n\n';
+    String content = l10n.t('Le nœud "${node.name}" ne peut pas partager les réseaux suivants car ils sont déjà utilisés :\n\n', 'Node "${node.name}" cannot share the following networks as they are already in use:\n\n');
 
     conflicts.forEach((route, conflictingNode) {
-      content += isFr
-          ? '• Le réseau $route est déjà partagé par "${conflictingNode.name}".\n'
-          : '• Network $route is already shared by "${conflictingNode.name}".\n';
+      content += l10n.t('• Le réseau $route est déjà partagé par "${conflictingNode.name}".\n', '• Network $route is already shared by "${conflictingNode.name}".\n');
     });
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-            isFr ? 'Conflit de Routes Détecté' : 'Route Conflict Detected'),
+            l10n.t('Conflit de Routes Détecté', 'Route Conflict Detected')),
         content: Text(content),
         actions: [
           TextButton(
-            child: Text(isFr ? 'Fermer' : 'Close'),
+            child: Text(l10n.t('Fermer', 'Close')),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -604,7 +595,7 @@ class _UserNodeCard extends StatelessWidget {
   void _showApprovalDialog(
       BuildContext context, Node node, List<Node> allNodes) {
     final appProvider = context.read<AppProvider>();
-    final isFr = appProvider.locale.languageCode == 'fr';
+    final l10n = L10n(appProvider.locale);
 
     final pendingRoutes = node.availableRoutes
         .where((r) => !node.sharedRoutes.contains(r))
@@ -614,7 +605,7 @@ class _UserNodeCard extends StatelessWidget {
     final lanRoutes =
         pendingRoutes.where((r) => r != '0.0.0.0/0' && r != '::/0').toList();
 
-    String title = isFr ? 'Approbation Requise' : 'Approval Required';
+    String title = l10n.t('Approbation Requise', 'Approval Required');
     String content = '';
 
     final approvableLanRoutes = lanRoutes.where((route) {
@@ -631,21 +622,16 @@ class _UserNodeCard extends StatelessWidget {
 
     // Construire le message d'approbation
     if (isExitNodeRequest) {
-      content += isFr
-          ? 'Le nœud "${node.name}" demande à devenir un Exit Node.'
-          : 'Node "${node.name}" is requesting to be an exit node.';
+      content += l10n.t('Le nœud "${node.name}" demande à devenir un Exit Node.', 'Node "${node.name}" is requesting to be an exit node.');
     }
 
     if (approvableLanRoutes.isNotEmpty) {
       if (content.isNotEmpty) content += '\n\n';
-      content += isFr
-          ? 'Routes qui seront approuvées :\n• ${approvableLanRoutes.join('\n• ')}\n\n'
+      content += l10n.isFr ? 'Routes qui seront approuvées :\n• ${approvableLanRoutes.join('\n• ')}\n\n'
           : 'Routes that will be approved:\n• ${approvableLanRoutes.join('\n• ')}\n\n';
     }
 
-    content += isFr
-        ? 'Voulez-vous approuver cette (ces) demande(s) ?'
-        : 'Do you want to approve this (these) request(s)?';
+    content += l10n.t('Voulez-vous approuver cette (ces) demande(s) ?', 'Do you want to approve this (these) request(s)?');
 
     showDialog(
       context: context,
@@ -656,16 +642,16 @@ class _UserNodeCard extends StatelessWidget {
           content: Text(content),
           actions: <Widget>[
             TextButton(
-              child: Text(isFr ? 'Non' : 'No'),
+              child: Text(l10n.t('Non', 'No')),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             TextButton(
-              child: Text(isFr ? 'Oui' : 'Yes'),
+              child: Text(l10n.t('Oui', 'Yes')),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
                 if (!context.mounted) return;
                 showSafeSnackBar(
-                    context, isFr ? 'Traitement en cours...' : 'Processing...');
+                    context, l10n.t('Traitement en cours...', 'Processing...'));
 
                 bool aclMode = true;
                 try {
@@ -701,9 +687,7 @@ class _UserNodeCard extends StatelessWidget {
                       if (!context.mounted) return;
                       showSafeSnackBar(
                           context,
-                          isFr
-                              ? 'Aucun serveur actif sélectionné.'
-                              : 'No active server selected.');
+                          l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.'));
                       return;
                     }
                     final tempRules = await appProvider.storageService
@@ -729,9 +713,7 @@ class _UserNodeCard extends StatelessWidget {
                     if (!context.mounted) return;
                     showSafeSnackBar(
                         context,
-                        isFr
-                            ? 'Nœud approuvé et ACLs mises à jour !'
-                            : 'Node approved and ACLs updated!');
+                        l10n.t('Nœud approuvé et ACLs mises à jour !', 'Node approved and ACLs updated!'));
                   } else {
                     // Simplified logic: Routes only
                     await appProvider.apiService
@@ -739,17 +721,13 @@ class _UserNodeCard extends StatelessWidget {
                     if (!context.mounted) return;
                     showSafeSnackBar(
                         context,
-                        isFr
-                            ? 'Routes approuvées (ACLs non gérées).'
-                            : 'Routes approved (ACLs not managed).');
+                        l10n.t('Routes approuvées (ACLs non gérées).', 'Routes approved (ACLs not managed).'));
                   }
                 } catch (e) {
                   if (!context.mounted) return;
                   showSafeSnackBar(
                       context,
-                      isFr
-                          ? 'Échec de lapprrobation: $e'
-                          : 'Approval failed: $e');
+                      l10n.t('Échec de lapprrobation: $e', 'Approval failed: $e'));
                 } finally {
                   refreshNodes();
                 }
@@ -763,7 +741,7 @@ class _UserNodeCard extends StatelessWidget {
 
   void _showCleanupDialog(BuildContext context, Node node) {
     final appProvider = context.read<AppProvider>();
-    final isFr = appProvider.locale.languageCode == 'fr';
+    final l10n = L10n(appProvider.locale);
 
     final routesToClean = node.sharedRoutes
         .where((r) => !node.availableRoutes.contains(r))
@@ -775,24 +753,17 @@ class _UserNodeCard extends StatelessWidget {
     final hadLanSharing = lanRoutes.isNotEmpty;
 
     String title =
-        isFr ? 'Attention : Suppression de Routes' : 'Warning: Route Deletion';
-    String content = isFr
-        ? 'La configuration du nœud "${node.name}" est désynchronisée.\n\n'
-        : 'Node "${node.name}" configuration is out of sync.\n\n';
+        l10n.t('Attention : Suppression de Routes', 'Warning: Route Deletion');
+    String content = l10n.t('La configuration du nœud "${node.name}" est désynchronisée.\n\n', 'Node "${node.name}" configuration is out of sync.\n\n');
 
     if (hadExitNode) {
-      content += isFr
-          ? 'Le client a désactivé sa fonction de Nœud de Sortie.\n'
-          : 'The client has disabled its Exit Node function.\n';
+      content += l10n.t('Le client a désactivé sa fonction de Nœud de Sortie.\n', 'The client has disabled its Exit Node function.\n');
     }
     if (hadLanSharing) {
-      content += isFr
-          ? 'Le client a arrêté de partager le(s) sous-réseau(x) : ${lanRoutes.join(', ')}.\n'
+      content += l10n.isFr ? 'Le client a arrêté de partager le(s) sous-réseau(x) : ${lanRoutes.join(', ')}.\n'
           : 'The client has stopped sharing the subnet(s): ${lanRoutes.join(', ')}.\n';
     }
-    content += isFr
-        ? '\nATTENTION : Ces routes orphelines vont être SUPPRIMÉES de la configuration.\n\nVoulez-vous confirmer cette suppression ?'
-        : '\nWARNING: These orphaned routes will be DELETED from the configuration.\n\nDo you want to confirm this deletion?';
+    content += l10n.t('\nATTENTION : Ces routes orphelines vont être SUPPRIMÉES de la configuration.\n\nVoulez-vous confirmer cette suppression ?', '\nWARNING: These orphaned routes will be DELETED from the configuration.\n\nDo you want to confirm this deletion?');
 
     showDialog(
       context: context,
@@ -803,16 +774,16 @@ class _UserNodeCard extends StatelessWidget {
           content: Text(content),
           actions: <Widget>[
             TextButton(
-              child: Text(isFr ? 'Non' : 'No'),
+              child: Text(l10n.t('Non', 'No')),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             TextButton(
-              child: Text(isFr ? 'Oui, Supprimer' : 'Yes, Delete'),
+              child: Text(l10n.t('Oui, Supprimer', 'Yes, Delete')),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
                 if (!context.mounted) return;
                 showSafeSnackBar(
-                    context, isFr ? 'Nettoyage en cours...' : 'Cleaning up...');
+                    context, l10n.t('Nettoyage en cours...', 'Cleaning up...'));
 
                 bool aclMode = true;
                 try {
@@ -846,9 +817,7 @@ class _UserNodeCard extends StatelessWidget {
                       if (!context.mounted) return;
                       showSafeSnackBar(
                           context,
-                          isFr
-                              ? 'Aucun serveur actif sélectionné.'
-                              : 'No active server selected.');
+                          l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.'));
                       return;
                     }
                     final tempRules = await appProvider.storageService
@@ -874,9 +843,7 @@ class _UserNodeCard extends StatelessWidget {
                     if (!context.mounted) return;
                     showSafeSnackBar(
                         context,
-                        isFr
-                            ? 'Configuration nettoyée et ACLs mises à jour !'
-                            : 'Configuration cleaned up and ACLs updated!');
+                        l10n.t('Configuration nettoyée et ACLs mises à jour !', 'Configuration cleaned up and ACLs updated!'));
                   } else {
                     // Simplified logic: Routes only
                     await appProvider.apiService
@@ -884,14 +851,12 @@ class _UserNodeCard extends StatelessWidget {
                     if (!context.mounted) return;
                     showSafeSnackBar(
                         context,
-                        isFr
-                            ? 'Configuration des routes nettoyée (ACLs non gérées).'
-                            : 'Route configuration cleaned up (ACLs not managed).');
+                        l10n.t('Configuration des routes nettoyée (ACLs non gérées).', 'Route configuration cleaned up (ACLs not managed).'));
                   }
                 } catch (e) {
                   if (!context.mounted) return;
                   showSafeSnackBar(context,
-                      isFr ? 'Échec du nettoyage: $e' : 'Cleanup failed: $e');
+                      l10n.t('Échec du nettoyage: $e', 'Cleanup failed: $e'));
                 } finally {
                   refreshNodes();
                 }

@@ -4,6 +4,7 @@ import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 /// Dialogue pour créer une nouvelle clé de pré-authentification avec gestion des tags ACL.
 class CreatePreAuthKeyDialog extends StatefulWidget {
@@ -33,12 +34,10 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
   Widget build(BuildContext context) {
     final provider = context.read<AppProvider>();
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(isFr
-          ? 'Créer une clé de pré-authentification'
-          : 'Create Pre-Auth Key'),
+      title: Text(l10n.t('Créer une clé de pré-authentification', 'Create Pre-Auth Key')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -71,7 +70,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
                   },
                   decoration: InputDecoration(
                     labelText:
-                        isFr ? 'Sélectionner un utilisateur' : 'Select a user',
+                        l10n.t('Sélectionner un utilisateur', 'Select a user'),
                     border: const OutlineInputBorder(),
                   ),
                 );
@@ -79,7 +78,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
             ),
             // Option pour rendre la clé réutilisable.
             CheckboxListTile(
-              title: Text(isFr ? 'Réutilisable' : 'Reusable'),
+              title: Text(l10n.t('Réutilisable', 'Reusable')),
               value: _isReusable,
               onChanged: (value) {
                 setState(() {
@@ -89,7 +88,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
             ),
             // Option pour rendre la clé éphémère.
             CheckboxListTile(
-              title: Text(isFr ? 'Éphémère' : 'Ephemeral'),
+              title: Text(l10n.t('Éphémère', 'Ephemeral')),
               value: _isEphemeral,
               onChanged: (value) {
                 setState(() {
@@ -101,20 +100,16 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
             TextFormField(
               controller: _expirationController,
               decoration: InputDecoration(
-                labelText: isFr
-                    ? 'Expiration en jours (facultatif)'
-                    : 'Expiration in days (optional)',
+                labelText: l10n.t('Expiration en jours (facultatif)', 'Expiration in days (optional)'),
               ),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
-            Text(isFr ? 'Tags ACL (Nouveau)' : 'ACL Tags (New)',
+            Text(l10n.t('Tags ACL (Nouveau)', 'ACL Tags (New)'),
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             CheckboxListTile(
               title: const Text('Exit Node'),
-              subtitle: Text(isFr
-                  ? 'Autoriser ce nœud à être une sortie internet.'
-                  : 'Allow this node to be an internet exit.'),
+              subtitle: Text(l10n.t('Autoriser ce nœud à être une sortie internet.', 'Allow this node to be an internet exit.')),
               value: _isExitNode,
               onChanged: (value) {
                 setState(() {
@@ -124,9 +119,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
             ),
             CheckboxListTile(
               title: const Text('LAN Sharer'),
-              subtitle: Text(isFr
-                  ? 'Autoriser ce nœud à partager son réseau local.'
-                  : 'Allow this node to share its local network.'),
+              subtitle: Text(l10n.t('Autoriser ce nœud à partager son réseau local.', 'Allow this node to share its local network.')),
               value: _isLanSharer,
               onChanged: (value) {
                 setState(() {
@@ -139,11 +132,11 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
       ),
       actions: [
         TextButton(
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(isFr ? 'Créer' : 'Create'),
+          child: Text(l10n.t('Créer', 'Create')),
           onPressed: () async {
             if (_selectedUser != null) {
               final expirationText = _expirationController.text.trim();
@@ -187,9 +180,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
                 debugPrint('Erreur lors de la création de la clé : $e');
                 showSafeSnackBar(
                     context,
-                    isFr
-                        ? 'Échec de la création de la clé : $e'
-                        : 'Failed to create key: $e');
+                    l10n.t('Échec de la création de la clé : $e', 'Failed to create key: $e'));
                 Navigator.of(context).pop(); // Pop the dialog on error
               }
             }

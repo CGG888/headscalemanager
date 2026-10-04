@@ -4,6 +4,7 @@ import 'package:headscalemanager/screens/home_screen.dart';
 import 'package:headscalemanager/services/security_service.dart';
 import 'package:headscalemanager/widgets/numpad_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class LockScreen extends StatefulWidget {
   const LockScreen({super.key});
@@ -31,21 +32,19 @@ class _LockScreenState extends State<LockScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Set initial message here to access context
-    final isFr = context.watch<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.watch<AppProvider>().locale);
     if (_message.isEmpty) {
       setState(() {
-        _message = isFr ? 'Entrez votre code PIN' : 'Enter your PIN';
+        _message = l10n.t('Entrez votre code PIN', 'Enter your PIN');
       });
     }
   }
 
   Future<void> _tryBiometricAuth() async {
-    final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.read<AppProvider>().locale);
     final biometricsEnabled = await _securityService.isBiometricsEnabled();
     if (biometricsEnabled) {
-      final isAuthenticated = await _securityService.authenticate(isFr
-          ? 'Veuillez vous authentifier pour déverrouiller'
-          : 'Please authenticate to unlock');
+      final isAuthenticated = await _securityService.authenticate(l10n.t('Veuillez vous authentifier pour déverrouiller', 'Please authenticate to unlock'));
       if (mounted && isAuthenticated) {
         _unlockApp();
       }
@@ -83,10 +82,10 @@ class _LockScreenState extends State<LockScreen> {
     if (isValid) {
       _unlockApp();
     } else {
-      final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+      final l10n = L10n(context.read<AppProvider>().locale);
       setState(() {
         _enteredPin = '';
-        _message = isFr ? 'Code PIN incorrect' : 'Incorrect PIN';
+        _message = l10n.t('Code PIN incorrect', 'Incorrect PIN');
         _isAuthenticating = false;
       });
     }

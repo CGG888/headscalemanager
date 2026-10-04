@@ -6,6 +6,7 @@ import 'package:dart_ping/dart_ping.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class NetworkOverviewScreen extends StatefulWidget {
   const NetworkOverviewScreen({super.key});
@@ -41,7 +42,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
 
   Future<void> _refreshData() async {
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     // Incrémente la génération pour invalider les traceroutes précédents.
     _traceRouteGeneration++;
     final currentGeneration = _traceRouteGeneration;
@@ -66,7 +67,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${isFr ? 'Erreur lors du rafraîchissement' : 'Refresh error'}: $e')),
+                  '${l10n.t('Erreur lors du rafraîchissement', 'Refresh error')}: $e')),
         );
       }
     } finally {
@@ -101,11 +102,11 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
     } catch (e) {
       if (!mounted) return;
       final locale = context.read<AppProvider>().locale;
-      final isFr = locale.languageCode == 'fr';
+      final l10n = L10n(locale);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-                '${isFr ? 'Erreur lors de la récupération des nœuds' : 'Error fetching nodes'}: $e')),
+                '${l10n.t('Erreur lors de la récupération des nœuds', 'Error fetching nodes')}: $e')),
       );
     }
   }
@@ -125,11 +126,11 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
     } catch (e) {
       if (mounted) {
         final locale = context.read<AppProvider>().locale;
-        final isFr = locale.languageCode == 'fr';
+        final l10n = L10n(locale);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${isFr ? 'Erreur de récupération de l\'IP publique' : 'Error fetching public IP'}: $e')),
+                  '${l10n.t('Erreur de récupération de l\'IP publique', 'Error fetching public IP')}: $e')),
         );
       }
     }
@@ -269,10 +270,10 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return Scaffold(
       appBar: AppBar(
-        title: Text(isFr ? 'Vue d\'ensemble du réseau' : 'Network Overview'),
+        title: Text(l10n.t('Vue d\'ensemble du réseau', 'Network Overview')),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -326,7 +327,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
 
   Widget _buildNetworkVisualizer() {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return Card(
       margin: const EdgeInsets.all(8.0),
       child: Padding(
@@ -334,9 +335,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
         child: Column(
           children: [
             Text(
-              isFr
-                  ? 'Visualisation du chemin réseau'
-                  : 'Network Path Visualization',
+              l10n.t('Visualisation du chemin réseau', 'Network Path Visualization'),
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
@@ -348,9 +347,9 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
               children: [
                 _buildVisualizerNode(
                     context,
-                    isFr ? 'Mon Appareil' : 'My Device',
+                    l10n.t('Mon Appareil', 'My Device'),
                     Icons.phone_iphone,
-                    _selectedNode?.name ?? (isFr ? 'N/A' : 'N/A')),
+                    _selectedNode?.name ?? (l10n.t('N/A', 'N/A'))),
                 if (_exitNodeInUse != null) ...[
                   Icon(Icons.arrow_forward,
                       color: Theme.of(context).textTheme.bodyMedium?.color),
@@ -368,14 +367,14 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
               CircularProgressIndicator(
                   color: Theme.of(context).colorScheme.primary),
               Text(
-                  isFr ? 'Traceroute en cours...' : 'Traceroute in progress...',
+                  l10n.t('Traceroute en cours...', 'Traceroute in progress...'),
                   style: Theme.of(context).textTheme.bodyMedium),
             ],
             if (_traceRouteHops.isNotEmpty) ...[
               const SizedBox(height: 16),
               ExpansionTile(
                 title: Text(
-                    isFr ? 'Détails du traceroute' : 'Traceroute Details',
+                    l10n.t('Détails du traceroute', 'Traceroute Details'),
                     style: Theme.of(context).textTheme.titleMedium),
                 children: _traceRouteHops.map((hop) {
                   String nodeName = '';
@@ -418,12 +417,12 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
 
   Widget _buildNodeSelector() {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: DropdownButton<Node>(
         value: _selectedNode,
-        hint: Text(isFr ? 'Sélectionnez un nœud' : 'Select a node',
+        hint: Text(l10n.t('Sélectionnez un nœud', 'Select a node'),
             style: Theme.of(context).textTheme.bodyMedium),
         isExpanded: true,
         onChanged: (Node? newValue) {

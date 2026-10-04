@@ -4,6 +4,7 @@ import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class RenameUserDialog extends StatefulWidget {
   final User user;
@@ -39,35 +40,31 @@ class _RenameUserDialogState extends State<RenameUserDialog> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     final theme = Theme.of(context);
 
     return AlertDialog(
-      title: Text(isFr ? 'Renommer l\'utilisateur' : 'Rename User'),
+      title: Text(l10n.t('Renommer l\'utilisateur', 'Rename User')),
       content: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              isFr
-                  ? "Attention : Renommer un utilisateur peut impacter vos ACLs si vous utilisez son ancien nom manuellement."
-                  : "Warning: Renaming a user may impact your ACLs if you manually referenced the old name.",
+              l10n.t("Attention : Renommer un utilisateur peut impacter vos ACLs si vous utilisez son ancien nom manuellement.", "Warning: Renaming a user may impact your ACLs if you manually referenced the old name."),
               style: theme.textTheme.bodySmall?.copyWith(color: Colors.orange),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _nameController,
               decoration: InputDecoration(
-                labelText: isFr ? 'Nouveau nom' : 'New name',
+                labelText: l10n.t('Nouveau nom', 'New name'),
                 hintText: 'ex: jean',
-                helperText: isFr
-                    ? 'Lettres minuscules, chiffres, tirets'
-                    : 'Lowercase letters, numbers, dashes',
+                helperText: l10n.t('Lettres minuscules, chiffres, tirets', 'Lowercase letters, numbers, dashes'),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return isFr ? 'Requis' : 'Required';
+                  return l10n.t('Requis', 'Required');
                 }
                 return null;
               },
@@ -78,7 +75,7 @@ class _RenameUserDialogState extends State<RenameUserDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _submit,
@@ -87,7 +84,7 @@ class _RenameUserDialogState extends State<RenameUserDialog> {
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2))
-              : Text(isFr ? 'Renommer' : 'Rename'),
+              : Text(l10n.t('Renommer', 'Rename')),
         ),
       ],
     );
@@ -98,7 +95,7 @@ class _RenameUserDialogState extends State<RenameUserDialog> {
 
     final newName = _nameController.text.trim();
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     // Strict Validation (DNS or Email for Headscale usernames)
     if (!isValidHeadscaleUser(newName)) {
@@ -107,20 +104,18 @@ class _RenameUserDialogState extends State<RenameUserDialog> {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text(isFr ? 'Format Invalide' : 'Invalid Format'),
-          content: Text(isFr
-              ? 'Le nom "$newName" n\'est pas valide.\nHeadscale accepte :\n- Un nom simple (a-z, 0-9, -)\n- Une adresse email (user@domaine.com)\n\nSuggestion (mode simple) : "$sanitized"'
-              : 'The name "$newName" is invalid.\nHeadscale accepts:\n- A simple name (a-z, 0-9, -)\n- An email address (user@domain.com)\n\nSuggestion (simple mode): "$sanitized"'),
+          title: Text(l10n.t('Format Invalide', 'Invalid Format')),
+          content: Text(l10n.t('Le nom "$newName" n\'est pas valide.\nHeadscale accepte :\n- Un nom simple (a-z, 0-9, -)\n- Une adresse email (user@domaine.com)\n\nSuggestion (mode simple) : "$sanitized"', 'The name "$newName" is invalid.\nHeadscale accepts:\n- A simple name (a-z, 0-9, -)\n- An email address (user@domain.com)\n\nSuggestion (simple mode): "$sanitized"')),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: Text(isFr ? 'Annuler' : 'Cancel')),
+                child: Text(l10n.t('Annuler', 'Cancel'))),
             TextButton(
               onPressed: () {
                 Navigator.pop(ctx);
                 _nameController.text = sanitized;
               },
-              child: Text(isFr ? 'Utiliser corrigé' : 'Use corrected'),
+              child: Text(l10n.t('Utiliser corrigé', 'Use corrected')),
             ),
           ],
         ),
@@ -141,12 +136,10 @@ class _RenameUserDialogState extends State<RenameUserDialog> {
       Navigator.of(context).pop();
       showSafeSnackBar(
           context,
-          isFr
-              ? 'Utilisateur renommé avec succès'
-              : 'User renamed successfully');
+          l10n.t('Utilisateur renommé avec succès', 'User renamed successfully'));
     } catch (e) {
       if (!mounted) return;
-      showSafeSnackBar(context, '${isFr ? 'Erreur' : 'Error'}: $e');
+      showSafeSnackBar(context, '${l10n.t('Erreur', 'Error')}: $e');
       setState(() => _isLoading = false);
     }
   }

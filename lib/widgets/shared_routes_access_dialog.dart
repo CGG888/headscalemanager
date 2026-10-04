@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/utils/ip_utils.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 enum RouteAccessChoice { none, full, custom }
 
@@ -32,41 +33,39 @@ class _SharedRoutesAccessDialogState extends State<SharedRoutesAccessDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final isFr = Localizations.localeOf(context).languageCode == 'fr';
+    final l10n = L10n(Localizations.localeOf(context));
 
     return AlertDialog(
-      title: Text(isFr ? 'Accès aux routes partagées' : 'Shared Routes Access'),
+      title: Text(l10n.t('Accès aux routes partagées', 'Shared Routes Access')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              isFr
-                  ? 'Le nœud de destination partage les sous-réseaux suivants. Choisissez comment y accéder.'
-                  : 'The destination node shares the following subnets. Choose how to access them.',
+              l10n.t('Le nœud de destination partage les sous-réseaux suivants. Choisissez comment y accéder.', 'The destination node shares the following subnets. Choose how to access them.'),
             ),
             const SizedBox(height: 16),
-            ..._buildChoiceRadios(isFr),
+            ..._buildChoiceRadios(l10n),
             if (_choice == RouteAccessChoice.custom)
-              _buildCustomRulesSection(isFr),
+              _buildCustomRulesSection(l10n),
           ],
         ),
       ),
       actions: [
         TextButton(
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
           onPressed: _handleConfirm,
-          child: Text(isFr ? 'Confirmer' : 'Confirm'),
+          child: Text(l10n.t('Confirmer', 'Confirm')),
         ),
       ],
     );
   }
 
-  List<Widget> _buildChoiceRadios(bool isFr) {
+  List<Widget> _buildChoiceRadios(L10n l10n) {
     return [
       RadioGroup<RouteAccessChoice>(
         groupValue: _choice,
@@ -75,24 +74,18 @@ class _SharedRoutesAccessDialogState extends State<SharedRoutesAccessDialog> {
           children: [
             RadioListTile<RouteAccessChoice>(
               title:
-                  Text(isFr ? 'Accès au nœud uniquement' : 'Node access only'),
-              subtitle: Text(isFr
-                  ? 'Autoriser l\'accès au nœud mais pas aux sous-réseaux partagés'
-                  : 'Allow access to the node but not to shared subnets'),
+                  Text(l10n.t('Accès au nœud uniquement', 'Node access only')),
+              subtitle: Text(l10n.t('Autoriser l\'accès au nœud mais pas aux sous-réseaux partagés', 'Allow access to the node but not to shared subnets')),
               value: RouteAccessChoice.none,
             ),
             RadioListTile<RouteAccessChoice>(
-              title: Text(isFr ? 'Accès total' : 'Full access'),
-              subtitle: Text(isFr
-                  ? 'Autoriser l\'accès au nœud et à toutes les routes partagées'
-                  : 'Allow access to the node and all shared routes'),
+              title: Text(l10n.t('Accès total', 'Full access')),
+              subtitle: Text(l10n.t('Autoriser l\'accès au nœud et à toutes les routes partagées', 'Allow access to the node and all shared routes')),
               value: RouteAccessChoice.full,
             ),
             RadioListTile<RouteAccessChoice>(
-              title: Text(isFr ? 'Accès personnalisé' : 'Custom access'),
-              subtitle: Text(isFr
-                  ? 'Définir des règles spécifiques par sous-réseau'
-                  : 'Define specific rules per subnet'),
+              title: Text(l10n.t('Accès personnalisé', 'Custom access')),
+              subtitle: Text(l10n.t('Définir des règles spécifiques par sous-réseau', 'Define specific rules per subnet')),
               value: RouteAccessChoice.custom,
             ),
           ],
@@ -101,7 +94,7 @@ class _SharedRoutesAccessDialogState extends State<SharedRoutesAccessDialog> {
     ];
   }
 
-  Widget _buildCustomRulesSection(bool isFr) {
+  Widget _buildCustomRulesSection(L10n l10n) {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: Column(
@@ -110,7 +103,7 @@ class _SharedRoutesAccessDialogState extends State<SharedRoutesAccessDialog> {
           return _SubnetRuleCard(
             subnet: route,
             rule: _customRules[route]!,
-            isFr: isFr,
+            l10n: l10n,
           );
         }).toList(),
       ),
@@ -118,7 +111,7 @@ class _SharedRoutesAccessDialogState extends State<SharedRoutesAccessDialog> {
   }
 
   void _handleConfirm() {
-    final isFr = Localizations.localeOf(context).languageCode == 'fr';
+    final l10n = L10n(Localizations.localeOf(context));
 
     // Debug: Afficher le choix sélectionné
     debugPrint('DEBUG DIALOG: Choix sélectionné: $_choice');
@@ -133,28 +126,28 @@ class _SharedRoutesAccessDialogState extends State<SharedRoutesAccessDialog> {
         if (startIp.isNotEmpty && !IpUtils.isValidIp(startIp)) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                  '${isFr ? 'Format IP de début invalide pour' : 'Invalid start IP format for'} $route')));
+                  '${l10n.t('Format IP de début invalide pour', 'Invalid start IP format for')} $route')));
           return;
         }
 
         if (startIp.isNotEmpty && !IpUtils.isIpInSubnet(startIp, route)) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                  '${isFr ? 'IP de début n\'est pas dans le sous-réseau' : 'Start IP is not in subnet'} $route')));
+                  '${l10n.t('IP de début n\'est pas dans le sous-réseau', 'Start IP is not in subnet')} $route')));
           return;
         }
 
         if (endIp.isNotEmpty && !IpUtils.isValidIp(endIp)) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                  '${isFr ? 'Format IP de fin invalide pour' : 'Invalid end IP format for'} $route')));
+                  '${l10n.t('Format IP de fin invalide pour', 'Invalid end IP format for')} $route')));
           return;
         }
 
         if (endIp.isNotEmpty && !IpUtils.isIpInSubnet(endIp, route)) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                  '${isFr ? 'IP de fin n\'est pas dans le sous-réseau' : 'End IP is not in subnet'} $route')));
+                  '${l10n.t('IP de fin n\'est pas dans le sous-réseau', 'End IP is not in subnet')} $route')));
           return;
         }
       }
@@ -187,10 +180,10 @@ class _SharedRoutesAccessDialogState extends State<SharedRoutesAccessDialog> {
 class _SubnetRuleCard extends StatelessWidget {
   final String subnet;
   final _CustomRule rule;
-  final bool isFr;
+  final L10n l10n;
 
   const _SubnetRuleCard(
-      {required this.subnet, required this.rule, required this.isFr});
+      {required this.subnet, required this.rule, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -206,25 +199,23 @@ class _SubnetRuleCard extends StatelessWidget {
             TextFormField(
               controller: rule.startIpController,
               decoration: InputDecoration(
-                labelText: isFr ? 'IP de début' : 'Start IP',
+                labelText: l10n.t('IP de début', 'Start IP'),
                 hintText: 'Ex: 192.168.1.10',
               ),
             ),
             TextFormField(
               controller: rule.endIpController,
               decoration: InputDecoration(
-                labelText: isFr ? 'IP de fin (optionnel)' : 'End IP (optional)',
-                hintText: isFr
-                    ? 'Laisser vide si IP unique'
-                    : 'Leave empty for single IP',
+                labelText: l10n.t('IP de fin (optionnel)', 'End IP (optional)'),
+                hintText: l10n.t('Laisser vide si IP unique', 'Leave empty for single IP'),
               ),
             ),
             TextFormField(
               controller: rule.portsController,
               decoration: InputDecoration(
-                labelText: isFr ? 'Ports (optionnel)' : 'Ports (optional)',
+                labelText: l10n.t('Ports (optionnel)', 'Ports (optional)'),
                 hintText:
-                    isFr ? 'Ex: 80, 443, 1024-2048' : 'E.g. 80, 443, 1024-2048',
+                    l10n.t('Ex: 80, 443, 1024-2048', 'E.g. 80, 443, 1024-2048'),
               ),
             ),
           ],

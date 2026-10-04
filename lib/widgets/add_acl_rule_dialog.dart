@@ -4,6 +4,7 @@ import 'package:headscalemanager/utils/ip_utils.dart';
 import 'package:headscalemanager/widgets/shared_routes_access_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class AddAclRuleDialog extends StatefulWidget {
   final List<Node> allNodes;
@@ -33,10 +34,10 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(isFr ? 'Ajouter une règle ACL' : 'Add ACL Rule'),
+      title: Text(l10n.t('Ajouter une règle ACL', 'Add ACL Rule')),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -45,14 +46,12 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                isFr
-                    ? 'Créez une exception pour autoriser la communication entre les appareils.'
-                    : 'Create an exception to allow communication between devices.',
+                l10n.t('Créez une exception pour autoriser la communication entre les appareils.', 'Create an exception to allow communication between devices.'),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
               _buildNodeDropdown(
-                isFr ? 'Source (Nœud)' : 'Source (Node)',
+                l10n.t('Source (Nœud)', 'Source (Node)'),
                 _selectedSourceNode,
                 widget.allNodes,
                 (node) {
@@ -68,26 +67,22 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
                     }
                   });
                 },
-                isFr
-                    ? 'Veuillez sélectionner un nœud source'
-                    : 'Please select a source node',
+                l10n.t('Veuillez sélectionner un nœud source', 'Please select a source node'),
               ),
               const SizedBox(height: 16),
               _buildNodeDropdown(
-                isFr ? 'Destination (Nœud)' : 'Destination (Node)',
+                l10n.t('Destination (Nœud)', 'Destination (Node)'),
                 _selectedDestinationNode,
                 _destinationNodes,
                 (node) => setState(() => _selectedDestinationNode = node),
-                isFr
-                    ? 'Veuillez sélectionner un nœud destination'
-                    : 'Please select a destination node',
+                l10n.t('Veuillez sélectionner un nœud destination', 'Please select a destination node'),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _portController,
                 keyboardType: TextInputType.text,
                 decoration: _buildInputDecoration(
-                    isFr ? 'Port(s)' : 'Port(s)', 'ex: 443, 8080-8089, *'),
+                    l10n.t('Port(s)', 'Port(s)'), 'ex: 443, 8080-8089, *'),
               ),
             ],
           ),
@@ -96,11 +91,11 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
         ),
         ElevatedButton(
           onPressed: _addRule,
-          child: Text(isFr ? 'Ajouter' : 'Add'),
+          child: Text(l10n.t('Ajouter', 'Add')),
         ),
       ],
     );
@@ -114,12 +109,12 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
     String? validationMessage,
   ) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return DropdownButtonFormField<Node>(
       initialValue: selectedNode,
       decoration: _buildInputDecoration(
-          label, isFr ? 'Choisir un nœud' : 'Choose a node'),
+          label, l10n.t('Choisir un nœud', 'Choose a node')),
       items: nodes.map((Node node) {
         return DropdownMenuItem<Node>(
           value: node,
@@ -157,13 +152,11 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
     }
 
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     if (_selectedSourceNode!.ipAddresses.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(isFr
-              ? 'Le nœud source doit avoir au moins une adresse IP.'
-              : 'Source node must have at least one IP address.'),
+          content: Text(l10n.t('Le nœud source doit avoir au moins une adresse IP.', 'Source node must have at least one IP address.')),
           backgroundColor: Theme.of(context).colorScheme.error));
       return;
     }
@@ -202,9 +195,7 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
         } else {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(isFr
-                ? 'Accès au sous-réseau non configuré et le nœud n\'a pas d\'IP pour une règle de base.'
-                : 'Subnet access not configured and the node has no IP for a fallback rule.'),
+            content: Text(l10n.t('Accès au sous-réseau non configuré et le nœud n\'a pas d\'IP pour une règle de base.', 'Subnet access not configured and the node has no IP for a fallback rule.')),
             backgroundColor: Theme.of(context).colorScheme.error,
           ));
           return;
@@ -247,9 +238,7 @@ class _AddAclRuleDialogState extends State<AddAclRuleDialog> {
     } else {
       if (_selectedDestinationNode!.ipAddresses.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(isFr
-                ? 'Le nœud destination doit avoir au moins une adresse IP.'
-                : 'Destination node must have at least one IP address.'),
+            content: Text(l10n.t('Le nœud destination doit avoir au moins une adresse IP.', 'Destination node must have at least one IP address.')),
             backgroundColor: Theme.of(context).colorScheme.error));
         return;
       }

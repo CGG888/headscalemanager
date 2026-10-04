@@ -3,6 +3,7 @@ import 'package:headscalemanager/models/pre_auth_key.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 // For debugPrint
 
 /// Dialogue de confirmation pour la suppression d'une clé de pré-authentification.
@@ -26,20 +27,18 @@ class DeletePreAuthKeyDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.read<AppProvider>();
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(isFr ? 'Supprimer la clé ?' : 'Delete key?'),
-      content: Text(isFr
-          ? 'Êtes-vous sûr de vouloir supprimer la clé ${preAuthKey.key} ?'
-          : 'Are you sure you want to delete the key ${preAuthKey.key}?'),
+      title: Text(l10n.t('Supprimer la clé ?', 'Delete key?')),
+      content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer la clé ${preAuthKey.key} ?', 'Are you sure you want to delete the key ${preAuthKey.key}?')),
       actions: [
         TextButton(
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(isFr ? 'Supprimer' : 'Delete',
+          child: Text(l10n.t('Supprimer', 'Delete'),
               style: const TextStyle(color: Colors.red)),
           onPressed: () async {
             try {
@@ -50,17 +49,13 @@ class DeletePreAuthKeyDialog extends StatelessWidget {
               onKeyDeleted(); // Appelle le callback pour rafraîchir la liste
               showSafeSnackBar(
                   context,
-                  isFr
-                      ? 'Clé expirée avec succès.'
-                      : 'Key expired successfully.');
+                  l10n.t('Clé expirée avec succès.', 'Key expired successfully.'));
             } catch (e) {
               debugPrint('Erreur lors de l\'expiration de la clé : $e');
               Navigator.of(context).pop();
               showSafeSnackBar(
                   context,
-                  isFr
-                      ? 'Échec de l\'expiration de la clé : $e'
-                      : 'Failed to expire key: $e');
+                  l10n.t('Échec de l\'expiration de la clé : $e', 'Failed to expire key: $e'));
             }
           },
         ),

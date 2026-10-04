@@ -5,6 +5,7 @@ import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/models/node.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class DnsScreen extends StatefulWidget {
   const DnsScreen({super.key});
@@ -54,11 +55,11 @@ class _DnsScreenState extends State<DnsScreen> {
         setState(() {
           _isLoading = false;
         });
-        final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+        final l10n = L10n(context.read<AppProvider>().locale);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                '${isFr ? 'Erreur lors de la récupération' : 'Error fetching data'}: $e'),
+                '${l10n.t('Erreur lors de la récupération', 'Error fetching data')}: $e'),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -109,24 +110,22 @@ class _DnsScreenState extends State<DnsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isFr = context.watch<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.watch<AppProvider>().locale);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isFr ? 'Vue DNS' : 'DNS View'),
+        title: Text(l10n.t('Vue DNS', 'DNS View')),
       ),
       body: RefreshIndicator(
         onRefresh: _fetchData,
         child: Column(
           children: [
-            _buildWarningBanner(context, isFr),
+            _buildWarningBanner(context, l10n),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: TextField(
                 decoration: InputDecoration(
-                  labelText: isFr
-                      ? 'Rechercher par nom, FQDN, alias ou IP'
-                      : 'Search by name, FQDN, alias, or IP',
+                  labelText: l10n.t('Rechercher par nom, FQDN, alias ou IP', 'Search by name, FQDN, alias, or IP'),
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -143,7 +142,7 @@ class _DnsScreenState extends State<DnsScreen> {
                   : _filteredNodes.isEmpty
                       ? Center(
                           child: Text(
-                              isFr ? 'Aucun nœud trouvé' : 'No nodes found'))
+                              l10n.t('Aucun nœud trouvé', 'No nodes found')))
                       : ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           itemCount: _filteredNodes.length,
@@ -222,20 +221,14 @@ class _DnsScreenState extends State<DnsScreen> {
                                                         context: context,
                                                         builder: (ctx) =>
                                                             AlertDialog(
-                                                                title: Text(isFr
-                                                                    ? 'Réparer Alias'
-                                                                    : 'Fix Alias'),
-                                                                content: Text(isFr
-                                                                    ? 'Cet alias est invalide pour la v0.27+.\nRemplacement suggéré : "$sanitized"'
-                                                                    : 'This alias is invalid for v0.27+.\nSuggested replacement: "$sanitized"'),
+                                                                title: Text(l10n.t('Réparer Alias', 'Fix Alias')),
+                                                                content: Text(l10n.t('Cet alias est invalide pour la v0.27+.\nRemplacement suggéré : "$sanitized"', 'This alias is invalid for v0.27+.\nSuggested replacement: "$sanitized"')),
                                                                 actions: [
                                                                   TextButton(
                                                                       onPressed: () =>
                                                                           Navigator.pop(
                                                                               ctx),
-                                                                      child: Text(isFr
-                                                                          ? 'Ignorer'
-                                                                          : 'Ignore')),
+                                                                      child: Text(l10n.t('Ignorer', 'Ignore'))),
                                                                   TextButton(
                                                                       onPressed:
                                                                           () {
@@ -245,9 +238,7 @@ class _DnsScreenState extends State<DnsScreen> {
                                                                         Navigator.pop(
                                                                             ctx);
                                                                       },
-                                                                      child: Text(isFr
-                                                                          ? 'Corriger'
-                                                                          : 'Fix')),
+                                                                      child: Text(l10n.t('Corriger', 'Fix'))),
                                                                 ]));
                                                   },
                                                   child: const Icon(
@@ -275,20 +266,18 @@ class _DnsScreenState extends State<DnsScreen> {
                                           WrapCrossAlignment.center,
                                       children: [
                                         _buildActionButton(
-                                            context, isFr, 'DNS', node.fqdn),
+                                            context, l10n, 'DNS', node.fqdn),
                                         if (ipv4.isNotEmpty)
                                           _buildActionButton(
-                                              context, isFr, 'IPv4', ipv4),
+                                              context, l10n, 'IPv4', ipv4),
                                         if (ipv6.isNotEmpty)
                                           _buildActionButton(
-                                              context, isFr, 'IPv6', ipv6),
+                                              context, l10n, 'IPv6', ipv6),
                                         IconButton(
                                             onPressed: () =>
                                                 _showEditAliasDialog(
                                                     context, node, customAlias),
-                                            tooltip: isFr
-                                                ? 'Ajouter/Modifier un alias DNS (Mémo local)'
-                                                : 'Add/Edit DNS Alias (Local Memo)',
+                                            tooltip: l10n.t('Ajouter/Modifier un alias DNS (Mémo local)', 'Add/Edit DNS Alias (Local Memo)'),
                                             icon: Icon(Icons.edit_note,
                                                 color:
                                                     theme.colorScheme.primary)),
@@ -301,14 +290,14 @@ class _DnsScreenState extends State<DnsScreen> {
                           },
                         ),
             ),
-            _buildHelpCard(context, isFr),
+            _buildHelpCard(context, l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildWarningBanner(BuildContext context, bool isFr) {
+  Widget _buildWarningBanner(BuildContext context, L10n l10n) {
     return Container(
       width: double.infinity,
       color: Colors.amber.withValues(alpha: 0.2),
@@ -319,9 +308,7 @@ class _DnsScreenState extends State<DnsScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              isFr
-                  ? "Les noms affichés sont estimés. Les configurations serveur (MagicDNS/Extra Records) ne sont pas visibles ici mais fonctionnent correctement."
-                  : "Displayed names are estimated. Server-side custom MagicDNS/Extra Records are not visible here but work correctly.",
+              l10n.t("Les noms affichés sont estimés. Les configurations serveur (MagicDNS/Extra Records) ne sont pas visibles ici mais fonctionnent correctement.", "Displayed names are estimated. Server-side custom MagicDNS/Extra Records are not visible here but work correctly."),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.orange[800],
                     fontWeight: FontWeight.w500,
@@ -335,32 +322,28 @@ class _DnsScreenState extends State<DnsScreen> {
 
   void _showEditAliasDialog(
       BuildContext context, Node node, String? currentAlias) {
-    final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.read<AppProvider>().locale);
     final controller = TextEditingController(text: currentAlias);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isFr ? 'Alias DNS (Mémo Local)' : 'DNS Alias (Local Memo)'),
+        title: Text(l10n.t('Alias DNS (Mémo Local)', 'DNS Alias (Local Memo)')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              isFr
-                  ? "Cet alias est uniquement sauvegardé localement sur cet appareil pour votre référence. Assurez-vous d'ajouter cet enregistrement dans le fichier 'config.yaml' de votre serveur Headscale pour qu'il soit effectif sur le réseau."
-                  : "This alias is only saved locally on this device for your reference. Make sure to add this record to your Headscale server's 'config.yaml' for it to work on the network.",
+              l10n.t("Cet alias est uniquement sauvegardé localement sur cet appareil pour votre référence. Assurez-vous d'ajouter cet enregistrement dans le fichier 'config.yaml' de votre serveur Headscale pour qu'il soit effectif sur le réseau.", "This alias is only saved locally on this device for your reference. Make sure to add this record to your Headscale server's 'config.yaml' for it to work on the network."),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
               decoration: InputDecoration(
-                labelText: isFr ? 'Nom DNS personnalisé' : 'Custom DNS Name',
+                labelText: l10n.t('Nom DNS personnalisé', 'Custom DNS Name'),
                 hintText: 'ex: nas.home',
                 border: const OutlineInputBorder(),
-                helperText: isFr
-                    ? 'Lettres minuscules, chiffres et tirets uniquement.'
-                    : 'Lowercase letters, numbers, and hyphens only.',
+                helperText: l10n.t('Lettres minuscules, chiffres et tirets uniquement.', 'Lowercase letters, numbers, and hyphens only.'),
               ),
             ),
           ],
@@ -368,7 +351,7 @@ class _DnsScreenState extends State<DnsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(isFr ? 'Annuler' : 'Cancel'),
+            child: Text(l10n.t('Annuler', 'Cancel')),
           ),
           TextButton(
             onPressed: () {
@@ -379,14 +362,12 @@ class _DnsScreenState extends State<DnsScreen> {
                     context: context,
                     builder: (ctx) => AlertDialog(
                           title:
-                              Text(isFr ? 'Format Invalide' : 'Invalid Format'),
-                          content: Text(isFr
-                              ? 'Le nom "$text" ne respecte pas le format DNS (RFC 1123).\nVoulez-vous utiliser "$sanitized" à la place ?'
-                              : 'The name "$text" does not match DNS format (RFC 1123).\nDo you want to use "$sanitized" instead?'),
+                              Text(l10n.t('Format Invalide', 'Invalid Format')),
+                          content: Text(l10n.t('Le nom "$text" ne respecte pas le format DNS (RFC 1123).\nVoulez-vous utiliser "$sanitized" à la place ?', 'The name "$text" does not match DNS format (RFC 1123).\nDo you want to use "$sanitized" instead?')),
                           actions: [
                             TextButton(
                                 onPressed: () => Navigator.pop(ctx),
-                                child: Text(isFr ? 'Annuler' : 'Cancel')),
+                                child: Text(l10n.t('Annuler', 'Cancel'))),
                             TextButton(
                                 onPressed: () {
                                   Navigator.pop(ctx); // Close alert
@@ -394,9 +375,7 @@ class _DnsScreenState extends State<DnsScreen> {
                                       node.id, sanitized); // Save corrected
                                   Navigator.pop(context); // Close edit dialog
                                 },
-                                child: Text(isFr
-                                    ? 'Utiliser corrigé'
-                                    : 'Use corrected')),
+                                child: Text(l10n.t('Utiliser corrigé', 'Use corrected'))),
                           ],
                         ));
                 return;
@@ -404,7 +383,7 @@ class _DnsScreenState extends State<DnsScreen> {
               _saveCustomRecord(node.id, text);
               Navigator.pop(context);
             },
-            child: Text(isFr ? 'Sauvegarder' : 'Save'),
+            child: Text(l10n.t('Sauvegarder', 'Save')),
           ),
         ],
       ),
@@ -412,14 +391,14 @@ class _DnsScreenState extends State<DnsScreen> {
   }
 
   Widget _buildActionButton(
-      BuildContext context, bool isFr, String label, String value) {
+      BuildContext context, L10n l10n, String label, String value) {
     final theme = Theme.of(context);
     return PopupMenuButton<String>(
       onSelected: (choice) {
         if (choice == 'copy') {
           Clipboard.setData(ClipboardData(text: value));
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('$label ${isFr ? 'copié' : 'copied'}!')));
+              SnackBar(content: Text('$label ${l10n.t('copié', 'copied')}!')));
         } else if (choice == 'share') {
           SharePlus.instance.share(ShareParams(
             text: value,
@@ -432,14 +411,14 @@ class _DnsScreenState extends State<DnsScreen> {
           value: 'copy',
           child: ListTile(
             leading: const Icon(Icons.copy),
-            title: Text(isFr ? 'Copier' : 'Copy'),
+            title: Text(l10n.t('Copier', 'Copy')),
           ),
         ),
         PopupMenuItem<String>(
           value: 'share',
           child: ListTile(
             leading: const Icon(Icons.share),
-            title: Text(isFr ? 'Partager' : 'Share'),
+            title: Text(l10n.t('Partager', 'Share')),
           ),
         ),
       ],
@@ -458,7 +437,7 @@ class _DnsScreenState extends State<DnsScreen> {
     );
   }
 
-  Widget _buildHelpCard(BuildContext context, bool isFr) {
+  Widget _buildHelpCard(BuildContext context, L10n l10n) {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -470,7 +449,7 @@ class _DnsScreenState extends State<DnsScreen> {
           });
         },
         title: Text(
-          isFr ? "Noms DNS Personnalisés" : "Custom DNS Names",
+          l10n.t("Noms DNS Personnalisés", "Custom DNS Names"),
           style: theme.textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
@@ -489,9 +468,7 @@ class _DnsScreenState extends State<DnsScreen> {
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Text(
-              isFr
-                  ? "Pour assigner un nom DNS à un service sur votre réseau local (ex: nas.votre.domaine pointant vers 192.168.1.100), vous devez modifier la section 'dns_config.extra_records' dans votre fichier config.yaml sur le serveur Headscale et redémarrer le service. Cette action ne peut pas être effectuée depuis l'application."
-                  : "To assign a DNS name to a service on your local network (e.g., nas.your.domain pointing to 192.168.1.100), you must edit the 'dns_config.extra_records' section in your config.yaml file on the Headscale server and restart the service. This action cannot be performed from the application.",
+              l10n.t("Pour assigner un nom DNS à un service sur votre réseau local (ex: nas.votre.domaine pointant vers 192.168.1.100), vous devez modifier la section 'dns_config.extra_records' dans votre fichier config.yaml sur le serveur Headscale et redémarrer le service. Cette action ne peut pas être effectuée depuis l'application.", "To assign a DNS name to a service on your local network (e.g., nas.your.domain pointing to 192.168.1.100), you must edit the 'dns_config.extra_records' section in your config.yaml file on the Headscale server and restart the service. This action cannot be performed from the application."),
               style: theme.textTheme.bodyMedium,
             ),
           ),

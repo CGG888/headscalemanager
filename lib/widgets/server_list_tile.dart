@@ -3,6 +3,7 @@ import 'package:headscalemanager/models/server.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/screens/add_edit_server_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class ServerListTile extends StatelessWidget {
   final Server server;
@@ -13,7 +14,7 @@ class ServerListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final appProvider = context.watch<AppProvider>();
     final activeServer = appProvider.activeServer;
-    final isFr = appProvider.locale.languageCode == 'fr';
+    final l10n = L10n(appProvider.locale);
     final bool isActive = activeServer?.id == server.id;
 
     return Card(
@@ -37,7 +38,7 @@ class ServerListTile extends StatelessWidget {
                 onPressed: () {
                   appProvider.switchServer(server.id);
                 },
-                child: Text(isFr ? 'Activer' : 'Set Active'),
+                child: Text(l10n.t('Activer', 'Set Active')),
               ),
             IconButton(
               icon: const Icon(Icons.edit),
@@ -57,20 +58,18 @@ class ServerListTile extends StatelessWidget {
                         context: context,
                         builder: (context) => AlertDialog(
                           title: Text(
-                              isFr ? 'Supprimer le serveur' : 'Delete Server'),
+                              l10n.t('Supprimer le serveur', 'Delete Server')),
                           content: Text(
-                            isFr
-                                ? 'Êtes-vous sûr de vouloir supprimer ce serveur ?'
-                                : 'Are you sure you want to delete this server?',
+                            l10n.t('Êtes-vous sûr de vouloir supprimer ce serveur ?', 'Are you sure you want to delete this server?'),
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(false),
-                              child: Text(isFr ? 'Annuler' : 'Cancel'),
+                              child: Text(l10n.t('Annuler', 'Cancel')),
                             ),
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(true),
-                              child: Text(isFr ? 'Supprimer' : 'Delete'),
+                              child: Text(l10n.t('Supprimer', 'Delete')),
                             ),
                           ],
                         ),

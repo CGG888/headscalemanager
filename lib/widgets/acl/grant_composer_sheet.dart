@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/models/user.dart';
 import 'package:headscalemanager/services/acl/grant_composer_service.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 /// Composeur guidé de grants réseau (Headscale 0.29+, moteur Grants V29).
 class GrantComposerSheet extends StatefulWidget {
   final List<User> users;
   final List<Node> nodes;
-  final bool isFr;
+  final L10n l10n;
   final Node? prefilledRouterNode;
   final GrantComposerTemplate? initialTemplate;
 
@@ -17,7 +18,7 @@ class GrantComposerSheet extends StatefulWidget {
     super.key,
     required this.users,
     required this.nodes,
-    required this.isFr,
+    required this.l10n,
     this.prefilledRouterNode,
     this.initialTemplate,
   });
@@ -26,7 +27,7 @@ class GrantComposerSheet extends StatefulWidget {
     BuildContext context, {
     required List<User> users,
     required List<Node> nodes,
-    required bool isFr,
+    required L10n l10n,
     Node? prefilledRouterNode,
     GrantComposerTemplate? initialTemplate,
   }) {
@@ -37,7 +38,7 @@ class GrantComposerSheet extends StatefulWidget {
       builder: (_) => GrantComposerSheet(
         users: users,
         nodes: nodes,
-        isFr: isFr,
+        l10n: l10n,
         prefilledRouterNode: prefilledRouterNode,
         initialTemplate: initialTemplate,
       ),
@@ -90,7 +91,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
       _template != GrantComposerTemplate.intraFleet;
 
   String _templateLabel(GrantComposerTemplate t) {
-    if (!widget.isFr) {
+    if (!widget.l10n.isFr) {
       switch (t) {
         case GrantComposerTemplate.lanAccess:
           return 'LAN access';
@@ -240,9 +241,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        widget.isFr
-                            ? 'Composeur de grants'
-                            : 'Grant composer',
+                        widget.l10n.t('Composeur de grants', 'Grant composer'),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
@@ -273,14 +272,14 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
                     if (_step > 0)
                       TextButton(
                         onPressed: _back,
-                        child: Text(widget.isFr ? 'Retour' : 'Back'),
+                        child: Text(widget.l10n.t('Retour', 'Back')),
                       ),
                     const Spacer(),
                     FilledButton(
                       onPressed: _canNext() ? _next : null,
                       child: Text(_step == _maxStep
-                          ? (widget.isFr ? 'Ajouter' : 'Add')
-                          : (widget.isFr ? 'Suivant' : 'Next')),
+                          ? (widget.l10n.t('Ajouter', 'Add'))
+                          : (widget.l10n.t('Suivant', 'Next'))),
                     ),
                   ],
                 ),
@@ -298,7 +297,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.isFr ? 'Choisir un modèle' : 'Choose a template',
+          widget.l10n.t('Choisir un modèle', 'Choose a template'),
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 12),
@@ -329,12 +328,10 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
       nodes: widget.nodes,
     );
     if (options.isEmpty) {
-      return Text(widget.isFr
-          ? 'Aucun tag client disponible. Taguer au moins un nœud -client.'
-          : 'No client tags available. Tag at least one -client node.');
+      return Text(widget.l10n.t('Aucun tag client disponible. Taguer au moins un nœud -client.', 'No client tags available. Tag at least one -client node.'));
     }
     return _optionCheckList(
-      widget.isFr ? 'Qui accède ? (source)' : 'Who accesses? (source)',
+      widget.l10n.t('Qui accède ? (source)', 'Who accesses? (source)'),
       options,
       _selectedSrc,
       single: _isExceptionAcl,
@@ -351,14 +348,12 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.isFr ? 'Par où router ? (via)' : 'Route through? (via)',
+          widget.l10n.t('Par où router ? (via)', 'Route through? (via)'),
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
         if (routers.isEmpty)
-          Text(widget.isFr
-              ? 'Aucun routeur tagué trouvé (lan-sharer ou exit-node).'
-              : 'No tagged router found (lan-sharer or exit-node).')
+          Text(widget.l10n.t('Aucun routeur tagué trouvé (lan-sharer ou exit-node).', 'No tagged router found (lan-sharer or exit-node).'))
         else
           ...routers.map((r) {
             final selected = _selectedVia == r.viaTag;
@@ -388,7 +383,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.isFr ? 'IP destination' : 'Destination IP',
+            widget.l10n.t('IP destination', 'Destination IP'),
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
@@ -396,7 +391,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
             decoration: InputDecoration(
               hintText: '100.64.0.15',
               border: const OutlineInputBorder(),
-              labelText: widget.isFr ? 'Adresse IP Tailscale' : 'Tailscale IP',
+              labelText: widget.l10n.t('Adresse IP Tailscale', 'Tailscale IP'),
             ),
             onChanged: (v) => setState(() {
               _targetIp = v.trim();
@@ -406,7 +401,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
             }),
           ),
           const SizedBox(height: 16),
-          Text(widget.isFr ? 'Ou choisir un nœud :' : 'Or pick a node:'),
+          Text(widget.l10n.t('Ou choisir un nœud :', 'Or pick a node:')),
           const SizedBox(height: 8),
           ...GrantComposerService.destinationOptions(
             nodes: widget.nodes,
@@ -430,7 +425,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
           );
 
     return _optionCheckList(
-      widget.isFr ? 'Vers quoi ? (destination)' : 'Towards what? (destination)',
+      widget.l10n.t('Vers quoi ? (destination)', 'Towards what? (destination)'),
       options,
       _selectedDst,
       single: true,
@@ -491,14 +486,12 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.isFr ? 'Aperçu' : 'Preview',
+          widget.l10n.t('Aperçu', 'Preview'),
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
         if (preview == null)
-          Text(widget.isFr
-              ? 'Complétez les étapes précédentes.'
-              : 'Complete previous steps.')
+          Text(widget.l10n.t('Complétez les étapes précédentes.', 'Complete previous steps.'))
         else
           Container(
             width: double.infinity,

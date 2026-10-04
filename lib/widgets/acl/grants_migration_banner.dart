@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/utils/grants_v29_gate.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 /// Bandeau affiché après migration Grants V29 réussie ou auto-upgrade.
 class GrantsMigrationBanner extends StatefulWidget {
-  final bool isFr;
+  final L10n l10n;
   final int grantCount;
   final bool hidden;
 
   const GrantsMigrationBanner({
     super.key,
-    required this.isFr,
+    required this.l10n,
     this.grantCount = 0,
     this.hidden = false,
   });
@@ -77,7 +78,7 @@ class _GrantsMigrationBannerState extends State<GrantsMigrationBanner> {
         ? '${_migrationDate!.day.toString().padLeft(2, '0')}/'
             '${_migrationDate!.month.toString().padLeft(2, '0')}/'
             '${_migrationDate!.year}'
-        : (widget.isFr ? 'récemment' : 'recently');
+        : (widget.l10n.t('récemment', 'recently'));
 
     return Card(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
@@ -93,9 +94,7 @@ class _GrantsMigrationBannerState extends State<GrantsMigrationBanner> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    widget.isFr
-                        ? 'Policy migrée en Grants V29 ($dateStr)'
-                        : 'Policy migrated to Grants V29 ($dateStr)',
+                    widget.l10n.t('Policy migrée en Grants V29 ($dateStr)', 'Policy migrated to Grants V29 ($dateStr)'),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.green[900],
@@ -105,15 +104,13 @@ class _GrantsMigrationBannerState extends State<GrantsMigrationBanner> {
                 IconButton(
                   icon: const Icon(Icons.close, size: 18),
                   onPressed: _dismiss,
-                  tooltip: widget.isFr ? 'Masquer' : 'Dismiss',
+                  tooltip: widget.l10n.t('Masquer', 'Dismiss'),
                 ),
               ],
             ),
             if (widget.grantCount > 0)
               Text(
-                widget.isFr
-                    ? '${widget.grantCount} grant(s) réseau actif(s) avec routage via.'
-                    : '${widget.grantCount} active network grant(s) with via routing.',
+                widget.l10n.t('${widget.grantCount} grant(s) réseau actif(s) avec routage via.', '${widget.grantCount} active network grant(s) with via routing.'),
                 style: const TextStyle(fontSize: 12),
               ),
           ],

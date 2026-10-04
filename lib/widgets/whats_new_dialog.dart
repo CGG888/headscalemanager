@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:headscalemanager/data/whats_new_data.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class WhatsNewDialog extends StatelessWidget {
   const WhatsNewDialog({super.key});
@@ -10,8 +11,8 @@ class WhatsNewDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
-    final versions = WhatsNewVersion.getVersions(isFr);
+    final l10n = L10n(locale);
+    final versions = WhatsNewVersion.getVersions(l10n);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -29,7 +30,7 @@ class WhatsNewDialog extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      isFr ? 'Nouveautés' : 'What\'s New',
+                      l10n.t('Nouveautés', 'What\'s New'),
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -48,9 +49,7 @@ class WhatsNewDialog extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                isFr
-                    ? 'Cette mise à jour inclut d\'importants changements pour assurer la compatibilité avec les serveurs Headscale v0.25 à v0.29.1, avec support complet de Taildrive !'
-                    : 'This update includes important changes to ensure compatibility with Headscale servers v0.25 to v0.29.1, with full Taildrive support!',
+                l10n.t('Cette mise à jour inclut d\'importants changements pour assurer la compatibilité avec les serveurs Headscale v0.25 à v0.29.1, avec support complet de Taildrive !', 'This update includes important changes to ensure compatibility with Headscale servers v0.25 to v0.29.1, with full Taildrive support!'),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontStyle: FontStyle.italic,
                   color: theme.colorScheme.onSurfaceVariant,
@@ -139,7 +138,7 @@ class WhatsNewDialog extends StatelessWidget {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    '${isFr ? "Vérification" : "Verification"}: ${item.verification}',
+                                    '${l10n.t("Vérification", "Verification")}: ${item.verification}',
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.secondary,
                                     ),
@@ -165,7 +164,7 @@ class WhatsNewDialog extends StatelessWidget {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(isFr ? 'J\'ai compris' : 'Got it'),
+                  child: Text(l10n.t('J\'ai compris', 'Got it')),
                 ),
               ),
             ),

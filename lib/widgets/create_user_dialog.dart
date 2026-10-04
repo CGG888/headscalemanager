@@ -3,6 +3,7 @@ import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 // For debugPrint
 
 /// Dialogue pour créer un nouvel utilisateur Headscale.
@@ -29,22 +30,22 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
   Widget build(BuildContext context) {
     final appProvider = context.read<AppProvider>();
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return AlertDialog(
-      title: Text(isFr ? 'Créer un utilisateur' : 'Create user'),
+      title: Text(l10n.t('Créer un utilisateur', 'Create user')),
       content: TextField(
         controller: _nameController,
         decoration: InputDecoration(
-            hintText: isFr ? 'Nom de l\'utilisateur' : 'Username'),
+            hintText: l10n.t('Nom de l\'utilisateur', 'Username')),
       ),
       actions: [
         TextButton(
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(isFr ? 'Créer' : 'Create'),
+          child: Text(l10n.t('Créer', 'Create')),
           onPressed: () async {
             final String name = _nameController.text.trim();
             if (name.isEmpty) {
@@ -90,19 +91,15 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                 final bool? proceed = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: Text(isFr ? 'Conflit détecté' : 'Conflict detected'),
-                    content: Text(isFr
-                        ? 'Un utilisateur avec ce nom ou générant le même tag existe déjà. Voulez-vous essayer avec "$suggestedName" ?'
-                        : 'A user with this name or generating the same tag already exists. Would you like to try with "$suggestedName" ?'),
+                    title: Text(l10n.t('Conflit détecté', 'Conflict detected')),
+                    content: Text(l10n.t('Un utilisateur avec ce nom ou générant le même tag existe déjà. Voulez-vous essayer avec "$suggestedName" ?', 'A user with this name or generating the same tag already exists. Would you like to try with "$suggestedName" ?')),
                     actions: [
                       TextButton(
-                        child: Text(isFr ? 'Annuler' : 'Cancel'),
+                        child: Text(l10n.t('Annuler', 'Cancel')),
                         onPressed: () => Navigator.of(ctx).pop(false),
                       ),
                       TextButton(
-                        child: Text(isFr
-                            ? 'Utiliser $suggestedName'
-                            : 'Use $suggestedName'),
+                        child: Text(l10n.t('Utiliser $suggestedName', 'Use $suggestedName')),
                         onPressed: () {
                           _nameController.text = suggestedName;
                           Navigator.of(ctx).pop(true);
@@ -126,9 +123,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
               if (context.mounted) {
                 showSafeSnackBar(
                     context,
-                    isFr
-                        ? 'Échec de la création de l\'utilisateur : $e'
-                        : 'Failed to create user: $e');
+                    l10n.t('Échec de la création de l\'utilisateur : $e', 'Failed to create user: $e'));
                 Navigator.of(context).pop(false); // Failure
               }
             }

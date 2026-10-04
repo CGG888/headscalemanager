@@ -6,6 +6,7 @@ import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
 import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 /// Dialogue pour configurer un nœud comme nœud de sortie.
 ///
@@ -48,19 +49,17 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
   Widget build(BuildContext context) {
     final appProvider = context.read<AppProvider>();
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     final serverUrl = appProvider.activeServer?.url;
 
     if (serverUrl == null) {
       return AlertDialog(
-        title: Text(isFr ? 'Erreur' : 'Error'),
-        content: Text(isFr
-            ? 'URL du serveur non configurée.'
-            : 'Server URL not configured.'),
+        title: Text(l10n.t('Erreur', 'Error')),
+        content: Text(l10n.t('URL du serveur non configurée.', 'Server URL not configured.')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(isFr ? 'Fermer' : 'Close'),
+            child: Text(l10n.t('Fermer', 'Close')),
           ),
         ],
       );
@@ -74,9 +73,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
 
     return AlertDialog(
       // Changed from SubnetCommandDialog to AlertDialog
-      title: Text(isFr
-          ? 'Étape 1 : Configurer le nœud de sortie'
-          : 'Step 1: Configure Exit Node'),
+      title: Text(l10n.t('Étape 1 : Configurer le nœud de sortie', 'Step 1: Configure Exit Node')),
       content: SizedBox(
         width: double.maxFinite,
         child: Column(
@@ -100,9 +97,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(isFr
-                            ? 'Sur votre appareil Linux, assurez-vous que le transfert IP est activé si vous souhaitez acheminer le trafic d\'autres appareils via ce nœud de sortie. Exécutez ensuite la commande Tailscale :'
-                            : 'On your Linux device, ensure IP forwarding is enabled if you want to route traffic from other devices through this exit node. Then run the Tailscale command:'),
+                        Text(l10n.t('Sur votre appareil Linux, assurez-vous que le transfert IP est activé si vous souhaitez acheminer le trafic d\'autres appareils via ce nœud de sortie. Exécutez ensuite la commande Tailscale :', 'On your Linux device, ensure IP forwarding is enabled if you want to route traffic from other devices through this exit node. Then run the Tailscale command:')),
                         const SizedBox(height: 8),
                         const SelectableText(
                             'sudo sysctl -w net.ipv4.ip_forward=1',
@@ -122,9 +117,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(isFr
-                            ? 'Sur votre appareil Windows, assurez-vous que le transfert IP est activé si vous souhaitez acheminer le trafic d\'autres appareils via ce nœud de sortie. Exécutez ensuite la commande Tailscale :'
-                            : 'On your Windows device, ensure IP forwarding is enabled if you want to route traffic from other devices through this exit node. Then run the Tailscale command:'),
+                        Text(l10n.t('Sur votre appareil Windows, assurez-vous que le transfert IP est activé si vous souhaitez acheminer le trafic d\'autres appareils via ce nœud de sortie. Exécutez ensuite la commande Tailscale :', 'On your Windows device, ensure IP forwarding is enabled if you want to route traffic from other devices through this exit node. Then run the Tailscale command:')),
                         const SizedBox(height: 8),
                         const SelectableText(
                             '# Activer le transfert IP (PowerShell en tant qu\'administrateur)\nSet-NetIPInterface -InterfaceAlias "Ethernet" -Forwarding Enabled',
@@ -143,9 +136,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
                   SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(isFr
-                          ? 'Sur votre appareil mobile (Android/iOS), allez dans les paramètres du client Tailscale, sélectionnez l\'option "Exit nodes", puis activez l\'option "Run as exit node". Aucune ligne de commande n\'est nécessaire.'
-                          : 'On your mobile device (Android/iOS), go to the Tailscale client settings, select the "Exit nodes" option, then enable the "Run as exit node" option. No command line is necessary.'),
+                      child: Text(l10n.t('Sur votre appareil mobile (Android/iOS), allez dans les paramètres du client Tailscale, sélectionnez l\'option "Exit nodes", puis activez l\'option "Run as exit node". Aucune ligne de commande n\'est nécessaire.', 'On your mobile device (Android/iOS), go to the Tailscale client settings, select the "Exit nodes" option, then enable the "Run as exit node" option. No command line is necessary.')),
                     ),
                   ),
                 ],
@@ -156,26 +147,22 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
       ),
       actions: [
         TextButton(
-          child: Text(isFr ? 'Fermer' : 'Close'),
+          child: Text(l10n.t('Fermer', 'Close')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
           child: Text(
-              isFr ? 'Copier la commande Tailscale' : 'Copy Tailscale Command'),
+              l10n.t('Copier la commande Tailscale', 'Copy Tailscale Command')),
           onPressed: () async {
             await Clipboard.setData(ClipboardData(text: tailscaleCommand));
             if (!context.mounted) return;
             showSafeSnackBar(
                 context,
-                isFr
-                    ? 'Commande Tailscale copiée dans le presse-papiers !'
-                    : 'Tailscale command copied to clipboard!');
+                l10n.t('Commande Tailscale copiée dans le presse-papiers !', 'Tailscale command copied to clipboard!'));
           },
         ),
         ElevatedButton(
-            child: Text(isFr
-                ? 'Procéder à la confirmation'
-                : 'Proceed to Confirmation'),
+            child: Text(l10n.t('Procéder à la confirmation', 'Proceed to Confirmation')),
             onPressed: () async {
               // Show loading or just wait
               try {
@@ -245,7 +232,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
                 if (aclMode) {
                   if (context.mounted) {
                     showSafeSnackBar(context,
-                        isFr ? 'Mise à jour des ACLs...' : 'Updating ACLs...');
+                        l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
                   }
 
                   // Regenerate Policy
@@ -274,7 +261,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
 
                 if (context.mounted) {
                   showSafeSnackBar(context,
-                      isFr ? 'Nœud de sortie activé.' : 'Exit node enabled.');
+                      l10n.t('Nœud de sortie activé.', 'Exit node enabled.'));
                   Navigator.of(context).pop();
                 }
 
@@ -282,7 +269,7 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
               } catch (e) {
                 debugPrint('Error enabling exit node: $e');
                 if (context.mounted) {
-                  showSafeSnackBar(context, isFr ? 'Erreur: $e' : 'Error: $e');
+                  showSafeSnackBar(context, l10n.t('Erreur: $e', 'Error: $e'));
                   Navigator.of(context).pop();
                 }
               }

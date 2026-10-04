@@ -8,6 +8,7 @@ import 'package:headscalemanager/services/acl_parser_service.dart';
 import 'package:headscalemanager/utils/json_utils.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
 import 'package:headscalemanager/widgets/acl_graph_widget.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class AclManagerScreen extends StatefulWidget {
   const AclManagerScreen({super.key});
@@ -88,7 +89,7 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -102,8 +103,8 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
           IconButton(
             icon: Icon(_showGraphView ? Icons.list_alt : Icons.account_tree),
             tooltip: _showGraphView
-                ? (isFr ? 'Vue tableau' : 'Table View')
-                : (isFr ? 'Vue graphique' : 'Graph View'),
+                ? (l10n.t('Vue tableau', 'Table View'))
+                : (l10n.t('Vue graphique', 'Graph View')),
             onPressed: () {
               setState(() {
                 _showGraphView = !_showGraphView;
@@ -114,12 +115,12 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _loadData,
-        child: _buildBody(isFr),
+        child: _buildBody(l10n),
       ),
     );
   }
 
-  Widget _buildBody(bool isFr) {
+  Widget _buildBody(L10n l10n) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -129,7 +130,7 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            '${isFr ? 'Erreur' : 'Error'}: $_error',
+            '${l10n.t('Erreur', 'Error')}: $_error',
             textAlign: TextAlign.center,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
@@ -139,7 +140,7 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
 
     if (_users.isEmpty) {
       return Center(
-        child: Text(isFr ? 'Aucun utilisateur trouvé.' : 'No users found.'),
+        child: Text(l10n.t('Aucun utilisateur trouvé.', 'No users found.')),
       );
     }
 
@@ -178,7 +179,7 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
               title: Text(user.name,
                   style: Theme.of(context).textTheme.titleLarge),
               children: userNodes
-                  .map((node) => _buildNodePermissionTile(node, parser, isFr))
+                  .map((node) => _buildNodePermissionTile(node, parser, l10n))
                   .toList(),
             ),
           );
@@ -188,7 +189,7 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
   }
 
   Widget _buildNodePermissionTile(
-      Node node, AclParserService parser, bool isFr) {
+      Node node, AclParserService parser, L10n l10n) {
     final permissions = parser.getPermissionsForNode(node);
 
     return ExpansionTile(
@@ -214,32 +215,32 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
       subtitle: Text(node.ipAddresses.join(', '),
           style: Theme.of(context).textTheme.bodySmall),
       childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      children: _buildPermissionSections(permissions, isFr),
+      children: _buildPermissionSections(permissions, l10n),
     );
   }
 
-  List<Widget> _buildPermissionSections(NodePermission permissions, bool isFr) {
+  List<Widget> _buildPermissionSections(NodePermission permissions, L10n l10n) {
     final rows = <_PermissionRowData>[];
 
     rows.addAll(permissions.allowedPeers.map((p) => _PermissionRowData(
           destination: p.node.name,
-          type: isFr ? 'Pair' : 'Peer',
+          type: l10n.t('Pair', 'Peer'),
           ports: p.ports.join(', '),
           source: 'N/A',
         )));
 
     rows.addAll(permissions.allowedSubnets.map((s) => _PermissionRowData(
           destination: s.subnet,
-          type: isFr ? 'Sous-réseau' : 'Subnet',
+          type: l10n.t('Sous-réseau', 'Subnet'),
           ports: s.ports.join(', '),
-          source: s.sourceNode?.name ?? (isFr ? 'Inconnu' : 'Unknown'),
+          source: s.sourceNode?.name ?? (l10n.t('Inconnu', 'Unknown')),
         )));
 
     rows.addAll(permissions.allowedExitNodes.map((e) => _PermissionRowData(
           destination: e.node.name,
           type: 'Exit Node',
           ports: '*',
-          source: e.sourceNode?.name ?? (isFr ? 'Direct' : 'Direct'),
+          source: e.sourceNode?.name ?? (l10n.t('Direct', 'Direct')),
         )));
 
     rows.addAll(
@@ -256,9 +257,7 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
           padding: const EdgeInsets.all(8.0),
           child: Center(
             child: Text(
-              isFr
-                  ? 'Aucune permission spécifique trouvée.'
-                  : 'No specific permissions found.',
+              l10n.t('Aucune permission spécifique trouvée.', 'No specific permissions found.'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -273,16 +272,16 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
           columnSpacing: 16,
           columns: [
             DataColumn(
-                label: Text(isFr ? 'Destination' : 'Destination',
+                label: Text(l10n.t('Destination', 'Destination'),
                     style: Theme.of(context).textTheme.titleSmall)),
             DataColumn(
-                label: Text(isFr ? 'Type' : 'Type',
+                label: Text(l10n.t('Type', 'Type'),
                     style: Theme.of(context).textTheme.titleSmall)),
             DataColumn(
-                label: Text(isFr ? 'Ports' : 'Ports',
+                label: Text(l10n.t('Ports', 'Ports'),
                     style: Theme.of(context).textTheme.titleSmall)),
             DataColumn(
-                label: Text(isFr ? 'Source' : 'Source',
+                label: Text(l10n.t('Source', 'Source'),
                     style: Theme.of(context).textTheme.titleSmall)),
           ],
           rows: rows.map((rowData) {

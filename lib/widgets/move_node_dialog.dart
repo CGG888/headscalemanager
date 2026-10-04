@@ -7,6 +7,7 @@ import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
 import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class MoveNodeDialog extends StatefulWidget {
   final Node node;
@@ -36,7 +37,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
     }
 
     final provider = context.read<AppProvider>();
-    final isFr = provider.locale.languageCode == 'fr';
+    final l10n = L10n(provider.locale);
 
     try {
       // 1. Move node to the new user
@@ -76,17 +77,15 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
         final bool? updateAcls = await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: Text(isFr ? 'Mettre à jour les ACLs ?' : 'Update ACLs?'),
-            content: Text(isFr
-                ? 'Voulez-vous aussi régénérer la politique ACL pour refléter ce changement ?'
-                : 'Do you also want to regenerate the ACL policy to reflect this change?'),
+            title: Text(l10n.t('Mettre à jour les ACLs ?', 'Update ACLs?')),
+            content: Text(l10n.t('Voulez-vous aussi régénérer la politique ACL pour refléter ce changement ?', 'Do you also want to regenerate the ACL policy to reflect this change?')),
             actions: [
               TextButton(
-                child: Text(isFr ? 'Non' : 'No'),
+                child: Text(l10n.t('Non', 'No')),
                 onPressed: () => Navigator.of(dialogContext).pop(false),
               ),
               TextButton(
-                child: Text(isFr ? 'Oui' : 'Yes'),
+                child: Text(l10n.t('Oui', 'Yes')),
                 onPressed: () => Navigator.of(dialogContext).pop(true),
               ),
             ],
@@ -95,7 +94,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
 
         if (updateAcls == true && mounted) {
           showSafeSnackBar(
-              context, isFr ? 'Mise à jour des ACLs...' : 'Updating ACLs...');
+              context, l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
 
           final allUsers = await provider.apiService.getUsers();
           final allNodes = await provider.apiService.getNodes();
@@ -104,9 +103,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
             if (!mounted) return;
             showSafeSnackBar(
                 context,
-                isFr
-                    ? 'Aucun serveur actif sélectionné.'
-                    : 'No active server selected.');
+                l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.'));
             return;
           }
           final tempRules =
@@ -125,7 +122,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
 
           if (!mounted) return;
           showSafeSnackBar(
-              context, isFr ? 'ACLs mises à jour !' : 'ACLs updated!');
+              context, l10n.t('ACLs mises à jour !', 'ACLs updated!'));
         }
       }
 
@@ -137,7 +134,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
       if (mounted) {
         // Show error and then pop
         showSafeSnackBar(
-            context, isFr ? 'Échec du déplacement: $e' : 'Failed to move: $e');
+            context, l10n.t('Échec du déplacement: $e', 'Failed to move: $e'));
         Navigator.of(context).pop(false);
       }
     }
@@ -145,10 +142,10 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final isFr = context.watch<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.watch<AppProvider>().locale);
 
     return AlertDialog(
-      title: Text(isFr ? 'Déplacer l\'appareil' : 'Move Device'),
+      title: Text(l10n.t('Déplacer l\'appareil', 'Move Device')),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,9 +164,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    isFr
-                        ? 'Attention : Cette fonctionnalité est incompatible avec Headscale v0.26+ (commande supprimée).'
-                        : 'Warning: This feature is incompatible with Headscale v0.26+ (command removed).',
+                    l10n.t('Attention : Cette fonctionnalité est incompatible avec Headscale v0.26+ (commande supprimée).', 'Warning: This feature is incompatible with Headscale v0.26+ (command removed).'),
                     style: const TextStyle(color: Colors.orange, fontSize: 13),
                   ),
                 ),
@@ -187,9 +182,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
                   );
                 }
                 if (snapshot.hasError) {
-                  return Text(isFr
-                      ? 'Échec du chargement des utilisateurs : ${snapshot.error}'
-                      : 'Failed to load users: ${snapshot.error}');
+                  return Text(l10n.t('Échec du chargement des utilisateurs : ${snapshot.error}', 'Failed to load users: ${snapshot.error}'));
                 }
                 final users = snapshot.data ?? [];
                 final selectedOwner = widget.node.getNormalizedOwner();
@@ -198,9 +191,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
                     .toList();
 
                 if (otherUsers.isEmpty) {
-                  return Text(isFr
-                      ? 'Aucun autre utilisateur disponible.'
-                      : 'No other users available.');
+                  return Text(l10n.t('Aucun autre utilisateur disponible.', 'No other users available.'));
                 }
 
                 _selectedUser ??= otherUsers.first;
@@ -221,7 +212,7 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
                   },
                   decoration: InputDecoration(
                     labelText:
-                        isFr ? 'Sélectionner un utilisateur' : 'Select a user',
+                        l10n.t('Sélectionner un utilisateur', 'Select a user'),
                     border: const OutlineInputBorder(),
                   ),
                 );
@@ -232,12 +223,12 @@ class _MoveNodeDialogState extends State<MoveNodeDialog> {
       ),
       actions: <Widget>[
         TextButton(
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
           onPressed: _handleMove,
-          child: Text(isFr ? 'Déplacer' : 'Move'),
+          child: Text(l10n.t('Déplacer', 'Move')),
         ),
       ],
     );

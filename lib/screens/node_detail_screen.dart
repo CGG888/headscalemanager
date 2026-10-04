@@ -16,6 +16,7 @@ import 'package:headscalemanager/widgets/acl/grant_composer_sheet.dart';
 import 'package:headscalemanager/services/acl/grant_composer_service.dart';
 import 'package:headscalemanager/widgets/rename_node_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class NodeDetailScreen extends StatefulWidget {
   final Node node;
@@ -92,7 +93,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
 
   void _toggleContinuousPing(bool value) {
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     setState(() {
       _isPingingContinuously = value;
       _pingResponses.clear();
@@ -103,9 +104,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
         setState(() => _isPingingContinuously = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(isFr
-                  ? 'Aucune adresse IPv4 trouvée pour ce nœud.'
-                  : 'No IPv4 address found for this node.')),
+              content: Text(l10n.t('Aucune adresse IPv4 trouvée pour ce nœud.', 'No IPv4 address found for this node.'))),
         );
         return;
       }
@@ -123,7 +122,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
 
   Future<void> _openGrantComposer(BuildContext context) async {
     final provider = context.read<AppProvider>();
-    final isFr = provider.locale.languageCode == 'fr';
+    final l10n = L10n(provider.locale);
 
     if (!GrantsV29Gate.isAvailable(
       engineMode: provider.aclEngineMode,
@@ -141,7 +140,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
         context,
         users: users,
         nodes: nodes,
-        isFr: isFr,
+        l10n: l10n,
         prefilledRouterNode: _currentNode,
       );
 
@@ -171,9 +170,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       if (context.mounted) {
         showSafeSnackBar(
           context,
-          isFr
-              ? 'Grant ajouté et policy mise à jour sur le serveur.'
-              : 'Grant added and policy updated on server.',
+          l10n.t('Grant ajouté et policy mise à jour sur le serveur.', 'Grant added and policy updated on server.'),
         );
       }
     } catch (e) {
@@ -187,7 +184,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final provider = context.watch<AppProvider>();
-    final isFr = provider.locale.languageCode == 'fr';
+    final l10n = L10n(provider.locale);
     final showComposer = GrantsV29Gate.isAvailable(
       engineMode: provider.aclEngineMode,
       serverVersion: provider.serverVersion,
@@ -204,7 +201,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
           if (showComposer)
             IconButton(
               icon: const Icon(Icons.auto_fix_high),
-              tooltip: isFr ? 'Composer une règle' : 'Compose a rule',
+              tooltip: l10n.t('Composer une règle', 'Compose a rule'),
               onPressed: () => _openGrantComposer(context),
             ),
         ],
@@ -235,7 +232,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   Widget _buildMainInfoCard(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return _SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,8 +247,8 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
               const SizedBox(width: 8),
               Text(
                   _currentNode.online
-                      ? (isFr ? 'En ligne' : 'Online')
-                      : (isFr ? 'Hors ligne' : 'Offline'),
+                      ? (l10n.t('En ligne', 'Online'))
+                      : (l10n.t('Hors ligne', 'Offline')),
                   style: theme.textTheme.bodyMedium?.copyWith(
                       color: _currentNode.online
                           ? Colors.green
@@ -284,9 +281,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                     ),
                   ),
                   child: Tooltip(
-                    message: isFr 
-                        ? 'Changer le type d\'appareil' 
-                        : 'Change device type',
+                    message: l10n.t('Changer le type d\'appareil', 'Change device type'),
                     child: Icon(
                       context.watch<AppProvider>().getDeviceIcon(_currentNode),
                       color: theme.colorScheme.onPrimary,
@@ -308,9 +303,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                   child: IconButton(
                     icon: const Icon(Icons.warning_amber_rounded,
                         color: Colors.orange, size: 24),
-                    tooltip: isFr
-                        ? 'Nom invalide (v0.27+)'
-                        : 'Invalid name (v0.27+)',
+                    tooltip: l10n.t('Nom invalide (v0.27+)', 'Invalid name (v0.27+)'),
                     onPressed: () {
                       showDialog(
                           context: context,
@@ -332,12 +325,12 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
             ],
           ),
           const SizedBox(height: 4),
-          Text('${isFr ? 'Utilisateur' : 'User'}: ${_currentNode.user}',
+          Text('${l10n.t('Utilisateur', 'User')}: ${_currentNode.user}',
               style: theme.textTheme.titleMedium
                   ?.copyWith(color: theme.colorScheme.onPrimary)),
           const SizedBox(height: 8),
           Text(
-              '${isFr ? 'Dernière connexion' : 'Last seen'}: ${_currentNode.lastSeen.toLocal()}',
+              '${l10n.t('Dernière connexion', 'Last seen')}: ${_currentNode.lastSeen.toLocal()}',
               style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onPrimary.withValues(alpha: 0.7))),
         ],
@@ -348,7 +341,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   void _showDeviceIconPickerDialog(BuildContext context) {
     final theme = Theme.of(context);
     final provider = context.read<AppProvider>();
-    final isFr = provider.locale.languageCode == 'fr';
+    final l10n = L10n(provider.locale);
 
     showDialog(
       context: context,
@@ -362,7 +355,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isFr ? 'Sélectionner le type d\'appareil' : 'Select Device Type',
+                  l10n.t('Sélectionner le type d\'appareil', 'Select Device Type'),
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -384,7 +377,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                       final isSelected = provider.getDeviceIconKey(_currentNode) == key;
 
                       String label = key;
-                      if (isFr) {
+                      if (l10n.isFr) {
                         if (key == 'generic') label = 'Générique';
                         if (key == 'server') label = 'Serveur';
                       }
@@ -435,7 +428,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                 const SizedBox(height: 12),
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: Text(isFr ? 'Annuler' : 'Cancel'),
+                  child: Text(l10n.t('Annuler', 'Cancel')),
                 ),
               ],
             ),
@@ -447,17 +440,15 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
 
   Widget _buildMonitoringCard(BuildContext context) {
     final theme = Theme.of(context);
-    final isFr = context.watch<AppProvider>().locale.languageCode == 'fr';
+    final l10n = L10n(context.watch<AppProvider>().locale);
 
     return _SectionCard(
       child: SwitchListTile(
-        title: Text(isFr ? 'Surveiller le statut' : 'Monitor Status',
+        title: Text(l10n.t('Surveiller le statut', 'Monitor Status'),
             style: theme.textTheme.titleMedium
                 ?.copyWith(color: theme.colorScheme.onPrimary)),
         subtitle: Text(
-            isFr
-                ? 'Recevoir une notification si le nœud se connecte ou se déconnecte.'
-                : 'Receive a notification if the node goes online or offline.',
+            l10n.t('Recevoir une notification si le nœud se connecte ou se déconnecte.', 'Receive a notification if the node goes online or offline.'),
             style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onPrimary.withValues(alpha: 0.7))),
         value: _isMonitoringEnabled,
@@ -470,12 +461,12 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   Widget _buildIpAddressesCard(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return _SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(isFr ? 'Adresses IP' : 'IP Addresses',
+          Text(l10n.t('Adresses IP', 'IP Addresses'),
               style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onPrimary)),
@@ -492,12 +483,12 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   Widget _buildIdentifiersCard(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return _SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(isFr ? 'Identifiants' : 'Identifiers',
+          Text(l10n.t('Identifiants', 'Identifiers'),
               style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onPrimary)),
@@ -505,9 +496,9 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
               height: 20,
               color: theme.colorScheme.onPrimary.withValues(alpha: 0.5)),
           _DetailRowWithCopy(
-              label: isFr ? 'ID Nœud' : 'Node ID', value: _currentNode.id),
+              label: l10n.t('ID Nœud', 'Node ID'), value: _currentNode.id),
           _DetailRowWithCopy(
-              label: isFr ? 'Clé Machine' : 'Machine Key',
+              label: l10n.t('Clé Machine', 'Machine Key'),
               value: _currentNode.machineKey),
           _DetailRowWithCopy(label: 'FQDN', value: _currentNode.fqdn),
         ],
@@ -518,7 +509,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   Widget _buildRoutesCard(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     final allPossibleRoutes = (Set<String>.from(_currentNode.availableRoutes)
           ..addAll(_currentNode.sharedRoutes))
         .toList();
@@ -531,7 +522,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(isFr ? 'Gestion des Routes' : 'Route Management',
+          Text(l10n.t('Gestion des Routes', 'Route Management'),
               style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onPrimary)),
@@ -539,9 +530,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
               height: 20,
               color: theme.colorScheme.onPrimary.withValues(alpha: 0.5)),
           Text(
-              isFr
-                  ? 'Cochez les routes que vous souhaitez approuver pour ce nœud.'
-                  : 'Check the routes you want to approve for this node.',
+              l10n.t('Cochez les routes que vous souhaitez approuver pour ce nœud.', 'Check the routes you want to approve for this node.'),
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: theme.colorScheme.onPrimary)),
           const SizedBox(height: 10),
@@ -582,7 +571,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
-              child: Text(isFr ? 'Appliquer les changements' : 'Apply Changes',
+              child: Text(l10n.t('Appliquer les changements', 'Apply Changes'),
                   style: theme.textTheme.labelLarge
                       ?.copyWith(color: theme.colorScheme.primary)),
             ),
@@ -595,7 +584,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   Widget _buildTagsAndRoutesCard(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return _SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -616,7 +605,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
             spacing: 8.0,
             children: _currentNode.tags.isEmpty
                 ? [
-                    Text(isFr ? 'Aucun tag' : 'No tags',
+                    Text(l10n.t('Aucun tag', 'No tags'),
                         style: theme.textTheme.bodyMedium
                             ?.copyWith(color: theme.colorScheme.onPrimary))
                   ]
@@ -637,7 +626,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   Future<void> _saveRoutes() async {
     final appProvider = context.read<AppProvider>();
     final apiService = appProvider.apiService;
-    final isFr = appProvider.locale.languageCode == 'fr';
+    final l10n = L10n(appProvider.locale);
 
     try {
       // Obtenir tous les nœuds pour la validation
@@ -667,13 +656,12 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text(isFr ? 'Conflit Détecté' : 'Conflict Detected'),
-                content: Text(isFr
-                    ? 'Impossible d\'approuver les routes suivantes car elles sont déjà utilisées par d\'autres utilisateurs :\n\n• ${conflictRoutes.join('\n• ')}\n\nVeuillez décocher ces routes avant de continuer.'
+                title: Text(l10n.t('Conflit Détecté', 'Conflict Detected')),
+                content: Text(l10n.isFr ? 'Impossible d\'approuver les routes suivantes car elles sont déjà utilisées par d\'autres utilisateurs :\n\n• ${conflictRoutes.join('\n• ')}\n\nVeuillez décocher ces routes avant de continuer.'
                     : 'Cannot approve the following routes as they are already used by other users:\n\n• ${conflictRoutes.join('\n• ')}\n\nPlease uncheck these routes before continuing.'),
                 actions: <Widget>[
                   TextButton(
-                    child: Text(isFr ? 'Compris' : 'Understood'),
+                    child: Text(l10n.t('Compris', 'Understood')),
                     onPressed: () {
                       Navigator.of(context).pop();
                       // Décocher automatiquement les routes en conflit
@@ -695,13 +683,13 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       // Procéder à la sauvegarde si aucun conflit
       if (!mounted) return;
       showSafeSnackBar(
-          context, isFr ? 'Mise à jour des routes...' : 'Updating routes...');
+          context, l10n.t('Mise à jour des routes...', 'Updating routes...'));
       await apiService.setNodeRoutes(_currentNode.id, _selectedRoutes.toList());
 
       // Régénérer et appliquer les ACLs
       if (!mounted) return;
       showSafeSnackBar(
-          context, isFr ? 'Mise à jour des ACLs...' : 'Updating ACLs...');
+          context, l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
       final allUsers = await apiService.getUsers();
       final updatedNodes = await apiService.getNodes(); // Re-fetch nodes
       final serverId = appProvider.activeServer?.id;
@@ -709,9 +697,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
         if (!mounted) return;
         showSafeSnackBar(
             context,
-            isFr
-                ? 'Aucun serveur actif sélectionné.'
-                : 'No active server selected.');
+            l10n.t('Aucun serveur actif sélectionné.', 'No active server selected.'));
         return;
       }
       final tempRules =
@@ -735,9 +721,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       if (mounted) {
         showSafeSnackBar(
             context,
-            isFr
-                ? 'Routes et ACLs mises à jour avec succès !'
-                : 'Routes and ACLs updated successfully!');
+            l10n.t('Routes et ACLs mises à jour avec succès !', 'Routes and ACLs updated successfully!'));
 
         // Rafraîchir l'état local
         final freshlyUpdatedNode =
@@ -750,7 +734,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${isFr ? 'Erreur' : 'Error'}: $e')));
+            SnackBar(content: Text('${l10n.t('Erreur', 'Error')}: $e')));
       }
     }
   }
@@ -758,13 +742,13 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   Widget _buildPingCard(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return Card(
       elevation: 0,
       color: theme.colorScheme.primary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: ExpansionTile(
-        title: Text(isFr ? 'Outils de diagnostic' : 'Diagnostic Tools',
+        title: Text(l10n.t('Outils de diagnostic', 'Diagnostic Tools'),
             style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.onPrimary)),
@@ -775,7 +759,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
               children: [
                 Row(
                   children: [
-                    Text(isFr ? "Ping en continu" : "Continuous Ping",
+                    Text(l10n.t("Ping en continu", "Continuous Ping"),
                         style: theme.textTheme.bodyMedium
                             ?.copyWith(color: theme.colorScheme.onPrimary)),
                     const Spacer(),
@@ -801,7 +785,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            isFr ? "Seuil d'alerte latence" : "Latency alert threshold",
+                            l10n.t("Seuil d'alerte latence", "Latency alert threshold"),
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,
@@ -853,7 +837,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   Widget _buildContinuousPingResults(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     if (_pingResponses.isEmpty) {
       return Center(
           child: CircularProgressIndicator(color: theme.colorScheme.primary));
@@ -879,17 +863,17 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-            "${isFr ? 'Latence moyenne' : 'Average latency'}: ${avgLatency.toStringAsFixed(2)} ms",
+            "${l10n.t('Latence moyenne', 'Average latency')}: ${avgLatency.toStringAsFixed(2)} ms",
             style: theme.textTheme.bodyMedium
                 ?.copyWith(color: theme.colorScheme.onPrimary)),
         Text(
-            "${isFr ? 'Paquets perdus' : 'Packet loss'}: ${loss.toStringAsFixed(0)}% ($received/$transmitted ${isFr ? 'reçus' : 'received'})",
+            "${l10n.t('Paquets perdus', 'Packet loss')}: ${loss.toStringAsFixed(0)}% ($received/$transmitted ${l10n.t('reçus', 'received')})",
             style: theme.textTheme.bodyMedium
                 ?.copyWith(color: theme.colorScheme.onPrimary)),
         const SizedBox(height: 20),
         _buildPingChart(context),
         const SizedBox(height: 20),
-        Text(isFr ? "Journal du ping:" : "Ping Log:",
+        Text(l10n.t("Journal du ping:", "Ping Log:"),
             style: theme.textTheme.bodyMedium
                 ?.copyWith(color: theme.colorScheme.onPrimary)),
         Container(
@@ -911,14 +895,14 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
                 final latency = data.response!.time?.inMilliseconds ?? 0;
                 final isExceeded = latency > threshold;
                 return Text(
-                    "${isFr ? 'Réponse de' : 'Reply from'} ${data.response!.ip}: ${isFr ? 'temps' : 'time'}=${latency}ms${isExceeded ? ' (⚠️)' : ''}",
+                    "${l10n.t('Réponse de', 'Reply from')} ${data.response!.ip}: ${l10n.t('temps', 'time')}=${latency}ms${isExceeded ? ' (⚠️)' : ''}",
                     style: theme.textTheme.bodySmall?.copyWith(
                         fontFamily: 'monospace',
                         fontWeight: isExceeded ? FontWeight.bold : FontWeight.normal,
                         color: isExceeded ? Colors.orangeAccent : theme.colorScheme.onPrimary));
               } else if (data.error != null) {
                 return Text(
-                    "${isFr ? 'Erreur' : 'Error'}: ${data.error!.error.toString()}",
+                    "${l10n.t('Erreur', 'Error')}: ${data.error!.error.toString()}",
                     style: theme.textTheme.bodySmall
                         ?.copyWith(color: Colors.red, fontFamily: 'monospace'));
               }
@@ -933,7 +917,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   Widget _buildPingChart(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     final List<FlSpot> spots = [];
     final relevantPings =
         _pingResponses.where((p) => p.response?.time != null).toList();
@@ -950,9 +934,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
           height: 150,
           child: Center(
               child: Text(
-                  isFr
-                      ? "En attente de données de ping..."
-                      : "Waiting for ping data...",
+                  l10n.t("En attente de données de ping...", "Waiting for ping data..."),
                   style: theme.textTheme.bodyMedium)));
     }
 
@@ -1107,7 +1089,7 @@ class _DetailRowWithCopy extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -1129,15 +1111,13 @@ class _DetailRowWithCopy extends StatelessWidget {
           IconButton(
             icon:
                 Icon(Icons.copy, size: 18, color: theme.colorScheme.onPrimary),
-            tooltip: isFr ? 'Copier' : 'Copy',
+            tooltip: l10n.t('Copier', 'Copy'),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: value));
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content: Text(
-                        isFr
-                            ? 'Copié dans le presse-papiers'
-                            : 'Copied to clipboard',
+                        l10n.t('Copié dans le presse-papiers', 'Copied to clipboard'),
                         style: theme.textTheme.bodyMedium
                             ?.copyWith(color: theme.colorScheme.primary)),
                     backgroundColor: theme.colorScheme.onPrimary),

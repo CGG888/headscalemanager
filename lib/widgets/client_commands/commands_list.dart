@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:headscalemanager/models/client_command.dart';
 import 'package:headscalemanager/widgets/client_commands/command_card.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class CommandsList extends StatelessWidget {
   final List<ClientCommand> filteredCommands;
-  final bool isFr;
+  final L10n l10n;
   final String selectedPlatform;
   final Function(String) onCopy;
   final Function(ClientCommand) onShare;
@@ -13,7 +14,7 @@ class CommandsList extends StatelessWidget {
   const CommandsList({
     super.key,
     required this.filteredCommands,
-    required this.isFr,
+    required this.l10n,
     required this.selectedPlatform,
     required this.onCopy,
     required this.onShare,
@@ -37,7 +38,7 @@ class CommandsList extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              isFr ? 'Aucune commande trouvée' : 'No commands found',
+              l10n.t('Aucune commande trouvée', 'No commands found'),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Theme.of(context)
                         .colorScheme
@@ -47,9 +48,7 @@ class CommandsList extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              isFr
-                  ? 'Essayez de modifier vos critères de recherche'
-                  : 'Try adjusting your search criteria',
+              l10n.t('Essayez de modifier vos critères de recherche', 'Try adjusting your search criteria'),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context)
                         .colorScheme
@@ -70,7 +69,7 @@ class CommandsList extends StatelessWidget {
         final command = filteredCommands[index];
         return CommandCard(
           command: command,
-          isFr: isFr,
+          l10n: l10n,
           selectedPlatform: selectedPlatform,
           onCopy: onCopy,
           onShare: onShare,

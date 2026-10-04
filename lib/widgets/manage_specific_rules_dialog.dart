@@ -4,6 +4,7 @@ import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
 import 'package:provider/provider.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class ManageSpecificRulesDialog extends StatefulWidget {
   final List<Node> allNodes;
@@ -62,21 +63,19 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
   Future<void> _removeTemporaryRule(int index) async {
     if (!mounted) return;
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     final bool confirm = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(isFr ? 'Confirmer la suppression' : 'Confirm Deletion'),
-            content: Text(isFr
-                ? 'Cela va supprimer la règle et appliquer immédiatement la nouvelle politique au serveur. Continuer ?'
-                : 'This will delete the rule and immediately apply the new policy to the server. Continue?'),
+            title: Text(l10n.t('Confirmer la suppression', 'Confirm Deletion')),
+            content: Text(l10n.t('Cela va supprimer la règle et appliquer immédiatement la nouvelle politique au serveur. Continuer ?', 'This will delete the rule and immediately apply the new policy to the server. Continue?')),
             actions: [
               TextButton(
-                  child: Text(isFr ? 'Annuler' : 'Cancel'),
+                  child: Text(l10n.t('Annuler', 'Cancel')),
                   onPressed: () => Navigator.of(ctx).pop(false)),
               TextButton(
-                  child: Text(isFr ? 'Confirmer' : 'Confirm',
+                  child: Text(l10n.t('Confirmer', 'Confirm'),
                       style: const TextStyle(color: Colors.red)),
                   onPressed: () => Navigator.of(ctx).pop(true)),
             ],
@@ -98,16 +97,14 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
       await storage.saveTemporaryRules(serverId, _temporaryRules);
     }
     await _generateAndExportPolicy(
-        message: isFr
-            ? 'Règle supprimée et politique mise à jour.'
-            : 'Rule deleted and policy updated.');
+        message: l10n.t('Règle supprimée et politique mise à jour.', 'Rule deleted and policy updated.'));
   }
 
   Future<void> _generateAndExportPolicy({String? message}) async {
     if (!mounted) return;
     setState(() => _isLoading = true);
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     try {
       final appProvider = context.read<AppProvider>();
@@ -134,7 +131,7 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(message ??
-                  (isFr ? 'Politique mise à jour.' : 'Policy updated.')),
+                  (l10n.t('Politique mise à jour.', 'Policy updated.'))),
               backgroundColor: Colors.green),
         );
       }
@@ -143,7 +140,7 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  '${isFr ? "Erreur lors de la mise à jour de la politique" : "Error updating policy"}: $e'),
+                  '${l10n.t("Erreur lors de la mise à jour de la politique", "Error updating policy")}: $e'),
               backgroundColor: Colors.red),
         );
       }
@@ -157,20 +154,18 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return AlertDialog(
       title:
-          Text(isFr ? 'Règles Spécifiques Actives' : 'Active Specific Rules'),
+          Text(l10n.t('Règles Spécifiques Actives', 'Active Specific Rules')),
       content: SizedBox(
         width: double.maxFinite,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _temporaryRules.isEmpty
                 ? Center(
-                    child: Text(isFr
-                        ? 'Aucune règle spécifique active.'
-                        : 'No active specific rules.'))
+                    child: Text(l10n.t('Aucune règle spécifique active.', 'No active specific rules.')))
                 : ListView.builder(
                     shrinkWrap: true,
                     itemCount: _temporaryRules.length,
@@ -204,7 +199,7 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(_rulesChanged),
-          child: Text(isFr ? 'Fermer' : 'Close'),
+          child: Text(l10n.t('Fermer', 'Close')),
         ),
       ],
     );
@@ -212,7 +207,7 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
 
   void _showRuleDetails(Map<String, dynamic> rule) {
     final locale = context.read<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     final srcIp = rule['src'] as String;
     final dstIpOrSubnet = rule['dst'] as String;
@@ -237,17 +232,17 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isFr ? 'Détails de la Règle' : 'Rule Details'),
+        title: Text(l10n.t('Détails de la Règle', 'Rule Details')),
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
-              _buildDetailRow(isFr ? 'Source' : 'Source',
-                  srcNode?.name ?? (isFr ? 'Inconnu' : 'Unknown')),
+              _buildDetailRow(l10n.t('Source', 'Source'),
+                  srcNode?.name ?? (l10n.t('Inconnu', 'Unknown'))),
               _buildDetailRow('IP Source', srcIp),
               if (srcNode != null)
                 _buildDetailRow('IPs Source', srcNode.ipAddresses.join(', ')),
               const Divider(),
-              _buildDetailRow(isFr ? 'Destination' : 'Destination',
+              _buildDetailRow(l10n.t('Destination', 'Destination'),
                   dstNode?.name ?? dstIpOrSubnet),
               _buildDetailRow('IP/Subnet Dest.', dstIpOrSubnet),
               if (dstNode != null)
@@ -263,7 +258,7 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
         ),
         actions: <Widget>[
           TextButton(
-            child: Text(isFr ? 'Fermer' : 'Close'),
+            child: Text(l10n.t('Fermer', 'Close')),
             onPressed: () {
               Navigator.of(context).pop();
             },

@@ -7,6 +7,7 @@ import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:provider/provider.dart';
 // For debugPrint
 import 'package:headscalemanager/widgets/subnet_command_dialog.dart'; // Import the new dialog
+import 'package:headscalemanager/l10n/l10n.dart';
 
 /// Dialogue pour partager un sous-réseau local via un nœud Headscale.
 ///
@@ -41,38 +42,30 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
   Widget build(BuildContext context) {
     final appProvider = context.read<AppProvider>();
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
 
     return AlertDialog(
       title:
-          Text(isFr ? 'Partager le sous-réseau local' : 'Share Local Subnet'),
+          Text(l10n.t('Partager le sous-réseau local', 'Share Local Subnet')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(isFr
-                ? 'Entrez le sous-réseau à annoncer (par exemple, 192.168.1.0/24).\n\nNote : L\'appareil doit être configuré pour annoncer cette route.'
-                : 'Enter the subnet to advertise (e.g., 192.168.1.0/24).\n\nNote: The device must be configured to advertise this route.'),
+            Text(l10n.t('Entrez le sous-réseau à annoncer (par exemple, 192.168.1.0/24).\n\nNote : L\'appareil doit être configuré pour annoncer cette route.', 'Enter the subnet to advertise (e.g., 192.168.1.0/24).\n\nNote: The device must be configured to advertise this route.')),
             const SizedBox(height: 16),
             Form(
               key: _formKey,
               child: TextFormField(
                 controller: _subnetController,
                 decoration: InputDecoration(
-                    labelText: isFr
-                        ? 'Sous-réseau (format CIDR)'
-                        : 'Subnet (CIDR format)'),
+                    labelText: l10n.t('Sous-réseau (format CIDR)', 'Subnet (CIDR format)')),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return isFr
-                        ? 'Veuillez entrer un sous-réseau'
-                        : 'Please enter a subnet';
+                    return l10n.t('Veuillez entrer un sous-réseau', 'Please enter a subnet');
                   }
                   final regex = RegExp(r'^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}');
                   if (!regex.hasMatch(value)) {
-                    return isFr
-                        ? 'Format CIDR invalide'
-                        : 'Invalid CIDR format';
+                    return l10n.t('Format CIDR invalide', 'Invalid CIDR format');
                   }
                   return null;
                 },
@@ -83,11 +76,11 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
       ),
       actions: <Widget>[
         TextButton(
-          child: Text(isFr ? 'Annuler' : 'Cancel'),
+          child: Text(l10n.t('Annuler', 'Cancel')),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(isFr ? 'Partager' : 'Share'),
+          child: Text(l10n.t('Partager', 'Share')),
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
               final String newSubnet = _subnetController.text;
@@ -156,7 +149,7 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
                 if (aclMode) {
                   if (context.mounted) {
                     showSafeSnackBar(context,
-                        isFr ? 'Mise à jour des ACLs...' : 'Updating ACLs...');
+                        l10n.t('Mise à jour des ACLs...', 'Updating ACLs...'));
                   }
                   // Regenerate Policy
                   final allUsers = await appProvider.apiService.getUsers();
@@ -185,9 +178,7 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
                 if (context.mounted) {
                   showSafeSnackBar(
                       context,
-                      isFr
-                          ? 'Route de sous-réseau activée.'
-                          : 'Subnet route enabled.');
+                      l10n.t('Route de sous-réseau activée.', 'Subnet route enabled.'));
                 }
                 widget.onSubnetShared();
 
@@ -203,20 +194,12 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
                 showDialog(
                   context: context,
                   builder: (ctx) => SubnetCommandDialog(
-                    title: isFr
-                        ? 'Sur le client : Configurer le routage de sous-réseau'
-                        : 'On the client: Configure subnet routing',
+                    title: l10n.t('Sur le client : Configurer le routage de sous-réseau', 'On the client: Configure subnet routing'),
                     tailscaleCommand:
                         'tailscale up --advertise-routes=$newSubnet --login-server=$loginServer',
-                    linuxInstructions: isFr
-                        ? 'Sur votre appareil Linux, activez le transfert IP et le NAT, puis exécutez la commande Tailscale :'
-                        : 'On your Linux device, enable IP forwarding and NAT, then run the Tailscale command:',
-                    windowsInstructions: isFr
-                        ? 'Sur votre appareil Windows, activez le transfert IP et le NAT (partage de connexion Internet), puis exécutez la commande Tailscale :'
-                        : 'On your Windows device, enable IP forwarding and NAT (Internet Connection Sharing), then run the Tailscale command:',
-                    mobileInstructions: isFr
-                        ? 'Sur votre appareil mobile (Android/iOS), allez dans les paramètres du client Tailscale et activez l\'option "Allow LAN access".'
-                        : 'On your mobile device (Android/iOS), go to the Tailscale client settings and enable the "Allow LAN access" option.',
+                    linuxInstructions: l10n.t('Sur votre appareil Linux, activez le transfert IP et le NAT, puis exécutez la commande Tailscale :', 'On your Linux device, enable IP forwarding and NAT, then run the Tailscale command:'),
+                    windowsInstructions: l10n.t('Sur votre appareil Windows, activez le transfert IP et le NAT (partage de connexion Internet), puis exécutez la commande Tailscale :', 'On your Windows device, enable IP forwarding and NAT (Internet Connection Sharing), then run the Tailscale command:'),
+                    mobileInstructions: l10n.t('Sur votre appareil mobile (Android/iOS), allez dans les paramètres du client Tailscale et activez l\'option "Allow LAN access".', 'On your mobile device (Android/iOS), go to the Tailscale client settings and enable the "Allow LAN access" option.'),
                   ),
                 );
               } catch (e) {
@@ -226,9 +209,7 @@ class _ShareSubnetDialogState extends State<ShareSubnetDialog> {
                 Navigator.of(context).pop();
                 showSafeSnackBar(
                     context,
-                    isFr
-                        ? 'Échec de l\'activation de la route de sous-réseau : $e'
-                        : 'Failed to enable subnet route: $e');
+                    l10n.t('Échec de l\'activation de la route de sous-réseau : $e', 'Failed to enable subnet route: $e'));
               }
             }
           },

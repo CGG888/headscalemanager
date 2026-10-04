@@ -7,6 +7,7 @@ import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:headscalemanager/models/version_info.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 
 class TaildriveManagerScreen extends StatefulWidget {
   const TaildriveManagerScreen({super.key});
@@ -45,7 +46,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
   @override
   Widget build(BuildContext context) {
     final appProvider = context.watch<AppProvider>();
-    final isFr = appProvider.locale.languageCode == 'fr';
+    final l10n = L10n(appProvider.locale);
     final shares = appProvider.taildriveShares;
 
     final supportsTaildrive = VersionInfo.checkVersionAtLeast(
@@ -53,7 +54,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isFr ? 'Partages Taildrive' : 'Taildrive Shares'),
+        title: Text(l10n.t('Partages Taildrive', 'Taildrive Shares')),
       ),
       body: Column(
         children: [
@@ -76,7 +77,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isFr ? 'Version de Headscale incompatible' : 'Incompatible Headscale Version',
+                          l10n.t('Version de Headscale incompatible', 'Incompatible Headscale Version'),
                           style: const TextStyle(
                             color: Colors.redAccent,
                             fontWeight: FontWeight.bold,
@@ -85,9 +86,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          isFr 
-                              ? 'Votre serveur tourne sous la version ${appProvider.serverVersion}. Les partages Taildrive nécessitent Headscale 0.29.0+ pour fonctionner. Les règles d\'accès ACL ne seront pas appliquées.'
-                              : 'Your server is running version ${appProvider.serverVersion}. Taildrive shares require Headscale 0.29.0+ to function. Access rules will not be active on the server.',
+                          l10n.t('Votre serveur tourne sous la version ${appProvider.serverVersion}. Les partages Taildrive nécessitent Headscale 0.29.0+ pour fonctionner. Les règles d\'accès ACL ne seront pas appliquées.', 'Your server is running version ${appProvider.serverVersion}. Taildrive shares require Headscale 0.29.0+ to function. Access rules will not be active on the server.'),
                           style: TextStyle(
                             color: Colors.red.shade100,
                             fontSize: 12,
@@ -103,7 +102,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : shares.isEmpty
-                    ? _buildEmptyState(isFr)
+                    ? _buildEmptyState(l10n)
                     : ListView.builder(
                         itemCount: shares.length,
                         itemBuilder: (context, index) {
@@ -114,7 +113,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                               id: '',
                               machineKey: '',
                               hostname: '',
-                              name: isFr ? 'Nœud inconnu' : 'Unknown Node',
+                              name: l10n.t('Nœud inconnu', 'Unknown Node'),
                               user: '',
                               userId: '',
                               ipAddresses: [],
@@ -187,8 +186,8 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                                                 ),
                                                 child: Text(
                                                   share.accessMode == TaildriveAccessMode.rw 
-                                                      ? (isFr ? 'Lecture/Écriture' : 'Read/Write')
-                                                      : (isFr ? 'Lecture seule' : 'Read-only'),
+                                                      ? (l10n.t('Lecture/Écriture', 'Read/Write'))
+                                                      : (l10n.t('Lecture seule', 'Read-only')),
                                                   style: TextStyle(
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.bold,
@@ -201,7 +200,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                                               const SizedBox(width: 8),
                                               IconButton(
                                                 icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                                                onPressed: () => _confirmDelete(share.id, isFr),
+                                                onPressed: () => _confirmDelete(share.id, l10n),
                                               ),
                                             ],
                                           ),
@@ -210,54 +209,46 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
                                       const SizedBox(height: 12),
                                       _buildDetailRow(
                                         icon: Icons.computer,
-                                        label: isFr ? 'Machine Source' : 'Source Machine',
+                                        label: l10n.t('Machine Source', 'Source Machine'),
                                         value: sourceNode.name,
                                       ),
                                       const SizedBox(height: 6),
                                       _buildDetailRow(
                                         icon: Icons.person_outline,
-                                        label: isFr ? 'Bénéficiaire' : 'Recipient',
+                                        label: l10n.t('Bénéficiaire', 'Recipient'),
                                         value: share.recipient,
                                       ),
                                       const SizedBox(height: 6),
                                       _buildDetailRow(
                                         icon: Icons.folder_open_outlined,
-                                        label: isFr ? 'Dossier partagé' : 'Shared folder',
+                                        label: l10n.t('Dossier partagé', 'Shared folder'),
                                         value: share.localPath,
                                         isPath: true,
                                       ),
                                       const Divider(height: 24, thickness: 1),
                                       Text(
-                                        isFr 
-                                            ? '1. Lancer ce partage sur la machine Windows/Linux/Mac :' 
-                                            : '1. Start this share on the Windows/Linux/Mac machine:',
+                                        l10n.t('1. Lancer ce partage sur la machine Windows/Linux/Mac :', '1. Start this share on the Windows/Linux/Mac machine:'),
                                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
                                       ),
                                       const SizedBox(height: 6),
                                       _buildCliBox(
                                         context: context,
                                         text: hostCommand,
-                                        isFr: isFr,
-                                        snackbarMsg: isFr 
-                                            ? 'Commande de partage copiée !' 
-                                            : 'Share command copied!',
+                                        l10n: l10n,
+                                        snackbarMsg: l10n.t('Commande de partage copiée !', 'Share command copied!'),
                                       ),
                                       const SizedBox(height: 14),
                                       Text(
-                                        isFr 
-                                            ? '2. URL de connexion WebDAV pour les clients (Android, VLC...) :' 
-                                            : '2. WebDAV connection URL for clients (Android, VLC...):',
+                                        l10n.t('2. URL de connexion WebDAV pour les clients (Android, VLC...) :', '2. WebDAV connection URL for clients (Android, VLC...):'),
                                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
                                       ),
                                       const SizedBox(height: 6),
                                       _buildCliBox(
                                         context: context,
                                         text: clientUrl,
-                                        isFr: isFr,
+                                        l10n: l10n,
                                         isLink: true,
-                                        snackbarMsg: isFr 
-                                            ? 'URL de connexion WebDAV copiée !' 
-                                            : 'WebDAV connection URL copied!',
+                                        snackbarMsg: l10n.t('URL de connexion WebDAV copiée !', 'WebDAV connection URL copied!'),
                                       ),
                                     ],
                                   ),
@@ -271,13 +262,13 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddShareDialog(isFr),
+        onPressed: () => _showAddShareDialog(l10n),
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildEmptyState(bool isFr) {
+  Widget _buildEmptyState(L10n l10n) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -285,16 +276,14 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
           const Icon(Icons.folder_off_outlined, size: 64, color: Colors.grey),
           const SizedBox(height: 16),
           Text(
-            isFr ? 'Aucun partage configuré' : 'No shares configured',
+            l10n.t('Aucun partage configuré', 'No shares configured'),
             style: const TextStyle(fontSize: 18, color: Colors.grey),
           ),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              isFr
-                  ? 'Cliquez sur + pour créer votre premier partage de dossiers sécurisé.'
-                  : 'Click + to create your first secure folder share.',
+              l10n.t('Cliquez sur + pour créer votre premier partage de dossiers sécurisé.', 'Click + to create your first secure folder share.'),
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey),
             ),
@@ -304,22 +293,20 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
     );
   }
 
-  Future<void> _confirmDelete(String shareId, bool isFr) async {
+  Future<void> _confirmDelete(String shareId, L10n l10n) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isFr ? 'Supprimer le partage' : 'Delete Share'),
-        content: Text(isFr
-            ? 'Êtes-vous sûr de vouloir supprimer ce partage ?'
-            : 'Are you sure you want to delete this share?'),
+        title: Text(l10n.t('Supprimer le partage', 'Delete Share')),
+        content: Text(l10n.t('Êtes-vous sûr de vouloir supprimer ce partage ?', 'Are you sure you want to delete this share?')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(isFr ? 'Annuler' : 'Cancel'),
+            child: Text(l10n.t('Annuler', 'Cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(isFr ? 'Supprimer' : 'Delete',
+            child: Text(l10n.t('Supprimer', 'Delete'),
                 style: const TextStyle(color: Colors.red)),
           ),
         ],
@@ -331,13 +318,13 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
     }
   }
 
-  void _showAddShareDialog(bool isFr) {
+  void _showAddShareDialog(L10n l10n) {
     showDialog(
       context: context,
       builder: (context) => _AddTaildriveShareDialog(
         allNodes: _allNodes,
         allUsers: _allUsers,
-        isFr: isFr,
+        l10n: l10n,
       ),
     );
   }
@@ -381,7 +368,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
   Widget _buildCliBox({
     required BuildContext context,
     required String text,
-    required bool isFr,
+    required L10n l10n,
     required String snackbarMsg,
     bool isLink = false,
   }) {
@@ -411,7 +398,7 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
             constraints: const BoxConstraints(),
             padding: EdgeInsets.zero,
             icon: const Icon(Icons.copy, size: 18, color: Colors.lightGreenAccent),
-            tooltip: isFr ? 'Copier' : 'Copy',
+            tooltip: l10n.t('Copier', 'Copy'),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: text));
               ScaffoldMessenger.of(context).showSnackBar(
@@ -441,12 +428,12 @@ class _TaildriveManagerScreenState extends State<TaildriveManagerScreen> {
 class _AddTaildriveShareDialog extends StatefulWidget {
   final List<Node> allNodes;
   final List<User> allUsers;
-  final bool isFr;
+  final L10n l10n;
 
   const _AddTaildriveShareDialog({
     required this.allNodes,
     required this.allUsers,
-    required this.isFr,
+    required this.l10n,
   });
 
   @override
@@ -611,7 +598,7 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.isFr ? 'Ajouter un partage' : 'Add Share'),
+      title: Text(widget.l10n.t('Ajouter un partage', 'Add Share')),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -621,7 +608,7 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
               DropdownButtonFormField<Node>(
                 initialValue: _selectedSourceNode,
                 decoration: InputDecoration(
-                  labelText: widget.isFr ? 'Nœud Source' : 'Source Node',
+                  labelText: widget.l10n.t('Nœud Source', 'Source Node'),
                 ),
                 items: widget.allNodes.map((n) {
                   return DropdownMenuItem(value: n, child: Text(n.name));
@@ -634,7 +621,7 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
                   });
                 },
                 validator: (val) => val == null
-                    ? (widget.isFr ? 'Obligatoire' : 'Required')
+                    ? (widget.l10n.t('Obligatoire', 'Required'))
                     : null,
               ),
               const SizedBox(height: 16),
@@ -642,59 +629,57 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
                 DropdownButtonFormField<String>(
                   initialValue: _selectedRecipient,
                   decoration: InputDecoration(
-                    labelText: widget.isFr ? 'Bénéficiaire' : 'Recipient',
-                    helperText: widget.isFr
-                        ? 'Utilisateurs autorisés à voir le partage'
-                        : 'Users allowed to see the share',
+                    labelText: widget.l10n.t('Bénéficiaire', 'Recipient'),
+                    helperText: widget.l10n.t('Utilisateurs autorisés à voir le partage', 'Users allowed to see the share'),
                   ),
                   items: _filteredRecipients.map((u) {
                     final isSameUser = normalizeUserName(u) == _selectedSourceNode!.getNormalizedOwner();
                     return DropdownMenuItem(
                       value: u,
-                      child: Text(isSameUser ? '$u (${widget.isFr ? 'Propriétaire' : 'Owner'})' : u),
+                      child: Text(isSameUser ? '$u (${widget.l10n.t('Propriétaire', 'Owner')})' : u),
                     );
                   }).toList(),
                   onChanged: (val) => setState(() => _selectedRecipient = val),
                   validator: (val) => val == null
-                      ? (widget.isFr ? 'Obligatoire' : 'Required')
+                      ? (widget.l10n.t('Obligatoire', 'Required'))
                       : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(
-                    labelText: widget.isFr ? 'Nom du partage' : 'Share Name',
+                    labelText: widget.l10n.t('Nom du partage', 'Share Name'),
                     hintText: 'ex: Documents',
                   ),
                   validator: (val) => val == null || val.isEmpty
-                      ? (widget.isFr ? 'Obligatoire' : 'Required')
+                      ? (widget.l10n.t('Obligatoire', 'Required'))
                       : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _pathController,
                   decoration: InputDecoration(
-                    labelText: widget.isFr ? 'Chemin local' : 'Local Path',
+                    labelText: widget.l10n.t('Chemin local', 'Local Path'),
                     hintText: 'ex: /home/user/docs or C:\\Data',
                   ),
                   validator: (val) => val == null || val.isEmpty
-                      ? (widget.isFr ? 'Obligatoire' : 'Required')
+                      ? (widget.l10n.t('Obligatoire', 'Required'))
                       : null,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<TaildriveAccessMode>(
                   initialValue: _accessMode,
                   decoration: InputDecoration(
-                    labelText: widget.isFr ? 'Permissions' : 'Permissions',
+                    labelText: widget.l10n.t('Permissions', 'Permissions'),
                   ),
                   items: [
                     DropdownMenuItem(
                       value: TaildriveAccessMode.ro,
-                      child: Text(widget.isFr ? 'Lecture seule' : 'Read-only'),
+                      child: Text(widget.l10n.t('Lecture seule', 'Read-only')),
                     ),
                     DropdownMenuItem(
                       value: TaildriveAccessMode.rw,
-                      child: Text(widget.isFr ? 'Lecture/Écriture' : 'Read/Write'),
+                      child: Text(widget.l10n.t('Lecture/Écriture', 'Read/Write')),
                     ),
                   ],
                   onChanged: (val) => setState(() => _accessMode = val!),
@@ -707,11 +692,11 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(widget.isFr ? 'Annuler' : 'Cancel'),
+          child: Text(widget.l10n.t('Annuler', 'Cancel')),
         ),
         ElevatedButton(
           onPressed: _selectedSourceNode == null ? null : _handleSave,
-          child: Text(widget.isFr ? 'Ajouter' : 'Add'),
+          child: Text(widget.l10n.t('Ajouter', 'Add')),
         ),
       ],
     );
@@ -732,11 +717,9 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.isFr
-              ? 'Partage ajouté. N\'oubliez pas de régénérer la politique ACL.'
-              : 'Share added. Don\'t forget to regenerate the ACL policy.'),
+          content: Text(widget.l10n.t('Partage ajouté. N\'oubliez pas de régénérer la politique ACL.', 'Share added. Don\'t forget to regenerate the ACL policy.')),
           action: SnackBarAction(
-            label: widget.isFr ? 'ACL' : 'ACL',
+            label: widget.l10n.t('ACL', 'ACL'),
             onPressed: () {
               // Navigation already handled by stack
             },

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart'; // For Clipboard
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:provider/provider.dart'; // For showSafeSnackBar
+import 'package:headscalemanager/l10n/l10n.dart';
 
 /// Dialogue pour afficher une commande CLI générée et permettre de la copier.
 ///
@@ -18,15 +19,13 @@ class CliCommandDisplayDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
-    final isFr = locale.languageCode == 'fr';
+    final l10n = L10n(locale);
     return AlertDialog(
-      title: Text(isFr ? 'Commande CLI' : 'CLI Command'),
+      title: Text(l10n.t('Commande CLI', 'CLI Command')),
       content: SingleChildScrollView(
         child: ListBody(
           children: <Widget>[
-            Text(isFr
-                ? 'Veuillez copier cette commande et l\'exécuter dans votre terminal où la CLI `headscale` est configurée.'
-                : 'Please copy this command and run it in your terminal where the `headscale` CLI is configured.'),
+            Text(l10n.t('Veuillez copier cette commande et l\'exécuter dans votre terminal où la CLI `headscale` est configurée.', 'Please copy this command and run it in your terminal where the `headscale` CLI is configured.')),
             const SizedBox(height: 16),
             // Diagnostic: Wrap SelectableText in a SizedBox with fixed dimensions
             SizedBox(
@@ -42,22 +41,20 @@ class CliCommandDisplayDialog extends StatelessWidget {
       ),
       actions: <Widget>[
         TextButton(
-          child: Text(isFr ? 'Fermer' : 'Close'),
+          child: Text(l10n.t('Fermer', 'Close')),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         ElevatedButton.icon(
           icon: const Icon(Icons.copy),
-          label: Text(isFr ? 'Copier la commande CLI' : 'Copy CLI Command'),
+          label: Text(l10n.t('Copier la commande CLI', 'Copy CLI Command')),
           onPressed: () async {
             await Clipboard.setData(ClipboardData(text: command));
             if (!context.mounted) return;
             showSafeSnackBar(
                 context,
-                isFr
-                    ? 'Commande copiée dans le presse-papiers !'
-                    : 'Command copied to clipboard!');
+                l10n.t('Commande copiée dans le presse-papiers !', 'Command copied to clipboard!'));
             Navigator.of(context).pop(); // Ferme le dialogue après copie
           },
         ),
