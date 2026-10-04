@@ -16,6 +16,12 @@ class WhatsNewVersion {
   static List<WhatsNewVersion> getVersions(L10n l10n) {
     return [
       WhatsNewVersion(
+        version: '2.2.2',
+        title: l10n.t('Release 2.2.2 — Signature de l\'APK corrigée', 'Release 2.2.2 — APK signing fixed', 'Release 2.2.2 — 修复安装包签名'),
+        description: l10n.t('Les APK sont désormais signés avec les trois schémas v1 (JAR), v2 et v3. Certains installateurs (systèmes anciens, ROM personnalisées) ne vérifient que la signature v1 et refusaient l\'installation avec « paquet sans fichier de signature ».', 'APKs are now signed with all three schemes - v1 (JAR), v2 and v3. Some installers (older systems, custom ROMs) only check the v1 signature and refused to install with "package has no signature file".', '安装包现在同时带有 v1（JAR）、v2、v3 三种签名。部分安装器（旧系统、定制 ROM）只校验 v1 签名，此前会以「安装包没有签名文件」为由拒绝安装。'),
+        verification: l10n.t('Installer l\'APK depuis la page Releases', 'Install the APK from the Releases page', '从 Releases 页面下载并安装 APK'),
+      ),
+      WhatsNewVersion(
         version: '2.2.1',
         title: l10n.t('Release 2.2.1 — Correctifs ACL et IP publique', 'Release 2.2.1 — ACL and public IP fixes', 'Release 2.2.1 — 修复 ACL 保存与公网 IP 获取'),
         description: l10n.t('1) Correction d\'une erreur 500 à l\'enregistrement de la politique ACL en présence d\'utilisateurs locaux (créés en CLI, sans « @ ») : les groupes utilisent désormais la forme exigée par Headscale (nom@). 2) L\'IP publique n\'est plus demandée à un seul service : plusieurs sources sont essayées avec un délai d\'attente, et un échec n\'affiche plus d\'erreur ni ne bloque le traceroute (l\'étiquette affiche « — »).', '1) Fixed a 500 error when saving the ACL policy while local (CLI-created, non-OIDC) users exist: groups now use the form Headscale requires (name@). 2) The public IP is no longer fetched from a single service: several sources are tried with a timeout, and a failure no longer shows an error or blocks the traceroute (the label shows "—").', '1) 修复存在本地用户（CLI 创建、无邮箱）时保存 ACL 策略报 500 的问题：策略中的用户引用现在写成 Headscale 要求的「用户名@」。2) 公网 IP 不再只依赖单一第三方服务：改用多个源并带超时；取不到时不再弹错误、也不再拖住路由追踪（标签显示「—」）。'),

@@ -56,6 +56,21 @@ android {
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
+                // 强制 v1(JAR) + v2 + v3 三种签名方案。
+                // AGP 默认在 minSdk >= 24 时只做 v2/v3，而部分安装器（旧系统、某些
+                // 国产 ROM / 定制安装器）只校验 v1，缺失时会报「解析失败，安装包没有
+                // 签名文件」。同时启用三种方案对体积影响很小，兼容性最好。
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+            }
+        }
+        // 无密钥库时回退的 debug 签名同样要带上 v1，
+        // 否则 CI 产出的 release APK 在那些安装器上依然装不上。
+        if (signingConfigs.findByName("debug") != null) {
+            getByName("debug") {
+                enableV1Signing = true
+                enableV2Signing = true
             }
         }
     }

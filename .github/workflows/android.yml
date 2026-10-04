@@ -84,6 +84,14 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
+      # 未配置 Secrets 时使用 AGP 自动生成的 debug keystore；缓存它，使不同次构建
+      # 使用同一把密钥，用户才能覆盖升级（否则每次构建都是新密钥）。
+      - name: Cache Android debug keystore
+        uses: actions/cache@v4
+        with:
+          path: ~/.android
+          key: android-debug-keystore-v1
+
       # 接受 SDK 许可并预装项目声明的 platform。许可被接受后，
       # AGP 也能在构建时自行下载缺失的 platform/build-tools/NDK。
       # 刻意容错（continue-on-error + || true）：即使 sdkmanager 不在 PATH 或
@@ -115,6 +123,19 @@ jobs:
 
       - name: flutter build apk --release
         run: flutter build apk --release
+
+      # 签名闸门：缺 v1(JAR) 签名时，部分安装器会报「解析失败，安装包没有签名文件」。
+      - name: 校验 APK 签名（必须含 v1 + v2/v3）
+        run: |
+          SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          BT="$(ls -d "$SDK"/build-tools/* | sort -V | tail -1)"
+          APK=build/app/outputs/flutter-apk/app-release.apk
+          "$BT/apksigner" verify --verbose --print-certs "$APK"
+          OUT="$("$BT/apksigner" verify --verbose "$APK" 2>&1)"
+          echo "$OUT" | grep -q "Verified using v1 scheme (JAR signing): true" \
+            || { echo "::error::APK 缺少 v1(JAR) 签名"; exit 1; }
+          echo "$OUT" | grep -qE "Verified using v(2|3) scheme.*: true" \
+            || { echo "::error::APK 缺少 v2/v3 签名"; exit 1; }
 
       # 想额外产出按 CPU 架构拆分的小体积 APK（体积约减半，但需按机型分发），
       # 取消下面这行注释即可（会与上面的通用包一起上传）：
