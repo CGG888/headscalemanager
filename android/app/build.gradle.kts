@@ -18,6 +18,12 @@ android {
         keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
     }
 
+    // 有正式密钥库（local 或 CI secrets 注入）时用正式签名；否则回退 debug 签名。
+    // 这样新克隆的仓库 / GitHub Actions 在没有密钥的情况下也能产出可安装的 release APK，
+    // 而不是直接构建失败。注意：debug 签名的 APK 不能上架 Play，也不能覆盖已用正式密钥安装的应用。
+    val releaseKeystoreFile = file(rootProject.projectDir.absolutePath + "/key.jks")
+    val hasReleaseKeystore = keystorePropertiesFile.exists() && releaseKeystoreFile.exists()
+
     compileOptions {
         // Flag to enable support for the new language APIs for desugaring
         isCoreLibraryDesugaringEnabled = true
@@ -44,11 +50,13 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            storeFile = file(rootProject.projectDir.absolutePath + "/key.jks")
-            storePassword = keystoreProperties.getProperty("storePassword")
-            keyAlias = keystoreProperties.getProperty("keyAlias")
-            keyPassword = keystoreProperties.getProperty("keyPassword")
+        if (hasReleaseKeystore) {
+            create("release") {
+                storeFile = releaseKeystoreFile
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
         }
     }
 
@@ -56,7 +64,11 @@ android {
         release {
             isMinifyEnabled = false
             isShrinkResources = false
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 系统语言为中文时，桌面图标显示此名称。
+         想统一使用英文品牌名，删除本文件即可（会回退到 values/strings.xml）。 -->
+    <string name="app_name">Headscale 管理器</string>
+</resources>

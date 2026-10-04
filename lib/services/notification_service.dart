@@ -140,7 +140,9 @@ void callbackDispatcher() {
 
         if (servers.isEmpty || activeServerId == null) {
           // print("No active server configured. Exiting background task.");
-          return Future.value(true);
+          // 直接 return true：外层是 async 回调，无需再包一层 Future（同时消除
+          // unawaited_return_in_try_block 警告，让 CI 的 flutter analyze 保持 0 问题）。
+          return true;
         }
 
         final activeServer = servers.firstWhere((s) => s.id == activeServerId);
