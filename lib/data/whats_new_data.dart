@@ -16,6 +16,12 @@ class WhatsNewVersion {
   static List<WhatsNewVersion> getVersions(L10n l10n) {
     return [
       WhatsNewVersion(
+        version: '2.2.0',
+        title: l10n.t('Release 2.2.0 — Prise en charge du chinois', 'Release 2.2.0 — Chinese support', 'Release 2.2.0 — 新增中文支持'),
+        description: l10n.t('Interface disponible en français, anglais et chinois simplifié, avec suivi de la langue du système au premier lancement. Traduction complète de l\'application, du guide d\'aide intégré et des messages d\'erreur de l\'API.', 'Interface available in French, English and Simplified Chinese, following the system language on first launch. Full translation of the app, the built-in help guide and the API error messages.', '界面支持法语、英语和简体中文，首次启动跟随系统语言。应用界面、内置帮助指南与 API 报错信息均已完整翻译。'),
+        verification: l10n.t('Paramètres > Langue > 中文', 'Settings > Language > Chinese', '设置 > 语言 > 中文'),
+      ),
+      WhatsNewVersion(
         version: '2.1.7',
         title: l10n.t('Release 2.1.7 — Normalisation des tags OIDC', 'Release 2.1.7 — OIDC Tag Normalization', 'Release 2.1.7 — OIDC 标签规范化'),
         description: l10n.t('Correction de l\'initialisation des tags pour les utilisateurs OIDC : normalisation automatique des noms contenant des points ou caractères spéciaux (conformité Tailscale/Headscale) et auto-résolution des permissions tagOwners.', 'Fixed tag initialization for OIDC users: automatic normalization of names containing dots or special characters (Tailscale/Headscale compliance) and auto-resolution of tagOwners permissions.', '修复 OIDC 用户的标签初始化：自动规范化含有点或特殊字符的名称（符合 Tailscale/Headscale 规范），并自动解析 tagOwners 权限。'),
