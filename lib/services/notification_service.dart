@@ -14,38 +14,120 @@ const String languageKey = 'APP_LANGUAGE';
 Map<String, String> _getTranslations(String lang, String nodeName,
     {bool? isOnline}) {
   final onlineStatus = isOnline ?? false;
-  if (lang == 'en') {
-    return {
-      'approval_title': 'Approval Required',
-      'approval_body': 'Node "$nodeName" is requesting new permissions.',
-      'cleanup_title': 'Route Deletion Warning',
-      'cleanup_body':
-          'Node "$nodeName" has orphaned routes that need to be deleted.',
-      'status_title': 'Status Change',
-      'status_body':
-          'Node "$nodeName" is now ${onlineStatus ? 'online' : 'offline'}.',
-    };
+  switch (lang) {
+    case 'en':
+      return {
+        'approval_title': 'Approval Required',
+        'approval_body': 'Node "$nodeName" is requesting new permissions.',
+        'cleanup_title': 'Route Deletion Warning',
+        'cleanup_body':
+            'Node "$nodeName" has orphaned routes that need to be deleted.',
+        'status_title': 'Status Change',
+        'status_body':
+            'Node "$nodeName" is now ${onlineStatus ? 'online' : 'offline'}.',
+      };
+    case 'zh':
+      return {
+        'approval_title': '需要审批',
+        'approval_body': '节点 "$nodeName" 正在申请新的权限。',
+        'cleanup_title': '路由删除提醒',
+        'cleanup_body': '节点 "$nodeName" 存在需要删除的孤立路由。',
+        'status_title': '状态变化',
+        'status_body': '节点 "$nodeName" 现在${onlineStatus ? '在线' : '离线'}。',
+      };
+    default:
+      // Default to French
+      return {
+        'approval_title': 'Approbation Requise',
+        'approval_body':
+            'Le nœud "$nodeName" demande de nouvelles permissions.',
+        'cleanup_title': 'Avertissement de Suppression',
+        'cleanup_body':
+            'Le nœud "$nodeName" a des routes orphelines à supprimer.',
+        'status_title': 'Changement de Statut',
+        'status_body':
+            'Le nœud "$nodeName" est maintenant ${onlineStatus ? 'en ligne' : 'hors ligne'}.',
+      };
   }
-  // Default to French
-  return {
-    'approval_title': 'Approbation Requise',
-    'approval_body': 'Le nœud "$nodeName" demande de nouvelles permissions.',
-    'cleanup_title': 'Avertissement de Suppression',
-    'cleanup_body': 'Le nœud "$nodeName" a des routes orphelines à supprimer.',
-    'status_title': 'Changement de Statut',
-    'status_body':
-        'Le nœud "$nodeName" est maintenant ${onlineStatus ? 'en ligne' : 'hors ligne'}.',
-  };
+}
+
+/// 通知渠道名与后台任务文案。
+///
+/// 通知运行在 Flutter 的 Localizations 体系之外（后台 isolate 里没有 context），
+/// 因此这里单独维护一份三语文案。渠道 ID 必须保持 ASCII 常量不变，否则老用户
+/// 会出现重复渠道、丢失已有的通知设置。
+class _NotifText {
+  final String foregroundChannel;
+  final String foregroundChannelDesc;
+  final String updateChannel;
+  final String updateChannelDesc;
+  final String persistentDesc;
+  final String checking;
+  final String analysing;
+
+  const _NotifText({
+    required this.foregroundChannel,
+    required this.foregroundChannelDesc,
+    required this.updateChannel,
+    required this.updateChannelDesc,
+    required this.persistentDesc,
+    required this.checking,
+    required this.analysing,
+  });
+
+  static _NotifText of(String lang) {
+    switch (lang) {
+      case 'en':
+        return const _NotifText(
+          foregroundChannel: 'Background tasks',
+          foregroundChannelDesc: 'Notifications for active background tasks.',
+          updateChannel: 'Headscale updates',
+          updateChannelDesc: 'Notifications about Headscale network state.',
+          persistentDesc: 'Persistent notification for background tasks.',
+          checking: 'Checking in progress',
+          analysing: 'Analysing network changes...',
+        );
+      case 'zh':
+        return const _NotifText(
+          foregroundChannel: '后台任务',
+          foregroundChannelDesc: '正在运行的后台任务通知。',
+          updateChannel: 'Headscale 更新',
+          updateChannelDesc: 'Headscale 网络状态通知。',
+          persistentDesc: '后台任务的常驻通知。',
+          checking: '正在检查',
+          analysing: '正在分析网络变化…',
+        );
+      default:
+        return const _NotifText(
+          foregroundChannel: 'Tâches de fond',
+          foregroundChannelDesc:
+              'Notifications pour les tâches de fond actives.',
+          updateChannel: 'Mises à jour Headscale',
+          updateChannelDesc:
+              'Notifications sur l\'état du réseau Headscale.',
+          persistentDesc:
+              'Notification persistante pour les tâches de fond.',
+          checking: 'Vérification en cours',
+          analysing: 'Analyse des changements réseau...',
+        );
+    }
+  }
 }
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     if (task == backgroundTaskName) {
+      // 后台 isolate 拿不到 UI 的 AppProvider.locale，只能读持久化的语言码。
+      final prefs = await SharedPreferences.getInstance();
+      final lang = prefs.getString(languageKey) ?? 'fr';
+      final notifText = _NotifText.of(lang);
+
       // print("Background task started: Checking node statuses...");
       await NotificationService.showPersistentNotification(
-        'Vérification en cours',
-        'Analyse des changements réseau...',
+        notifText.checking,
+        notifText.analysing,
+        lang: lang,
       );
       try {
         final storageService = StorageService();
@@ -66,9 +148,6 @@ void callbackDispatcher() {
           baseUrl: activeServer.url,
         );
         final List<Node> nodes = await apiService.getNodes();
-        final prefs = await SharedPreferences.getInstance();
-
-        final lang = prefs.getString(languageKey) ?? 'fr';
 
         // --- Logic for Approval/Cleanup notifications ---
         final approvalNotifiedIds =
@@ -151,15 +230,23 @@ class NotificationService {
 
   static const int _persistentNotificationId = 0;
   static const String _foregroundChannelId = 'headscale_foreground_channel';
+  // 渠道 ID 保持不变（ASCII），只本地化可见的名称与描述。
+  static const String _updateChannelId = 'headscale_manager_channel';
+
+  /// 当前语言下的通知文案（后台 isolate 没有 context，只能读持久化语言码）。
+  static Future<_NotifText> _currentText() async {
+    final prefs = await SharedPreferences.getInstance();
+    return _NotifText.of(prefs.getString(languageKey) ?? 'fr');
+  }
 
   static Future<void> initialize() async {
     // Create a separate channel for the foreground service
-    const AndroidNotificationChannel foregroundChannel =
+    final notifText = await _currentText();
+    final AndroidNotificationChannel foregroundChannel =
         AndroidNotificationChannel(
       _foregroundChannelId,
-      'Tâches de fond', // title
-      description:
-          'Notifications pour les tâches de fond actives.', // description
+      notifText.foregroundChannel, // title
+      description: notifText.foregroundChannelDesc, // description
       importance: Importance.low, // Use low importance to be less intrusive
     );
 
@@ -204,15 +291,16 @@ class NotificationService {
 
   static Future<void> showNotification(String title, String body) async {
     final int id = title.hashCode + body.hashCode;
-    const AndroidNotificationDetails androidDetails =
+    final notifText = await _currentText();
+    final AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-      'headscale_manager_channel',
-      'Mises à jour Headscale',
-      channelDescription: 'Notifications sur l\'état du réseau Headscale.',
+      _updateChannelId,
+      notifText.updateChannel,
+      channelDescription: notifText.updateChannelDesc,
       importance: Importance.max,
       priority: Priority.high,
     );
-    const NotificationDetails notificationDetails =
+    final NotificationDetails notificationDetails =
         NotificationDetails(android: androidDetails);
 
     await _notificationsPlugin.show(
@@ -224,12 +312,13 @@ class NotificationService {
   }
 
   static Future<void> showPersistentNotification(
-      String title, String body) async {
+      String title, String body, {String? lang}) async {
+    final notifText = lang == null ? await _currentText() : _NotifText.of(lang);
     final AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
       _foregroundChannelId,
-      'Tâches de fond',
-      channelDescription: 'Notification persistante pour les tâches de fond.',
+      notifText.foregroundChannel,
+      channelDescription: notifText.persistentDesc,
       importance: Importance.low,
       priority: Priority.low,
       ongoing: true,

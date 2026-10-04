@@ -8,6 +8,7 @@ import 'package:headscalemanager/services/notification_service.dart';
 import 'package:headscalemanager/services/storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:headscalemanager/models/acl_engine_mode.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/models/acl_puzzle_model.dart';
 import 'package:headscalemanager/models/version_info.dart';
@@ -20,7 +21,17 @@ class AppProvider extends ChangeNotifier {
 
   final Completer<void> _initializationCompleter = Completer<void>();
   bool _isLoading = false;
-  Locale _locale = const Locale('fr');
+  /// 未显式设置过语言时跟随系统；系统语言不在支持列表内则回退法语。
+  Locale _locale = _initialLocale();
+
+  static Locale _initialLocale() {
+    final system =
+        WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+    if (L10n.supportedLanguageCodes.contains(system)) {
+      return Locale(system);
+    }
+    return const Locale('fr');
+  }
   List<Server> _servers = [];
   Server? _activeServer;
   List<TaildriveShare> _taildriveShares = [];
@@ -369,7 +380,9 @@ class AppProvider extends ChangeNotifier {
 
   Future<void> _loadLocale() async {
     final languageCode = await _storageService.getLanguage();
-    if (languageCode != null) {
+    // 只接受受支持的语言码，避免历史/异常数据把界面变成未知语言。
+    if (languageCode != null &&
+        L10n.supportedLanguageCodes.contains(languageCode)) {
       _locale = Locale(languageCode);
       notifyListeners();
     }

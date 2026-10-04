@@ -354,16 +354,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           SpeedDialChild(
-            child: Text(l10n.t('EN', 'FR')),
-            label: l10n.t('Switch to English', 'Passer en Français'),
-            onTap: () {
-              final newLocale = l10n.isFr ? const Locale('en') : const Locale('fr');
-              appProvider.setLocale(newLocale);
-            },
+            child: Text(l10n.languageCode.toUpperCase()),
+            label: l10n.t('Langue', 'Language', '语言'),
+            onTap: () => _showLanguagePicker(context, appProvider),
           ),
         ],
       ),
     );
+  }
+
+  /// 语言选择：法语 / 英语 / 中文（原来是 fr<->en 的二元开关）。
+  Future<void> _showLanguagePicker(
+      BuildContext context, AppProvider appProvider) async {
+    final l10n = L10n(appProvider.locale);
+    // 语言名一律用其本族语书写，避免用户看不懂当前语言的选项。
+    const options = <String, String>{
+      'fr': 'Français',
+      'en': 'English',
+      'zh': '中文',
+    };
+
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(l10n.t('Langue', 'Language', '语言')),
+        children: options.entries.map((entry) {
+          final isCurrent = appProvider.locale.languageCode == entry.key;
+          return SimpleDialogOption(
+            onPressed: () => Navigator.of(dialogContext).pop(entry.key),
+            child: Row(
+              children: [
+                Icon(
+                  isCurrent
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  size: 20,
+                  color: Theme.of(dialogContext).colorScheme.primary,
+                ),
+                const SizedBox(width: 12),
+                Text(entry.value),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+
+    if (selected != null) {
+      await appProvider.setLocale(Locale(selected));
+    }
   }
 
   Widget _buildServerList(BuildContext context) {

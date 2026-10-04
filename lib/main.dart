@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
@@ -32,10 +33,7 @@ class MyApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: const [
-              Locale('en', ''),
-              Locale('fr', ''),
-            ],
+            supportedLocales: L10n.supportedLocales,
             home: const SplashScreen(),
           );
         },
