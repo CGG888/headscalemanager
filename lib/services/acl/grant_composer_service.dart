@@ -1,3 +1,4 @@
+import 'package:headscalemanager/l10n/l10n.dart';
 import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/models/user.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
@@ -126,15 +127,16 @@ class GrantComposerService {
   static List<GrantComposerOption> destinationOptions({
     required List<Node> nodes,
     required GrantComposerTemplate template,
+    required L10n l10n,
     String? restrictToOwnerNorm,
   }) {
     final options = <GrantComposerOption>[];
 
     if (template == GrantComposerTemplate.internetExit) {
-      options.add(const GrantComposerOption(
+      options.add(GrantComposerOption(
         value: 'autogroup:internet',
         label: 'autogroup:internet',
-        subtitle: 'Internet',
+        subtitle: l10n.t('Internet', 'Internet', '互联网'),
       ));
       return options;
     }
@@ -187,7 +189,7 @@ class GrantComposerService {
       options.add(GrantComposerOption(
         value: route,
         label: route,
-        subtitle: 'Subnet',
+        subtitle: l10n.t('Subnet', 'Subnet', '子网'),
       ));
     }
     return options;

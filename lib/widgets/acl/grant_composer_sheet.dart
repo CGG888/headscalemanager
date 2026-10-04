@@ -406,6 +406,7 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
           ...GrantComposerService.destinationOptions(
             nodes: widget.nodes,
             template: _template,
+            l10n: widget.l10n,
           ).map((o) => _destTile(o)),
         ],
       );
@@ -415,10 +416,12 @@ class _GrantComposerSheetState extends State<GrantComposerSheet> {
         ? GrantComposerService.destinationOptions(
             nodes: widget.nodes,
             template: GrantComposerTemplate.targetedIp,
+            l10n: widget.l10n,
           )
         : GrantComposerService.destinationOptions(
             nodes: widget.nodes,
             template: _template,
+            l10n: widget.l10n,
             restrictToOwnerNorm: _template == GrantComposerTemplate.lanAccess
                 ? _routerOwnerNorm()
                 : null,

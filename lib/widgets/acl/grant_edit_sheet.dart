@@ -82,14 +82,17 @@ class _GrantEditSheetState extends State<GrantEditSheet> {
     final dstOptions = GrantComposerService.destinationOptions(
       nodes: widget.nodes,
       template: GrantComposerTemplate.lanAccess,
+      l10n: widget.l10n,
     )
       ..addAll(GrantComposerService.destinationOptions(
         nodes: widget.nodes,
         template: GrantComposerTemplate.internetExit,
+        l10n: widget.l10n,
       ))
       ..addAll(GrantComposerService.destinationOptions(
         nodes: widget.nodes,
         template: GrantComposerTemplate.intraFleet,
+        l10n: widget.l10n,
       ));
 
     final uniqueDst = <String, GrantComposerOption>{};
