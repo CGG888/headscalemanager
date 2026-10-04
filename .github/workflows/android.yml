@@ -84,13 +84,13 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      # 未配置 Secrets 时使用 AGP 自动生成的 debug keystore；缓存它，使不同次构建
-      # 使用同一把密钥，用户才能覆盖升级（否则每次构建都是新密钥）。
-      - name: Cache Android debug keystore
+      # 签名密钥：优先用 Secrets 里的正式密钥；没有则自建一把并缓存，
+      # 使多次构建使用同一把密钥（否则每次构建都是新密钥，用户无法覆盖升级）。
+      - name: Cache CI signing keystore
         uses: actions/cache@v4
         with:
-          path: ~/.android
-          key: android-debug-keystore-v1
+          path: ~/.ci-signing
+          key: ci-signing-keystore-v1
 
       # 接受 SDK 许可并预装项目声明的 platform。许可被接受后，
       # AGP 也能在构建时自行下载缺失的 platform/build-tools/NDK。
@@ -105,13 +105,33 @@ jobs:
           yes | "$SDKMANAGER" "platforms;android-36" || true
           echo "SDK 组件准备结束（缺失部分由 AGP 在构建时补齐）"
 
-      - name: 注入正式签名密钥（仅在配置了 Secrets 时）
-        if: ${{ env.KEYSTORE_B64 != '' }}
+      - name: 准备签名密钥（优先 Secrets，否则自建并缓存）
         run: |
-          echo "$KEYSTORE_B64" | base64 --decode > android/key.jks
-          printf 'storePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
-            "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > android/key.properties
-          echo "::notice::已注入正式签名密钥（release APK 将使用正式签名）"
+          mkdir -p "$HOME/.ci-signing"
+          KS="$HOME/.ci-signing/signing.jks"
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 --decode > "$KS"
+            SP="$KEYSTORE_PASSWORD"; ALIAS="$KEY_ALIAS"; KP="$KEY_PASSWORD"
+            echo "::notice::使用 Secrets 中配置的正式签名密钥"
+          else
+            SP=android; ALIAS=ci; KP=android
+            if [ ! -f "$KS" ]; then
+              keytool -genkeypair -keystore "$KS" -storepass "$SP" -keypass "$KP" \
+                -alias "$ALIAS" -keyalg RSA -keysize 2048 -validity 10000 \
+                -dname "CN=Headscale Manager CI, O=CGG888, C=CN"
+              echo "::warning::未配置 Secrets，已新建签名密钥并缓存。缓存若被清理则密钥会变化，届时用户需卸载重装；建议在仓库 Secrets 中配置正式密钥。"
+            else
+              echo "::notice::复用缓存的签名密钥（跨构建保持稳定）"
+            fi
+          fi
+          cp "$KS" android/key.jks
+          printf 'storePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' "$SP" "$ALIAS" "$KP" > android/key.properties
+          {
+            echo "SIGN_KS=$KS"
+            echo "SIGN_ALIAS=$ALIAS"
+            echo "SIGN_STORE_PASS=$SP"
+            echo "SIGN_KEY_PASS=$KP"
+          } >> "$GITHUB_ENV"
 
       - name: flutter pub get
         run: flutter pub get
@@ -124,37 +144,27 @@ jobs:
       - name: flutter build apk --release
         run: flutter build apk --release
 
-      # 签名闸门 + 自愈：缺 v1(JAR) 时用 apksigner 补签（v1+v2+v3），再校验。
-      - name: 校验（并必要时补签）APK 签名
+      # 统一重签为 v1+v2+v3 并校验（理由同 release.yml：AGP 在 minSdk>=24 时
+      # 可能只产出 v2/v3，而缺 v1 会让部分安装器报「安装包没有签名文件」）。
+      - name: 重签为 v1+v2+v3 并校验
         run: |
           set -o pipefail
-          SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-          BT="$(ls -d "$SDK"/build-tools/* | sort -V | tail -1)"
+          BT="$(ls -d "${ANDROID_HOME:-/usr/local/lib/android/sdk}"/build-tools/* | sort -V | tail -1)"
           APK=build/app/outputs/flutter-apk/app-release.apk
+          echo "使用 $BT/apksigner，密钥 $SIGN_KS"
+          "$BT/zipalign" -f -p 4 "$APK" "$APK.aligned"
+          "$BT/apksigner" sign \
+            --ks "$SIGN_KS" --ks-pass "pass:$SIGN_STORE_PASS" \
+            --key-pass "pass:$SIGN_KEY_PASS" --ks-key-alias "$SIGN_ALIAS" \
+            --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
+            --out "$APK" "$APK.aligned"
+          rm -f "$APK.aligned"
           OUT="$("$BT/apksigner" verify --verbose --print-certs "$APK" 2>&1 || true)"
           echo "$OUT"
-          if echo "$OUT" | grep -q "Verified using v1 scheme (JAR signing): true"; then
-            echo "::notice::v1 + v2/v3 签名齐备"
-          else
-            echo "::warning::缺少 v1(JAR) 签名，使用 apksigner 补签"
-            if [ -f android/key.jks ]; then
-              KS=android/key.jks; ALIAS="$KEY_ALIAS"; SP="$KEYSTORE_PASSWORD"; KP="$KEY_PASSWORD"
-            else
-              KS="$HOME/.android/debug.keystore"; ALIAS=androiddebugkey; SP=android; KP=android
-            fi
-            "$BT/zipalign" -f -p 4 "$APK" "$APK.aligned"
-            "$BT/apksigner" sign --ks "$KS" --ks-pass "pass:$SP" --key-pass "pass:$KP" \
-              --ks-key-alias "$ALIAS" \
-              --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
-              --out "$APK" "$APK.aligned"
-            rm -f "$APK.aligned"
-            OUT="$("$BT/apksigner" verify --verbose --print-certs "$APK" 2>&1 || true)"
-            echo "$OUT"
-          fi
           echo "$OUT" | grep -q "Verified using v1 scheme (JAR signing): true" \
-            || { echo "::error::APK 缺少 v1(JAR) 签名"; exit 1; }
+            || { echo "::error::重签后仍缺 v1(JAR) 签名"; exit 1; }
           echo "$OUT" | grep -qE "Verified using v(2|3) scheme.*: true" \
-            || { echo "::error::APK 缺少 v2/v3 签名"; exit 1; }
+            || { echo "::error::重签后仍缺 v2/v3 签名"; exit 1; }
 
       # 想额外产出按 CPU 架构拆分的小体积 APK（体积约减半，但需按机型分发），
       # 取消下面这行注释即可（会与上面的通用包一起上传）：
