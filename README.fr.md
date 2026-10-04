@@ -17,6 +17,17 @@ Cette application est une application flutter et vous permet de compiler pour IO
 Le code est libre d'utilisation.
 Ce projet n'est actuellement publié ni sur Google Play ni sur l'App Store. Installez-le uniquement depuis les Releases de ce dépôt ; toute autre source (y compris une version payante portant le même nom dans une boutique) est sans lien avec ce projet et l'auteur n'en est pas responsable.
 
+### Note du dépôt d'origine (conservée telle quelle)
+
+Extrait du dépôt d'origine [hkdone/headscalemanager](https://github.com/hkdone/headscalemanager) :
+
+> Sachez toutefois que j'ai publié gratuitement l'application sur le playstore et que je ne suis pas responsable d'une version payante sur applestore qu'un utilisateur pourrais publier.
+
+### Remerciements
+
+- Merci à [hkdone/headscalemanager](https://github.com/hkdone/headscalemanager) — l'application de base et le guide d'utilisation proviennent de ce dépôt.
+- Merci à [juanfont/headscale](https://github.com/juanfont/headscale) — le serveur que cette application gère.
+
 ![AISelect_20251120_140826](https://github.com/user-attachments/assets/c4026256-2474-4ded-bc26-67302d825d54)
 
 

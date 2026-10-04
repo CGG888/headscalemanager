@@ -17,6 +17,17 @@ This application is a flutter application and allows you to compile for IOS, MAC
 The code is free to use.
 This project is not currently published on Google Play or the App Store. Please install it only from this repository's Releases; any other source (including a paid copy under the same name in an app store) is unrelated to this project and the author is not responsible for it.
 
+### Original repository note (kept verbatim)
+
+From the original repository [hkdone/headscalemanager](https://github.com/hkdone/headscalemanager):
+
+> However, please be aware that I have published the application for free on the Play Store and I am not responsible for any paid version on the App Store that a user might publish.
+
+### Credits
+
+- Thanks to [hkdone/headscalemanager](https://github.com/hkdone/headscalemanager) - the base application and user guide come from that repository.
+- Thanks to [juanfont/headscale](https://github.com/juanfont/headscale) - the server this application manages.
+
 ![AISelect_20251120_140826](https://github.com/user-attachments/assets/9f88d2b5-77b6-4129-bed5-70f32e558765)
 
 

@@ -150,4 +150,15 @@ flutter build apk --release
 
 - 本项目是 Flutter 应用，按需可编译到 iOS、macOS、Web、Windows（当前自动化构建只覆盖 Android）。
 - 代码可自由使用。
-- **本项目目前未在 Google Play 或 App Store 上架**。请只从本仓库的 [Releases](https://github.com/CGG888/headscalemanager/releases) 获取安装包；其他渠道（包括应用商店中同名的付费版本）与本项目无关，作者不对此负责。
+- **本项目目前未在 Google Play 或 App Store 上架**。请只从本仓库的 [Releases](https://github.com/CGG888/headscalemanager/releases) 获取安装包；其他渠道（包括应用商店中同名的付费版本）与本仓库无关，本仓库不对此负责。
+
+### 原仓库说明（原文保留）
+
+摘自原仓库 [hkdone/headscalemanager](https://github.com/hkdone/headscalemanager)：
+
+> 作者已将应用免费发布在 Play 商店，不对他人在 App Store 发布的付费版本负责。
+
+### 致谢
+
+- 感谢 [hkdone/headscalemanager](https://github.com/hkdone/headscalemanager)——本项目的基础应用与使用文档来自该仓库。
+- 感谢 [juanfont/headscale](https://github.com/juanfont/headscale)——本应用所管理的服务端。
