@@ -1,3 +1,5 @@
+import 'dart:ui' show Locale;
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:headscalemanager/api/headscale_api_service.dart';
 import 'package:headscalemanager/models/node.dart';
@@ -146,6 +148,7 @@ void callbackDispatcher() {
         final apiService = HeadscaleApiService(
           apiKey: activeServer.apiKey,
           baseUrl: activeServer.url,
+          locale: Locale(lang),
         );
         final List<Node> nodes = await apiService.getNodes();
 

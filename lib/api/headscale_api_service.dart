@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:ui' show Locale;
+import 'package:headscalemanager/l10n/l10n.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:headscalemanager/models/node.dart';
@@ -7,35 +9,145 @@ import 'package:headscalemanager/models/pre_auth_key.dart';
 import 'package:headscalemanager/models/api_key.dart';
 import '../models/version_info.dart';
 
+/// 与界面语言无关的 API 操作标识。
+///
+/// 逻辑只依赖枚举本身，展示文案由 [label] 交给 L10n —— 这样"把报错翻成中文"
+/// 不会影响任何判断，也不会再像以前那样把法语动词短语硬编码进异常。
+enum ApiOperation {
+  loadNodes,
+  loadNodeDetails,
+  registerMachine,
+  loadUsers,
+  createUser,
+  createPreAuthKey,
+  loadAclPolicy,
+  saveAclPolicy,
+  deleteUser,
+  deleteNode,
+  setNodeRoutes,
+  renameNode,
+  moveNode,
+  renameUser,
+  loadKeys,
+  expireKey,
+  expirePreAuthKey,
+  listApiKeys,
+  createApiKey,
+  expireApiKey,
+  deleteApiKey,
+  setTags,
+  fetchVersion,
+  serviceUnavailable;
+
+  /// 操作名（动宾短语），用于拼「XX 失败」。
+  String label(L10n l) => switch (this) {
+        ApiOperation.loadNodes => l.t('charger les nœuds', 'load nodes', '加载节点'),
+        ApiOperation.loadNodeDetails =>
+          l.t('charger les détails du nœud', 'load node details', '加载节点详情'),
+        ApiOperation.registerMachine =>
+          l.t('enregistrer la machine', 'register the machine', '注册设备'),
+        ApiOperation.loadUsers =>
+          l.t('charger les utilisateurs', 'load users', '加载用户'),
+        ApiOperation.createUser =>
+          l.t('créer un utilisateur', 'create a user', '创建用户'),
+        ApiOperation.createPreAuthKey => l.t('créer une clé de pré-authentification',
+            'create a pre-auth key', '创建预认证密钥'),
+        ApiOperation.loadAclPolicy =>
+          l.t('charger la politique ACL', 'load the ACL policy', '加载 ACL 策略'),
+        ApiOperation.saveAclPolicy =>
+          l.t('sauvegarder la politique ACL', 'save the ACL policy', '保存 ACL 策略'),
+        ApiOperation.deleteUser =>
+          l.t('supprimer l\'utilisateur', 'delete the user', '删除用户'),
+        ApiOperation.deleteNode =>
+          l.t('supprimer le nœud', 'delete the node', '删除节点'),
+        ApiOperation.setNodeRoutes =>
+          l.t('définir les routes du nœud', 'set the node routes', '设置节点路由'),
+        ApiOperation.renameNode =>
+          l.t('renommer le nœud', 'rename the node', '重命名节点'),
+        ApiOperation.moveNode => l.t('déplacer le nœud', 'move the node', '移动节点'),
+        ApiOperation.renameUser =>
+          l.t('renommer l\'utilisateur', 'rename the user', '重命名用户'),
+        ApiOperation.loadKeys => l.t(
+            'charger les clés (v0.28+)', 'load keys (v0.28+)', '加载密钥（v0.28+）'),
+        ApiOperation.expireKey =>
+          l.t('expirer la clé', 'expire the key', '使密钥过期'),
+        ApiOperation.expirePreAuthKey => l.t('expirer la clé de pré-authentification',
+            'expire the pre-auth key', '使预认证密钥过期'),
+        ApiOperation.listApiKeys =>
+          l.t('lister les clés API', 'list API keys', '列出 API 密钥'),
+        ApiOperation.createApiKey =>
+          l.t('créer la clé API', 'create the API key', '创建 API 密钥'),
+        ApiOperation.expireApiKey =>
+          l.t('expirer la clé API', 'expire the API key', '使 API 密钥过期'),
+        ApiOperation.deleteApiKey =>
+          l.t('supprimer la clé API', 'delete the API key', '删除 API 密钥'),
+        ApiOperation.setTags => l.t('définir les tags', 'set the tags', '设置标签'),
+        ApiOperation.fetchVersion => l.t('récupérer la version du serveur',
+            'fetch the server version', '获取服务器版本'),
+        ApiOperation.serviceUnavailable => l.t(
+            'initialiser le client API', 'initialise the API client', '初始化 API 客户端'),
+      };
+}
+
 /// API 调用失败时抛出的异常。
 ///
-/// [message] 面向用户展示（将来会被本地化），
-/// [rawBody] 是服务端原始响应体，**仅供逻辑判断**（例如判定某个 tag
-/// 尚未出现在 ACL 的 tagOwners 中），因此禁止本地化或改写。
+/// [rawBody] 是服务端原始响应体，**仅供逻辑判断**（例如判定某个 tag 尚未出现在
+/// ACL 的 tagOwners 中），因此禁止本地化或改写；面向用户的文字由 [message] 依据
+/// 传入的 [L10n] 现算，因此语言切换后新抛出的异常自然跟随界面语言。
 class HeadscaleApiException implements Exception {
-  final String message;
-  final String rawBody;
-  final int statusCode;
+  final ApiOperation operation;
 
-  const HeadscaleApiException(
-    this.message, {
-    this.rawBody = '',
+  /// 抛出时的界面语言，供 [toString] 使用。
+  final L10n l10n;
+
+  /// 语言无关的补充信息（如密钥 ID），会附在操作名后。
+  final String? detail;
+
+  final int statusCode;
+  final String rawBody;
+
+  const HeadscaleApiException({
+    required this.operation,
+    required this.l10n,
+    this.detail,
     this.statusCode = 0,
+    this.rawBody = '',
   });
 
+  /// 按指定语言生成给用户看的消息。
+  String message(L10n l) {
+    final op = operation.label(l);
+    final label = detail == null ? op : '$op（$detail）';
+    if (statusCode == 0 && rawBody.isEmpty) {
+      return l.t('Échec : $label', 'Failed: $label', '$label失败');
+    }
+    return l.t(
+      'Échec : $label. Statut : $statusCode, Corps : $rawBody',
+      'Failed: $label. Status: $statusCode, Body: $rawBody',
+      '$label失败。状态码：$statusCode，响应：$rawBody',
+    );
+  }
+
   @override
-  String toString() => message;
+  String toString() => message(l10n);
 }
 
 class HeadscaleApiService {
   final String _apiKey;
   final String _baseUrl;
 
-  HeadscaleApiService({required String apiKey, required String baseUrl})
+  /// 生成错误消息所用的界面语言；由 AppProvider 在切换语言时更新。
+  L10n _l10n;
+
+  HeadscaleApiService(
+      {required String apiKey, required String baseUrl, Locale? locale})
       : _apiKey = apiKey,
         _baseUrl = baseUrl.endsWith('/')
             ? baseUrl.substring(0, baseUrl.length - 1)
-            : baseUrl;
+            : baseUrl,
+        _l10n = L10n(locale ?? const Locale('fr'));
+
+  set locale(Locale value) => _l10n = L10n(value);
 
   Map<String, String> _getHeaders() {
     return {
@@ -45,9 +157,12 @@ class HeadscaleApiService {
     };
   }
 
-  HeadscaleApiException _handleError(String functionName, http.Response response) {
+  HeadscaleApiException _handleError(ApiOperation operation,
+      http.Response response, {String? detail}) {
     return HeadscaleApiException(
-      'Échec de $functionName. Statut : ${response.statusCode}, Corps : ${response.body}',
+      operation: operation,
+      l10n: _l10n,
+      detail: detail,
       rawBody: response.body,
       statusCode: response.statusCode,
     );
@@ -69,7 +184,7 @@ class HeadscaleApiService {
               Node.fromJson(nodeJson as Map<String, dynamic>, baseDomain))
           .toList();
     } else {
-      throw _handleError('charger les nœuds', response);
+      throw _handleError(ApiOperation.loadNodes, response);
     }
   }
 
@@ -84,7 +199,7 @@ class HeadscaleApiService {
     if (response.statusCode == 200) {
       return Node.fromJson(json.decode(response.body)['node'], baseDomain);
     } else {
-      throw _handleError('charger les détails du nœud', response);
+      throw _handleError(ApiOperation.loadNodeDetails, response);
     }
   }
 
@@ -101,7 +216,7 @@ class HeadscaleApiService {
       final data = json.decode(response.body);
       return Node.fromJson(data['node'], baseDomain);
     } else {
-      throw _handleError('enregistrer la machine', response);
+      throw _handleError(ApiOperation.registerMachine, response);
     }
   }
 
@@ -116,7 +231,7 @@ class HeadscaleApiService {
       final List<dynamic> usersJson = data['users'];
       return usersJson.map((json) => User.fromJson(json)).toList();
     } else {
-      throw _handleError('charger les utilisateurs', response);
+      throw _handleError(ApiOperation.loadUsers, response);
     }
   }
 
@@ -130,7 +245,7 @@ class HeadscaleApiService {
     if (response.statusCode == 200) {
       return User.fromJson(json.decode(response.body));
     } else {
-      throw _handleError('créer un utilisateur', response);
+      throw _handleError(ApiOperation.createUser, response);
     }
   }
 
@@ -162,7 +277,7 @@ class HeadscaleApiService {
       final preAuthKeyJson = data['preAuthKey'];
       return PreAuthKey.fromJson(preAuthKeyJson);
     } else {
-      throw _handleError('créer une clé de pré-authentification', response);
+      throw _handleError(ApiOperation.createPreAuthKey, response);
     }
   }
 
@@ -180,7 +295,7 @@ class HeadscaleApiService {
         return '';
       }
     } else {
-      throw _handleError('charger la politique ACL', response);
+      throw _handleError(ApiOperation.loadAclPolicy, response);
     }
   }
 
@@ -194,7 +309,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw _handleError('sauvegarder la politique ACL', response);
+      throw _handleError(ApiOperation.saveAclPolicy, response);
     }
   }
 
@@ -205,7 +320,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw _handleError('supprimer l\'utilisateur', response);
+      throw _handleError(ApiOperation.deleteUser, response);
     }
   }
 
@@ -216,7 +331,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw _handleError('supprimer le nœud', response);
+      throw _handleError(ApiOperation.deleteNode, response);
     }
   }
 
@@ -228,7 +343,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw _handleError('définir les routes du nœud', response);
+      throw _handleError(ApiOperation.setNodeRoutes, response);
     }
   }
 
@@ -239,7 +354,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw _handleError('renommer le nœud', response);
+      throw _handleError(ApiOperation.renameNode, response);
     }
   }
 
@@ -251,7 +366,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw _handleError('déplacer le nœud', response);
+      throw _handleError(ApiOperation.moveNode, response);
     }
   }
 
@@ -262,7 +377,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw _handleError('renommer l\'utilisateur', response);
+      throw _handleError(ApiOperation.renameUser, response);
     }
   }
 
@@ -283,7 +398,7 @@ class HeadscaleApiService {
         allPreAuthKeys
             .addAll(keysJson.map((json) => PreAuthKey.fromJson(json)).toList());
       } else {
-        throw _handleError('charger les clés (v0.28+)', response);
+        throw _handleError(ApiOperation.loadKeys, response);
       }
       return allPreAuthKeys;
     }
@@ -324,7 +439,7 @@ class HeadscaleApiService {
         }),
       );
       if (response.statusCode != 200) {
-        throw _handleError('expirer la clé (ID $keyId)', response);
+        throw _handleError(ApiOperation.expireKey, response, detail: keyId);
       }
       return;
     }
@@ -339,7 +454,7 @@ class HeadscaleApiService {
       }),
     );
     if (response.statusCode != 200) {
-      throw _handleError('expirer la clé de pré-authentification', response);
+      throw _handleError(ApiOperation.expirePreAuthKey, response);
     }
   }
 
@@ -354,7 +469,7 @@ class HeadscaleApiService {
       final List<dynamic> apiKeysJson = data['apiKeys'];
       return apiKeysJson.map((json) => ApiKey.fromJson(json)).toList();
     } else {
-      throw _handleError('lister les clés API', response);
+      throw _handleError(ApiOperation.listApiKeys, response);
     }
   }
 
@@ -374,7 +489,7 @@ class HeadscaleApiService {
       final data = json.decode(response.body);
       return data['apiKey'];
     } else {
-      throw _handleError('créer la clé API', response);
+      throw _handleError(ApiOperation.createApiKey, response);
     }
   }
 
@@ -386,7 +501,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw _handleError('expirer la clé API', response);
+      throw _handleError(ApiOperation.expireApiKey, response);
     }
   }
 
@@ -397,7 +512,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw _handleError('supprimer la clé API', response);
+      throw _handleError(ApiOperation.deleteApiKey, response);
     }
   }
 
@@ -414,7 +529,7 @@ class HeadscaleApiService {
       final data = json.decode(response.body);
       return Node.fromJson(data['node'], baseDomain);
     } else {
-      throw _handleError('définir les tags', response);
+      throw _handleError(ApiOperation.setTags, response);
     }
   }
 
@@ -429,7 +544,10 @@ class HeadscaleApiService {
     if (response.statusCode == 200) {
       return VersionInfo.fromJson(json.decode(response.body));
     } else {
-      throw Exception('Impossible de récupérer la version du serveur');
+      throw HeadscaleApiException(
+        operation: ApiOperation.fetchVersion,
+        l10n: _l10n,
+      );
     }
   }
 }

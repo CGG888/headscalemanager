@@ -110,7 +110,10 @@ class AppProvider extends ChangeNotifier {
 
   HeadscaleApiService get apiService {
     if (_apiService == null) {
-      throw Exception("ApiService not initialized. No active server found.");
+      throw HeadscaleApiException(
+        operation: ApiOperation.serviceUnavailable,
+        l10n: L10n(_locale),
+      );
     }
     return _apiService!;
   }
@@ -415,6 +418,7 @@ class AppProvider extends ChangeNotifier {
       _apiService = HeadscaleApiService(
         apiKey: _activeServer!.apiKey,
         baseUrl: _activeServer!.url,
+        locale: _locale,
       );
     }
     notifyListeners();
@@ -423,6 +427,8 @@ class AppProvider extends ChangeNotifier {
   Future<void> setLocale(Locale newLocale) async {
     if (_locale != newLocale) {
       _locale = newLocale;
+      // 让后续 API 报错也跟随界面语言。
+      _apiService?.locale = newLocale;
       await _storageService.saveLanguage(newLocale.languageCode);
       notifyListeners();
     }
@@ -471,6 +477,7 @@ class AppProvider extends ChangeNotifier {
     _apiService = HeadscaleApiService(
       apiKey: _activeServer!.apiKey,
       baseUrl: _activeServer!.url,
+      locale: _locale,
     );
     await _loadTaildriveShares();
     await _loadPuzzleMetadata();
