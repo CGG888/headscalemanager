@@ -40,7 +40,6 @@
 | 方式 | 说明 |
 |---|---|
 | **GitHub Releases（推荐）** | 到 [Releases](https://github.com/CGG888/headscalemanager/releases) 下载最新版 `headscalemanager-vX.Y.Z.apk`，由 GitHub Actions 自动构建 |
-| **Play 商店** | <https://play.google.com/store/apps/details?id=com.dkstudio.headscalemanager> |
 | **自行构建** | 见 [从源码构建](#从源码构建) |
 
 安装时需在手机上允许「安装未知来源应用」。
