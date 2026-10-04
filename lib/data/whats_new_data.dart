@@ -16,6 +16,12 @@ class WhatsNewVersion {
   static List<WhatsNewVersion> getVersions(L10n l10n) {
     return [
       WhatsNewVersion(
+        version: '2.2.1',
+        title: l10n.t('Release 2.2.1 — Correctifs ACL et IP publique', 'Release 2.2.1 — ACL and public IP fixes', 'Release 2.2.1 — 修复 ACL 保存与公网 IP 获取'),
+        description: l10n.t('1) Correction d\'une erreur 500 à l\'enregistrement de la politique ACL en présence d\'utilisateurs locaux (créés en CLI, sans « @ ») : les groupes utilisent désormais la forme exigée par Headscale (nom@). 2) L\'IP publique n\'est plus demandée à un seul service : plusieurs sources sont essayées avec un délai d\'attente, et un échec n\'affiche plus d\'erreur ni ne bloque le traceroute (l\'étiquette affiche « — »).', '1) Fixed a 500 error when saving the ACL policy while local (CLI-created, non-OIDC) users exist: groups now use the form Headscale requires (name@). 2) The public IP is no longer fetched from a single service: several sources are tried with a timeout, and a failure no longer shows an error or blocks the traceroute (the label shows "—").', '1) 修复存在本地用户（CLI 创建、无邮箱）时保存 ACL 策略报 500 的问题：策略中的用户引用现在写成 Headscale 要求的「用户名@」。2) 公网 IP 不再只依赖单一第三方服务：改用多个源并带超时；取不到时不再弹错误、也不再拖住路由追踪（标签显示「—」）。'),
+        verification: l10n.t('ACL > onglet JSON > Enregistrer sur le serveur ; Vue d\'ensemble du réseau', 'ACL > JSON tab > Save to server; Network overview', 'ACL > JSON 页签 > 保存到服务器；网络概览'),
+      ),
+      WhatsNewVersion(
         version: '2.2.0',
         title: l10n.t('Release 2.2.0 — Prise en charge du chinois', 'Release 2.2.0 — Chinese support', 'Release 2.2.0 — 新增中文支持'),
         description: l10n.t('Interface disponible en français, anglais et chinois simplifié, avec suivi de la langue du système au premier lancement. Traduction complète de l\'application, du guide d\'aide intégré et des messages d\'erreur de l\'API.', 'Interface available in French, English and Simplified Chinese, following the system language on first launch. Full translation of the app, the built-in help guide and the API error messages.', '界面支持法语、英语和简体中文，首次启动跟随系统语言。应用界面、内置帮助指南与 API 报错信息均已完整翻译。'),

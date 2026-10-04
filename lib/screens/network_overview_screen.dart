@@ -29,6 +29,8 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
   final Map<String, PingResult> _pingResults = {};
   final Map<String, StreamSubscription<PingData>> _pingSubscriptions = {};
   String? _publicIp;
+  /// 公网 IP 取不到时用于把标签显示成 "—"，而不是一直显示 "..."（加载中）。
+  bool _publicIpUnavailable = false;
   List<String> _traceRouteHops = [];
   bool _isTracingRoute = false;
   Node? _exitNodeInUse;
@@ -59,8 +61,9 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
 
       // Si l'écran est toujours monté et que la génération est actuelle.
       if (mounted && _traceRouteGeneration == currentGeneration) {
-        // Étape 2: Récupérer l'IP publique et ENSUITE lancer le traceroute.
-        await _fetchPublicIpAndTrace(currentGeneration);
+        // Étape 2: lancer le traceroute et, en parallèle, compléter l'IP publique
+        // (cette dernière est optionnelle et ne doit rien bloquer).
+        _fetchPublicIpAndTrace(currentGeneration);
       }
     } catch (e) {
       if (mounted) {
@@ -111,29 +114,67 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
     }
   }
 
-  Future<void> _fetchPublicIpAndTrace(int generation) async {
-    try {
-      final response =
-          await http.get(Uri.parse('https://api.ipify.org?format=json'));
-      if (response.statusCode == 200) {
-        if (!mounted || _traceRouteGeneration != generation) return;
-        setState(() {
-          _publicIp = json.decode(response.body)['ip'];
-        });
-        // Le traceroute est lancé ici, après que _fetchNodes soit terminé.
-        _startTraceRoute(generation);
-      }
-    } catch (e) {
-      if (mounted) {
-        final locale = context.read<AppProvider>().locale;
-        final l10n = L10n(locale);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  '${l10n.t('Erreur de récupération de l\'IP publique', 'Error fetching public IP', '获取公网 IP 出错')}: $e')),
-        );
+  /// 依次尝试的第三方公网 IP 服务（返回 JSON 或纯文本）。
+  ///
+  /// 用多个源是因为单个服务在部分网络下不可达：例如 `api.ipify.org` 在中国大陆网络
+  /// 经常被 DNS 污染或直接拒绝连接（报 `Connection refused`），一旦只依赖它，
+  /// 这个可选信息就会变成一条红色错误提示，还会连带拖住 traceroute。
+  static const List<String> _publicIpSources = [
+    'https://api.ipify.org?format=json',
+    'https://api64.ipify.org?format=json',
+    'https://icanhazip.com',
+    'https://ifconfig.me/ip',
+  ];
+
+  /// 逐个尝试各源，任一成功即返回；全部失败返回 null。
+  Future<String?> _fetchPublicIp() async {
+    for (final source in _publicIpSources) {
+      try {
+        final response = await http
+            .get(Uri.parse(source))
+            .timeout(const Duration(seconds: 4));
+        if (response.statusCode != 200) continue;
+        final ip = _parsePublicIp(response.body);
+        if (ip != null) return ip;
+      } catch (_) {
+        // 该源不可用（被墙 / DNS 污染 / 超时 / 证书问题），换下一个
       }
     }
+    return null;
+  }
+
+  /// 兼容两种响应格式：ipify 的 `{"ip":"..."}` 与纯文本端点。
+  String? _parsePublicIp(String body) {
+    final text = body.trim();
+    if (text.isEmpty) return null;
+    if (text.startsWith('{')) {
+      try {
+        final decoded = json.decode(text);
+        final ip = decoded is Map ? decoded['ip'] : null;
+        return ip is String && ip.trim().isNotEmpty ? ip.trim() : null;
+      } catch (_) {
+        return null;
+      }
+    }
+    // 纯文本端点直接返回 IP；带 HTML/空格的（例如被劫持到的门户页）一律丢弃。
+    if (text.length > 64 || text.contains('<') || text.contains(' ')) return null;
+    return text;
+  }
+
+  void _fetchPublicIpAndTrace(int generation) {
+    // traceroute 与公网 IP 之间没有任何依赖：立即开始，不要被第三方服务拖住。
+    _startTraceRoute(generation);
+    unawaited(_loadPublicIp(generation));
+  }
+
+  /// 异步补充公网 IP。它只是拓扑图上的装饰性标签，失败就显示 "—"，不再弹错误提示。
+  Future<void> _loadPublicIp(int generation) async {
+    final ip = await _fetchPublicIp();
+    if (!mounted || _traceRouteGeneration != generation) return;
+    setState(() {
+      _publicIp = ip;
+      _publicIpUnavailable = ip == null;
+    });
   }
 
   void _startTraceRoute(int generation) async {
@@ -358,8 +399,8 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
                 ],
                 Icon(Icons.arrow_forward,
                     color: Theme.of(context).textTheme.bodyMedium?.color),
-                _buildVisualizerNode(
-                    context, 'Internet', Icons.cloud, _publicIp ?? '...'),
+                _buildVisualizerNode(context, 'Internet', Icons.cloud,
+                    _publicIp ?? (_publicIpUnavailable ? '—' : '...')),
               ],
             ),
             if (_isTracingRoute) ...[
