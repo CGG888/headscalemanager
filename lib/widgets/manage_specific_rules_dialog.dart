@@ -238,21 +238,22 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
             children: <Widget>[
               _buildDetailRow(l10n.t('Source', 'Source', '源'),
                   srcNode?.name ?? (l10n.t('Inconnu', 'Unknown', '未知'))),
-              _buildDetailRow('IP Source', srcIp),
+              _buildDetailRow(context.l10n.t('IP Source', 'Source IP', '源 IP'), srcIp),
               if (srcNode != null)
-                _buildDetailRow('IPs Source', srcNode.ipAddresses.join(', ')),
+                _buildDetailRow(context.l10n.t('IPs Source', 'Source IPs', '源 IP（多个）'), srcNode.ipAddresses.join(', ')),
               const Divider(),
               _buildDetailRow(l10n.t('Destination', 'Destination', '目标'),
                   dstNode?.name ?? dstIpOrSubnet),
-              _buildDetailRow('IP/Subnet Dest.', dstIpOrSubnet),
+              _buildDetailRow(
+                    context.l10n.t('IP/Subnet Dest.', 'Dest. IP/Subnet', '目标 IP/子网'), dstIpOrSubnet),
               if (dstNode != null)
-                _buildDetailRow('IPs Dest.', dstNode.ipAddresses.join(', ')),
+                _buildDetailRow(context.l10n.t('IPs Dest.', 'Dest. IPs', '目标 IP（多个）'), dstNode.ipAddresses.join(', ')),
               if (dstNode != null && dstNode.sharedRoutes.isNotEmpty)
                 _buildDetailRow(
-                    'Routes Partagées', dstNode.sharedRoutes.join(', ')),
+                    context.l10n.t('Routes Partagées', 'Shared routes', '已共享路由'), dstNode.sharedRoutes.join(', ')),
               const Divider(),
               _buildDetailRow(
-                  'Port(s)', port != null && port.isNotEmpty ? port : '*'),
+                  context.l10n.t('Port(s)', 'Port(s)', '端口'), port != null && port.isNotEmpty ? port : '*'),
             ],
           ),
         ),
@@ -276,7 +277,7 @@ class _ManageSpecificRulesDialogState extends State<ManageSpecificRulesDialog> {
         children: [
           SizedBox(
               width: 100,
-              child: Text('$label :',
+              child: Text(context.l10n.t('$label :', '$label: ', '$label：'),
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.grey))),
           Expanded(child: Text(value)),

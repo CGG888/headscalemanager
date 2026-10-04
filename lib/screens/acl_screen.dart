@@ -117,7 +117,10 @@ class _AclScreenState extends State<AclScreen> {
       debugPrint('Error fetching nodes: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to fetch nodes: $e')),
+          SnackBar(
+            content: Text(context.l10n.t(
+                'Échec de la récupération des nœuds : $e',
+                'Failed to fetch nodes: $e', '获取节点失败：$e'))),
         );
       }
     }
@@ -596,7 +599,7 @@ class _AclScreenState extends State<AclScreen> {
               const Icon(Icons.outbound, size: 16, color: Colors.blue),
               const SizedBox(width: 8),
               Expanded(
-                  child: Text('Src: $src',
+                  child: Text(context.l10n.t('Src: $src', 'Src: $src', '源：$src'),
                       style: const TextStyle(fontWeight: FontWeight.bold))),
             ],
           ),
@@ -606,13 +609,16 @@ class _AclScreenState extends State<AclScreen> {
               const Icon(Icons.login, size: 16, color: Colors.green),
               const SizedBox(width: 8),
               Expanded(
-                  child: Text('Dst: $dst',
+                  child: Text(context.l10n.t('Dst: $dst', 'Dst: $dst', '目标：$dst'),
                       style: const TextStyle(fontWeight: FontWeight.bold))),
             ],
           ),
         ],
       ),
-      subtitle: Text('Port: $portDisplay | Proto: $protoDisplay'),
+      subtitle: Text(context.l10n.t(
+            'Port: $portDisplay | Proto: $protoDisplay',
+            'Port: $portDisplay | Proto: $protoDisplay',
+            '端口：$portDisplay｜协议：$protoDisplay')),
       trailing: IconButton(
         icon: const Icon(Icons.delete, color: Colors.red),
         onPressed: () async {
@@ -702,7 +708,7 @@ class _AclScreenState extends State<AclScreen> {
                     controller: _portController,
                     decoration: InputDecoration(
                       labelText: l10n.t('Port (Optionnel)', 'Port (Optional)', '端口（选填）'),
-                      hintText: 'ex: 80, 443',
+                      hintText: context.l10n.t('ex: 80, 443', 'e.g. 80, 443', '例如：80, 443'),
                       border: const OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,

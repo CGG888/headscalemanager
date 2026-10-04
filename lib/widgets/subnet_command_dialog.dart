@@ -49,11 +49,11 @@ class SubnetCommandDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const TabBar(
+              TabBar(
                 tabs: [
-                  Tab(text: 'Linux'),
-                  Tab(text: 'Windows'),
-                  Tab(text: 'Mobile'),
+                  const Tab(text: 'Linux'),
+                  const Tab(text: 'Windows'),
+                  Tab(text: context.l10n.t('Mobile', 'Mobile', '移动端')),
                 ],
               ),
               const SizedBox(height: 16),

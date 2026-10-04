@@ -45,7 +45,7 @@ class AclsListView extends StatelessWidget {
               color: action == 'accept' ? Colors.green : Colors.red,
             ),
             title: Text('$src → $dst'),
-            subtitle: proto != null ? Text('Proto: $proto') : null,
+            subtitle: proto != null ? Text(context.l10n.t('Proto: $proto', 'Proto: $proto', '协议：$proto')) : null,
           ),
         );
       },

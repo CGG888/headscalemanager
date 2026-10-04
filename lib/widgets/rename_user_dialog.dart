@@ -59,7 +59,7 @@ class _RenameUserDialogState extends State<RenameUserDialog> {
               controller: _nameController,
               decoration: InputDecoration(
                 labelText: l10n.t('Nouveau nom', 'New name', '新名称'),
-                hintText: 'ex: jean',
+                hintText: context.l10n.t('ex: jean', 'e.g. jean', '例如：jean'),
                 helperText: l10n.t('Lettres minuscules, chiffres, tirets', 'Lowercase letters, numbers, dashes', '小写字母、数字、连字符'),
               ),
               validator: (value) {

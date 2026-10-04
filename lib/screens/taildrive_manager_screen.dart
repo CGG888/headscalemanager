@@ -649,7 +649,7 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
                   controller: _nameController,
                   decoration: InputDecoration(
                     labelText: widget.l10n.t('Nom du partage', 'Share Name', '分享名称'),
-                    hintText: 'ex: Documents',
+                    hintText: context.l10n.t('ex: Documents', 'e.g. Documents', '例如：Documents'),
                   ),
                   validator: (val) => val == null || val.isEmpty
                       ? (widget.l10n.t('Obligatoire', 'Required', '必填'))
@@ -660,7 +660,8 @@ class __AddTaildriveShareDialogState extends State<_AddTaildriveShareDialog> {
                   controller: _pathController,
                   decoration: InputDecoration(
                     labelText: widget.l10n.t('Chemin local', 'Local Path', '本地路径'),
-                    hintText: 'ex: /home/user/docs or C:\\Data',
+                    hintText: context.l10n.t('ex: /home/user/docs or C:\\Data',
+                        'e.g. /home/user/docs or C:\\Data', '例如：/home/user/docs 或 C:\\Data'),
                   ),
                   validator: (val) => val == null || val.isEmpty
                       ? (widget.l10n.t('Obligatoire', 'Required', '必填'))

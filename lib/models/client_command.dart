@@ -284,7 +284,8 @@ class DynamicCommandGenerator {
             label: l10n.t('Clé d\'authentification', 'Authentication key', '认证密钥'),
             description: l10n.t('Entrez votre clé pré-authentifiée', 'Enter your pre-auth key', '输入你的预认证密钥'),
             type: ParameterType.text,
-            placeholder: 'nodekey-xxxxx ou tskey-xxxxx',
+            placeholder:
+              'nodekey-xxxxx 或 tskey-xxxxx',
           ),
         ],
       ),
@@ -734,7 +735,8 @@ class DynamicCommandGenerator {
             label: l10n.t('Clé d\'authentification', 'Auth key', '认证密钥'),
             description: l10n.t('Entrez votre clé pré-authentifiée', 'Enter your pre-auth key', '输入你的预认证密钥'),
             type: ParameterType.text,
-            placeholder: 'nodekey-xxxxx ou tskey-xxxxx',
+            placeholder:
+              'nodekey-xxxxx 或 tskey-xxxxx',
             required: true,
           ),
         ],

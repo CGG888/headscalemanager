@@ -145,7 +145,8 @@ class _ApiKeyCard extends StatelessWidget {
       child: ListTile(
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        title: Text('Prefix: ${apiKey.prefix}',
+        title: Text(context.l10n.t('Prefix: ${apiKey.prefix}',
+              'Prefix: ${apiKey.prefix}', '前缀：${apiKey.prefix}'),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.primary,
@@ -154,7 +155,7 @@ class _ApiKeyCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            Text('ID: ${apiKey.id}',
+            Text(context.l10n.t('ID: ${apiKey.id}', 'ID: ${apiKey.id}', 'ID：${apiKey.id}'),
                 style: Theme.of(context).textTheme.bodySmall),
             Text(
                 '${l10n.t('Expiration', 'Expiration', '有效期')}: ${apiKey.expiration?.toLocal() ?? (l10n.t('Jamais', 'Never', '从未'))}',

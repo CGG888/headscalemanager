@@ -95,7 +95,7 @@ class _AclManagerScreenState extends State<AclManagerScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title:
-            Text('View', style: Theme.of(context).appBarTheme.titleTextStyle),
+            Text(context.l10n.t('View', 'View', '视图'), style: Theme.of(context).appBarTheme.titleTextStyle),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         iconTheme: Theme.of(context).appBarTheme.iconTheme,

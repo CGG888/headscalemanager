@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui'; // Pour PathMetric et l'animation
 import 'package:flutter/material.dart';
 import 'package:graphview/GraphView.dart';
+import 'package:headscalemanager/l10n/l10n.dart';
 import 'package:headscalemanager/models/node.dart' as headscale_node;
 import 'package:headscalemanager/models/user.dart';
 import 'package:headscalemanager/services/acl_parser_service.dart';
@@ -646,24 +647,26 @@ class _AclGraphWidgetState extends State<AclGraphWidget>
   }
 
   void _showDetailsDialog(dynamic itemData) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (context) {
-        String title = 'Détails';
+        String title = l10n.t('Détails', 'Details', '详情');
         List<Widget> content = [];
 
         if (itemData is User) {
-          title = 'Utilisateur : ${itemData.name}';
+          title = l10n.t('Utilisateur : ${itemData.name}', 'User: ${itemData.name}', '用户：${itemData.name}');
           final normalizedName = normalizeUserName(itemData.name);
           final nodeCount = widget.nodes
               .where((n) => n.getNormalizedOwner() == normalizedName)
               .length;
-          content.add(Text('Cet utilisateur gère $nodeCount machine(s).'));
+          content.add(Text(l10n.t('Cet utilisateur gère $nodeCount machine(s).',
+              'This user manages $nodeCount machine(s).', '该用户名下有 $nodeCount 台设备。')));
           content.add(const SizedBox(height: 8));
-          content.add(Text('ID : ${itemData.id}',
+          content.add(Text(l10n.t('ID : ${itemData.id}', 'ID: ${itemData.id}', 'ID：${itemData.id}'),
               style: const TextStyle(color: Colors.grey, fontSize: 12)));
         } else if (itemData is headscale_node.Node) {
-          title = 'Machine : ${itemData.name}';
+          title = l10n.t('Machine : ${itemData.name}', 'Machine: ${itemData.name}', '设备：${itemData.name}');
           content.addAll([
             (() {
               final owner = itemData.getNormalizedOwner();
@@ -672,45 +675,59 @@ class _AclGraphWidgetState extends State<AclGraphWidget>
                 orElse: () =>
                     User(id: '', name: owner, createdAt: DateTime.now()),
               );
-              return _buildDetailRow('Propriétaire', matchedUser.name);
+              return _buildDetailRow(l10n.t('Propriétaire', 'Owner', '所有者'), matchedUser.name);
             }()),
-            _buildDetailRow('IPs', itemData.ipAddresses.join('\n')),
-            _buildDetailRow('Exit Node', itemData.isExitNode ? 'Oui' : 'Non'),
+            _buildDetailRow(l10n.t('IPs', 'IPs', 'IP'), itemData.ipAddresses.join('\n')),
+            _buildDetailRow(
+                l10n.t('Exit Node', 'Exit node', '出口节点'),
+                itemData.isExitNode
+                    ? l10n.t('Oui', 'Yes', '是')
+                    : l10n.t('Non', 'No', '否')),
             if (itemData.tags.isNotEmpty)
-              _buildDetailRow('Tags', itemData.tags.join(', ')),
+              _buildDetailRow(l10n.t('Tags', 'Tags', '标签'), itemData.tags.join(', ')),
             if (itemData.sharedRoutes.isNotEmpty)
               _buildDetailRow(
-                  'Routes partagées', itemData.sharedRoutes.join(', ')),
+                  l10n.t('Routes partagées', 'Shared routes', '已共享路由'),
+                  itemData.sharedRoutes.join(', ')),
           ]);
         } else if (itemData is Map) {
           if (itemData['type'] == 'server') {
-            title = 'Serveur Headscale';
-            content.add(Text('URL du serveur : ${itemData['url']}'));
-            content.add(const Text(
-                '\nC\'est le point central de votre réseau (Control Plane).'));
+            title = l10n.t('Serveur Headscale', 'Headscale server', 'Headscale 服务器');
+            content.add(Text(l10n.t('URL du serveur : ${itemData['url']}',
+                'Server URL: ${itemData['url']}', '服务器 URL：${itemData['url']}')));
+            content.add(Text(l10n.t(
+                '\nC\'est le point central de votre réseau (Control Plane).',
+                '\nIt is the central point of your network (Control Plane).',
+                '\n它是你网络的中心节点（Control Plane）。')));
           } else if (itemData['type'] == 'internet') {
             final machine = itemData['machine'] as headscale_node.Node?;
-            title = 'Accès Internet (Exit Node)';
-            content
-                .add(const Text('Ce symbole représente l\'accès à Internet.'));
+            title = l10n.t('Accès Internet (Exit Node)', 'Internet access (Exit Node)', '互联网访问（出口节点）');
+            content.add(Text(l10n.t('Ce symbole représente l\'accès à Internet.',
+                'This symbol represents Internet access.', '此符号表示互联网访问。')));
             content.add(const SizedBox(height: 10));
             content.add(Text(
-                'Le trafic passe par la machine "${machine?.name ?? 'Inconnue'}" qui agit comme passerelle de sortie.',
+                l10n.t(
+                    'Le trafic passe par la machine "${machine?.name ?? l10n.t('Inconnue', 'Unknown', '未知')}" qui agit comme passerelle de sortie.',
+                    'Traffic goes through the machine "${machine?.name ?? l10n.t('Inconnue', 'Unknown', '未知')}", which acts as the exit gateway.',
+                    '流量经由设备「${machine?.name ?? l10n.t('Inconnue', 'Unknown', '未知')}」转发，它充当出口网关。'),
                 style: const TextStyle(fontWeight: FontWeight.bold)));
           } else if (itemData['type'] == 'taildrive') {
             final machine = itemData['machine'] as headscale_node.Node?;
             final shareName = itemData['share'] as String;
-            title = 'Partage Taildrive';
-            content.add(Text('Nom du partage : $shareName',
+            title = l10n.t('Partage Taildrive', 'Taildrive share', 'Taildrive 共享');
+            content.add(Text(l10n.t('Nom du partage : $shareName', 'Share name: $shareName', '共享名称：$shareName'),
                 style: const TextStyle(
                     fontSize: 18, fontWeight: FontWeight.bold)));
             content.add(const SizedBox(height: 10));
             content.add(Text(
-                'Ce dossier est partagé par la machine "${machine?.name ?? 'Inconnue'}".'));
+                l10n.t(
+                    'Ce dossier est partagé par la machine "${machine?.name ?? l10n.t('Inconnue', 'Unknown', '未知')}".',
+                    'This folder is shared by the machine "${machine?.name ?? l10n.t('Inconnue', 'Unknown', '未知')}".',
+                    '该文件夹由设备「${machine?.name ?? l10n.t('Inconnue', 'Unknown', '未知')}」共享。')));
 
             content.add(const Divider());
-            content.add(const Text('Accès autorisés :',
-                style: TextStyle(fontWeight: FontWeight.bold)));
+            content.add(Text(l10n.t('Accès autorisés :', 'Authorised access:', '已授权访问：'),
+                style: const TextStyle(fontWeight: FontWeight.bold)));
             content.add(const SizedBox(height: 8));
 
             final accessingNodes = <Widget>[];
@@ -739,25 +756,28 @@ class _AclGraphWidgetState extends State<AclGraphWidget>
               }
             }
             if (accessingNodes.isEmpty) {
-              content.add(const Text('Aucun accès distant configuré.',
-                  style: TextStyle(fontStyle: FontStyle.italic)));
+              content.add(Text(l10n.t('Aucun accès distant configuré.',
+                  'No remote access configured.', '未配置远程访问。'),
+                  style: const TextStyle(fontStyle: FontStyle.italic)));
             } else {
               content.addAll(accessingNodes);
             }
           } else if (itemData['type'] == 'lan') {
             // --- DÉTAILS LAN (AVEC ANALYSE DES PERMISSIONS) ---
             final routeCidr = itemData['route'] as String;
-            title = 'Réseau Local (Subnet)';
+            title = l10n.t('Réseau Local (Subnet)', 'Local network (Subnet)', '局域网（子网）');
 
-            content.add(Text('Route : $routeCidr',
+            content.add(Text(l10n.t('Route : $routeCidr', 'Route: $routeCidr', '路由：$routeCidr'),
                 style: const TextStyle(
                     fontSize: 18, fontWeight: FontWeight.bold)));
             content.add(const SizedBox(height: 10));
-            content.add(const Text(
-                'Ce symbole indique qu\'une machine partage l\'accès à ce réseau local interne (Advertise Routes).'));
+            content.add(Text(l10n.t(
+                'Ce symbole indique qu\'une machine partage l\'accès à ce réseau local interne (Advertise Routes).',
+                'This symbol means a machine shares access to this internal local network (Advertise Routes).',
+                '此符号表示有设备共享了对该内部局域网的访问（Advertise Routes）。')));
 
             content.add(const Divider());
-            content.add(const Text('Accès autorisés :',
+            content.add(Text(context.l10n.t('Accès autorisés :', 'Authorised access:', '已授权访问：'),
                 style: TextStyle(fontWeight: FontWeight.bold)));
             content.add(const SizedBox(height: 8));
 
@@ -782,17 +802,18 @@ class _AclGraphWidgetState extends State<AclGraphWidget>
                     fullAccess = true;
                   } else {
                     final ports = p.ports.contains('*')
-                        ? 'Tout port'
-                        : 'Ports: ${p.ports.join(',')}';
+                        ? l10n.t('Tout port', 'All ports', '所有端口')
+                        : l10n.t('Ports: ${p.ports.join(',')}', 'Ports: ${p.ports.join(',')}', '端口：${p.ports.join(',')}');
                     accessDetails.add('${p.specificRule} ($ports)');
                   }
                 }
 
                 String statusText = '';
                 if (fullAccess) {
-                  statusText = 'Accès complet';
+                  statusText = l10n.t('Accès complet', 'Full access', '完全访问');
                 } else {
-                  statusText = 'Partiel : ${accessDetails.join(', ')}';
+                  statusText =
+                      l10n.t('Partiel : ${accessDetails.join(', ')}', 'Partial: ${accessDetails.join(', ')}', '部分访问：${accessDetails.join(', ')}');
                 }
 
                 accessingNodes.add(Padding(
@@ -806,7 +827,7 @@ class _AclGraphWidgetState extends State<AclGraphWidget>
                             size: 16, color: Colors.green[700]),
                       ),
                       const SizedBox(width: 8),
-                      Text('${node.name} : ',
+                      Text(l10n.t('${node.name} : ', '${node.name}: ', '${node.name}：'),
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                       Expanded(
                           child: Text(statusText,
@@ -818,9 +839,10 @@ class _AclGraphWidgetState extends State<AclGraphWidget>
             }
 
             if (accessingNodes.isEmpty) {
-              content.add(const Text(
-                  'Aucun accès détecté pour d\'autres machines.',
-                  style: TextStyle(
+              content.add(Text(
+                  l10n.t('Aucun accès détecté pour d\'autres machines.',
+                      'No access detected for other machines.', '未检测到其他设备的访问。'),
+                  style: const TextStyle(
                       fontStyle: FontStyle.italic, color: Colors.grey)));
             } else {
               content.addAll(accessingNodes);
@@ -828,9 +850,11 @@ class _AclGraphWidgetState extends State<AclGraphWidget>
           } else if (itemData['type'] == 'shared_peer') {
             final node1 = itemData['node1'] as headscale_node.Node?;
             final node2 = itemData['node2'] as headscale_node.Node?;
-            title = 'Connexion Partagée';
-            content.add(const Text(
-                'Lien direct (Peer-to-Peer) entre deux utilisateurs différents :'));
+            title = l10n.t('Connexion Partagée', 'Shared connection', '共享连接');
+            content.add(Text(l10n.t(
+                'Lien direct (Peer-to-Peer) entre deux utilisateurs différents :',
+                'Direct link (peer-to-peer) between two different users:',
+                '两个不同用户之间的直连（Peer-to-Peer）：')));
             content.add(const Divider());
             content.add(Text('1. ${node1?.name ?? '?'} (${node1?.user})'));
             content.add(const Center(child: Icon(Icons.swap_vert)));
@@ -848,7 +872,7 @@ class _AclGraphWidgetState extends State<AclGraphWidget>
           actions: [
             TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Fermer'))
+                child: Text(l10n.t('Fermer', 'Close', '关闭')))
           ],
         );
       },
@@ -863,7 +887,7 @@ class _AclGraphWidgetState extends State<AclGraphWidget>
         children: [
           SizedBox(
               width: 100,
-              child: Text('$label :',
+              child: Text(context.l10n.t('$label :', '$label: ', '$label：'),
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.grey))),
           Expanded(child: Text(value)),
@@ -885,7 +909,8 @@ class _AclGraphWidgetState extends State<AclGraphWidget>
       } else if (itemData['type'] == 'internet') {
         final machine = itemData['machine'] as headscale_node.Node?;
         return _buildSymbolNode(
-            Icons.public, 'Exit via\n${machine?.name ?? ''}');
+            Icons.public,
+            '${context.l10n.t('Exit via', 'Exit via', '出口经由')}\n${machine?.name ?? ''}');
       } else if (itemData['type'] == 'taildrive') {
         return _buildSymbolNode(Icons.folder_shared, itemData['share']);
       } else if (itemData['type'] == 'lan') {
@@ -1053,7 +1078,8 @@ class _AclGraphWidgetState extends State<AclGraphWidget>
                   size: 48, color: Theme.of(context).colorScheme.error),
               const SizedBox(height: 16),
               Text(
-                'Impossible d\'afficher le graphe ACL.',
+                context.l10n.t('Impossible d\'afficher le graphe ACL.',
+                    'Unable to display the ACL graph.', '无法显示 ACL 图。'),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium,
               ),

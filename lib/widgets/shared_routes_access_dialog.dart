@@ -200,7 +200,7 @@ class _SubnetRuleCard extends StatelessWidget {
               controller: rule.startIpController,
               decoration: InputDecoration(
                 labelText: l10n.t('IP de début', 'Start IP', '起始 IP'),
-                hintText: 'Ex: 192.168.1.10',
+                hintText: context.l10n.t('Ex: 192.168.1.10', 'e.g. 192.168.1.10', '例如：192.168.1.10'),
               ),
             ),
             TextFormField(

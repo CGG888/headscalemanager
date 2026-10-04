@@ -221,7 +221,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                 .withValues(alpha: 0.9)),
                       ),
                     const SizedBox(height: 8),
-                    Text('ID: ${widget.user.id}',
+                    Text(context.l10n.t('ID: ${widget.user.id}', 'ID: ${widget.user.id}', 'ID：${widget.user.id}'),
                         style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onPrimary
                                 .withValues(alpha: 0.6))),
@@ -554,7 +554,7 @@ class _NodeCard extends StatelessWidget {
                   Icon(Icons.exit_to_app,
                       size: 12, color: theme.colorScheme.onPrimary),
                   const SizedBox(width: 4),
-                  Text('Exit Node',
+                  Text(context.l10n.t('Exit Node', 'Exit node', '出口节点'),
                       style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,

@@ -108,7 +108,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
             Text(l10n.t('Tags ACL (Nouveau)', 'ACL Tags (New)', 'ACL 标签（新）'),
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             CheckboxListTile(
-              title: const Text('Exit Node'),
+              title: Text(context.l10n.t('Exit Node', 'Exit node', '出口节点')),
               subtitle: Text(l10n.t('Autoriser ce nœud à être une sortie internet.', 'Allow this node to be an internet exit.', '允许此节点作为互联网出口。')),
               value: _isExitNode,
               onChanged: (value) {
@@ -118,7 +118,7 @@ class _CreatePreAuthKeyDialogState extends State<CreatePreAuthKeyDialog> {
               },
             ),
             CheckboxListTile(
-              title: const Text('LAN Sharer'),
+              title: Text(context.l10n.t('LAN Sharer', 'LAN sharer', '局域网共享者')),
               subtitle: Text(l10n.t('Autoriser ce nœud à partager son réseau local.', 'Allow this node to share its local network.', '允许此节点共享其局域网。')),
               value: _isLanSharer,
               onChanged: (value) {

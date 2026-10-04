@@ -474,8 +474,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Succès: ${result.successCount}'),
-                      Text('Echecs: ${result.failureCount}'),
+                      Text(context.l10n.t('Succès: ${result.successCount}',
+                'Success: ${result.successCount}', '成功：${result.successCount}')),
+                      Text(context.l10n.t('Echecs: ${result.failureCount}',
+                'Failures: ${result.failureCount}', '失败：${result.failureCount}')),
                       if (result.errors.isNotEmpty) ...[
                         const Divider(),
                         ...result.errors.map((e) => Text(e,
@@ -517,8 +519,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Succès: ${result.successCount}'),
-                      Text('Echecs: ${result.failureCount}'),
+                      Text(context.l10n.t('Succès: ${result.successCount}',
+                'Success: ${result.successCount}', '成功：${result.successCount}')),
+                      Text(context.l10n.t('Echecs: ${result.failureCount}',
+                'Failures: ${result.failureCount}', '失败：${result.failureCount}')),
                       if (result.errors.isNotEmpty) ...[
                         const Divider(),
                         ...result.errors.map((e) => Text(e,

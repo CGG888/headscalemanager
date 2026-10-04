@@ -177,7 +177,7 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
           ),
           ElevatedButton.icon(
             icon: Icon(Icons.qr_code, color: theme.colorScheme.onPrimary),
-            label: Text('QR Code',
+            label: Text(context.l10n.t('QR Code', 'QR code', '二维码'),
                 style: theme.textTheme.labelLarge
                     ?.copyWith(color: theme.colorScheme.onPrimary)),
             onPressed: () {
@@ -237,7 +237,9 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
               errorStateBuilder: (cxt, err) {
                 return Center(
                   child: Text(
-                    'Uh oh! Something went wrong :($err)',
+                    context.l10n.t(
+                        'Oups ! Une erreur est survenue : ($err)',
+                        'Uh oh! Something went wrong: ($err)', '出错了：（$err）'),
                     textAlign: TextAlign.center,
                   ),
                 );
@@ -393,7 +395,7 @@ class _PreAuthKeyCard extends StatelessWidget {
         actions: [
           ElevatedButton.icon(
             icon: Icon(Icons.qr_code, color: theme.colorScheme.onPrimary),
-            label: Text('QR Code',
+            label: Text(context.l10n.t('QR Code', 'QR code', '二维码'),
                 style: theme.textTheme.labelLarge
                     ?.copyWith(color: theme.colorScheme.onPrimary)),
             onPressed: () {

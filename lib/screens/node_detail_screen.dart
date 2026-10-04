@@ -257,7 +257,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
               const Spacer(),
               if (widget.node.isExitNode)
                 Chip(
-                    label: Text('Exit Node',
+                    label: Text(context.l10n.t('Exit Node', 'Exit node', '出口节点'),
                         style: theme.textTheme.labelSmall
                             ?.copyWith(color: theme.colorScheme.primary)),
                     backgroundColor: theme.colorScheme.onPrimary,
@@ -378,8 +378,8 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
 
                       String label = key;
                       if (l10n.isFr) {
-                        if (key == 'generic') label = 'Générique';
-                        if (key == 'server') label = 'Serveur';
+                        if (key == 'generic') label = context.l10n.t('Générique', 'Generic', '通用');
+                        if (key == 'server') label = context.l10n.t('Serveur', 'Server', '服务器');
                       }
 
                       return InkWell(
@@ -589,14 +589,14 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Tags',
+          Text(context.l10n.t('Tags', 'Tags', '标签'),
               style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onPrimary)),
           Divider(
               height: 20,
               color: theme.colorScheme.onPrimary.withValues(alpha: 0.5)),
-          Text('Tags:',
+          Text(context.l10n.t('Tags:', 'Tags:', '标签：'),
               style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onPrimary)),

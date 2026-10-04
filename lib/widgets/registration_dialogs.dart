@@ -635,7 +635,7 @@ Future<void> _showAddTagsDialog(BuildContext context, Node node) async {
                     '${l10n.t('Configurez les capacités de', 'Configure capabilities for', '配置以下对象的能力')} "${node.name}".'),
                 const SizedBox(height: 16),
                 CheckboxListTile(
-                  title: const Text('Exit Node'),
+                  title: Text(context.l10n.t('Exit Node', 'Exit node', '出口节点')),
                   subtitle: Text(l10n.t('Autoriser ce nœud à être une sortie internet.', 'Allow this node to be an internet exit.', '允许此节点作为互联网出口。')),
                   value: isExitNode,
                   onChanged: (value) {
@@ -645,7 +645,7 @@ Future<void> _showAddTagsDialog(BuildContext context, Node node) async {
                   },
                 ),
                 CheckboxListTile(
-                  title: const Text('LAN Sharer'),
+                  title: Text(context.l10n.t('LAN Sharer', 'LAN sharer', '局域网共享者')),
                   subtitle: Text(l10n.t('Autoriser ce nœud à partager son réseau local.', 'Allow this node to share its local network.', '允许此节点共享其局域网。')),
                   value: isLanSharer,
                   onChanged: (value) {

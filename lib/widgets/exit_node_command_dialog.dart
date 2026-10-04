@@ -81,10 +81,10 @@ class _ExitNodeCommandDialogState extends State<ExitNodeCommandDialog>
           children: [
             TabBar(
               controller: _tabController,
-              tabs: const [
-                Tab(text: 'Linux'),
-                Tab(text: 'Windows'),
-                Tab(text: 'Mobile'),
+              tabs: [
+                const Tab(text: 'Linux'),
+                const Tab(text: 'Windows'),
+                Tab(text: context.l10n.t('Mobile', 'Mobile', '移动端')),
               ],
             ),
             const SizedBox(height: 16),

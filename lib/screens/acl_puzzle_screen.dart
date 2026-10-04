@@ -154,7 +154,9 @@ class _AclPuzzleScreenState extends State<AclPuzzleScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading data: $e')),
+          SnackBar(
+            content: Text(context.l10n.t('Erreur de chargement des données : $e',
+                'Error loading data: $e', '加载数据出错：$e'))),
         );
         setState(() => _isLoading = false);
       }
@@ -1345,7 +1347,7 @@ class _PuzzleBlockCardState extends State<_PuzzleBlockCard> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Fermer'),
+            child: Text(context.l10n.t('Fermer', 'Close', '关闭')),
           )
         ],
       ),
