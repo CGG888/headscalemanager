@@ -7,6 +7,26 @@ import 'package:headscalemanager/models/pre_auth_key.dart';
 import 'package:headscalemanager/models/api_key.dart';
 import '../models/version_info.dart';
 
+/// API 调用失败时抛出的异常。
+///
+/// [message] 面向用户展示（将来会被本地化），
+/// [rawBody] 是服务端原始响应体，**仅供逻辑判断**（例如判定某个 tag
+/// 尚未出现在 ACL 的 tagOwners 中），因此禁止本地化或改写。
+class HeadscaleApiException implements Exception {
+  final String message;
+  final String rawBody;
+  final int statusCode;
+
+  const HeadscaleApiException(
+    this.message, {
+    this.rawBody = '',
+    this.statusCode = 0,
+  });
+
+  @override
+  String toString() => message;
+}
+
 class HeadscaleApiService {
   final String _apiKey;
   final String _baseUrl;
@@ -25,8 +45,12 @@ class HeadscaleApiService {
     };
   }
 
-  String _handleError(String functionName, http.Response response) {
-    return 'Échec de $functionName. Statut : ${response.statusCode}, Corps : ${response.body}';
+  HeadscaleApiException _handleError(String functionName, http.Response response) {
+    return HeadscaleApiException(
+      'Échec de $functionName. Statut : ${response.statusCode}, Corps : ${response.body}',
+      rawBody: response.body,
+      statusCode: response.statusCode,
+    );
   }
 
   Future<List<Node>> getNodes() async {
@@ -45,7 +69,7 @@ class HeadscaleApiService {
               Node.fromJson(nodeJson as Map<String, dynamic>, baseDomain))
           .toList();
     } else {
-      throw Exception(_handleError('charger les nœuds', response));
+      throw _handleError('charger les nœuds', response);
     }
   }
 
@@ -60,7 +84,7 @@ class HeadscaleApiService {
     if (response.statusCode == 200) {
       return Node.fromJson(json.decode(response.body)['node'], baseDomain);
     } else {
-      throw Exception(_handleError('charger les détails du nœud', response));
+      throw _handleError('charger les détails du nœud', response);
     }
   }
 
@@ -77,7 +101,7 @@ class HeadscaleApiService {
       final data = json.decode(response.body);
       return Node.fromJson(data['node'], baseDomain);
     } else {
-      throw Exception(_handleError('enregistrer la machine', response));
+      throw _handleError('enregistrer la machine', response);
     }
   }
 
@@ -92,7 +116,7 @@ class HeadscaleApiService {
       final List<dynamic> usersJson = data['users'];
       return usersJson.map((json) => User.fromJson(json)).toList();
     } else {
-      throw Exception(_handleError('charger les utilisateurs', response));
+      throw _handleError('charger les utilisateurs', response);
     }
   }
 
@@ -106,7 +130,7 @@ class HeadscaleApiService {
     if (response.statusCode == 200) {
       return User.fromJson(json.decode(response.body));
     } else {
-      throw Exception(_handleError('créer un utilisateur', response));
+      throw _handleError('créer un utilisateur', response);
     }
   }
 
@@ -138,8 +162,7 @@ class HeadscaleApiService {
       final preAuthKeyJson = data['preAuthKey'];
       return PreAuthKey.fromJson(preAuthKeyJson);
     } else {
-      throw Exception(
-          _handleError('créer une clé de pré-authentification', response));
+      throw _handleError('créer une clé de pré-authentification', response);
     }
   }
 
@@ -157,7 +180,7 @@ class HeadscaleApiService {
         return '';
       }
     } else {
-      throw Exception(_handleError('charger la politique ACL', response));
+      throw _handleError('charger la politique ACL', response);
     }
   }
 
@@ -171,7 +194,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_handleError('sauvegarder la politique ACL', response));
+      throw _handleError('sauvegarder la politique ACL', response);
     }
   }
 
@@ -182,7 +205,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_handleError('supprimer l\'utilisateur', response));
+      throw _handleError('supprimer l\'utilisateur', response);
     }
   }
 
@@ -193,7 +216,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_handleError('supprimer le nœud', response));
+      throw _handleError('supprimer le nœud', response);
     }
   }
 
@@ -205,7 +228,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_handleError('définir les routes du nœud', response));
+      throw _handleError('définir les routes du nœud', response);
     }
   }
 
@@ -216,7 +239,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_handleError('renommer le nœud', response));
+      throw _handleError('renommer le nœud', response);
     }
   }
 
@@ -228,7 +251,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_handleError('déplacer le nœud', response));
+      throw _handleError('déplacer le nœud', response);
     }
   }
 
@@ -239,7 +262,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_handleError('renommer l\'utilisateur', response));
+      throw _handleError('renommer l\'utilisateur', response);
     }
   }
 
@@ -260,7 +283,7 @@ class HeadscaleApiService {
         allPreAuthKeys
             .addAll(keysJson.map((json) => PreAuthKey.fromJson(json)).toList());
       } else {
-        throw Exception(_handleError('charger les clés (v0.28+)', response));
+        throw _handleError('charger les clés (v0.28+)', response);
       }
       return allPreAuthKeys;
     }
@@ -301,7 +324,7 @@ class HeadscaleApiService {
         }),
       );
       if (response.statusCode != 200) {
-        throw Exception(_handleError('expirer la clé (ID $keyId)', response));
+        throw _handleError('expirer la clé (ID $keyId)', response);
       }
       return;
     }
@@ -316,8 +339,7 @@ class HeadscaleApiService {
       }),
     );
     if (response.statusCode != 200) {
-      throw Exception(
-          _handleError('expirer la clé de pré-authentification', response));
+      throw _handleError('expirer la clé de pré-authentification', response);
     }
   }
 
@@ -332,7 +354,7 @@ class HeadscaleApiService {
       final List<dynamic> apiKeysJson = data['apiKeys'];
       return apiKeysJson.map((json) => ApiKey.fromJson(json)).toList();
     } else {
-      throw Exception(_handleError('lister les clés API', response));
+      throw _handleError('lister les clés API', response);
     }
   }
 
@@ -352,7 +374,7 @@ class HeadscaleApiService {
       final data = json.decode(response.body);
       return data['apiKey'];
     } else {
-      throw Exception(_handleError('créer la clé API', response));
+      throw _handleError('créer la clé API', response);
     }
   }
 
@@ -364,7 +386,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_handleError('expirer la clé API', response));
+      throw _handleError('expirer la clé API', response);
     }
   }
 
@@ -375,7 +397,7 @@ class HeadscaleApiService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_handleError('supprimer la clé API', response));
+      throw _handleError('supprimer la clé API', response);
     }
   }
 
@@ -392,7 +414,7 @@ class HeadscaleApiService {
       final data = json.decode(response.body);
       return Node.fromJson(data['node'], baseDomain);
     } else {
-      throw Exception(_handleError('définir les tags', response));
+      throw _handleError('définir les tags', response);
     }
   }
 

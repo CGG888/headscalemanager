@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:headscalemanager/models/client_command.dart';
 
 class CommandFiltersSection extends StatelessWidget {
   final bool isFr;
   final TextEditingController searchController;
   final String selectedPlatform;
-  final String selectedCategory;
+  final CommandCategory? selectedCategory;
   final bool showOnlyElevated;
-  final List<String> categories;
+  final List<CommandCategory> categories;
   final ValueChanged<String?> onPlatformChanged;
-  final ValueChanged<String?> onCategoryChanged;
+  final ValueChanged<CommandCategory?> onCategoryChanged;
   final ValueChanged<bool?> onElevationChanged;
   final VoidCallback onSearchClear;
 
@@ -103,7 +104,7 @@ class CommandFiltersSection extends StatelessWidget {
 
               // Sélecteur de catégorie
               Expanded(
-                child: DropdownButtonFormField<String>(
+                child: DropdownButtonFormField<CommandCategory?>(
                   initialValue: selectedCategory,
                   decoration: InputDecoration(
                     labelText: isFr ? 'Catégorie' : 'Category',
@@ -113,12 +114,18 @@ class CommandFiltersSection extends StatelessWidget {
                     filled: true,
                     fillColor: Theme.of(context).scaffoldBackgroundColor,
                   ),
-                  items: categories.map((category) {
-                    return DropdownMenuItem(
-                      value: category,
-                      child: Text(category),
-                    );
-                  }).toList(),
+                  items: [
+                    DropdownMenuItem<CommandCategory?>(
+                      value: null,
+                      child: Text(isFr ? 'Toutes' : 'All'),
+                    ),
+                    ...categories.map((category) {
+                      return DropdownMenuItem<CommandCategory?>(
+                        value: category,
+                        child: Text(category.label(isFr)),
+                      );
+                    }),
+                  ],
                   onChanged: onCategoryChanged,
                 ),
               ),

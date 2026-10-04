@@ -86,13 +86,19 @@ class ClientCommand {
   final String description;
   final String windowsCommand;
   final String linuxCommand;
-  final String category;
+  final CommandCategory category;
   final List<String> tags;
   final bool requiresElevation;
   final String? notes;
   final CommandType type;
   final List<CommandParameter>? parameters;
   final bool isDynamic;
+
+  /// 该命令在 Windows 上是否可用。
+  ///
+  /// 此前由 [windowsCommand] 是否包含法语文案 "Non applicable" 推断，
+  /// 一旦把命令文案本地化就会静默失效，故改为显式字段。
+  final bool isWindowsSupported;
 
   const ClientCommand({
     required this.id,
@@ -107,6 +113,7 @@ class ClientCommand {
     this.type = CommandType.static,
     this.parameters,
     this.isDynamic = false,
+    this.isWindowsSupported = true,
   });
 
   factory ClientCommand.fromJson(Map<String, dynamic> json) {
@@ -116,7 +123,7 @@ class ClientCommand {
       description: json['description'] as String,
       windowsCommand: json['windowsCommand'] as String,
       linuxCommand: json['linuxCommand'] as String,
-      category: json['category'] as String,
+      category: CommandCategory.fromStored(json['category'] as String?),
       tags: List<String>.from(json['tags'] as List),
       requiresElevation: json['requiresElevation'] as bool? ?? false,
       notes: json['notes'] as String?,
@@ -130,6 +137,7 @@ class ClientCommand {
               .toList()
           : null,
       isDynamic: json['isDynamic'] as bool? ?? false,
+      isWindowsSupported: json['isWindowsSupported'] as bool? ?? true,
     );
   }
 
@@ -140,13 +148,14 @@ class ClientCommand {
       'description': description,
       'windowsCommand': windowsCommand,
       'linuxCommand': linuxCommand,
-      'category': category,
+      'category': category.key,
       'tags': tags,
       'requiresElevation': requiresElevation,
       'notes': notes,
       'type': type.toString().split('.').last,
       'parameters': parameters?.map((p) => p.toJson()).toList(),
       'isDynamic': isDynamic,
+      'isWindowsSupported': isWindowsSupported,
     };
   }
 
@@ -181,39 +190,59 @@ class ClientCommand {
 }
 
 // Catégories prédéfinies
-class CommandCategories {
-  static const String connection = 'Connexion';
-  static const String routing = 'Routage';
-  static const String troubleshooting = 'Dépannage';
-  static const String configuration = 'Configuration';
-  static const String monitoring = 'Surveillance';
-  static const String security = 'Sécurité';
-  static const String maintenance = 'Maintenance';
-  static const String serverSpecific = 'Spécifique Serveur';
+// 命令分类：与界面语言解耦的稳定枚举。
+//
+// 过滤、配色、图标等逻辑只依赖枚举值本身；展示文案由 [label] 提供；
+// 持久化使用 [key]（ASCII），因此切换界面语言不会污染已有数据。
+enum CommandCategory {
+  connection,
+  routing,
+  troubleshooting,
+  configuration,
+  monitoring,
+  security,
+  maintenance,
+  serverSpecific,
+  other;
 
-  static String get(String category, bool isFr) {
-    if (isFr) return category;
-    switch (category) {
-      case connection:
-        return 'Connection';
-      case routing:
-        return 'Routing';
-      case troubleshooting:
-        return 'Troubleshooting';
-      case configuration:
-        return 'Configuration';
-      case monitoring:
-        return 'Monitoring';
-      case security:
-        return 'Security';
-      case maintenance:
-        return 'Maintenance';
-      case serverSpecific:
-        return 'Server Specific';
-      default:
-        return category;
+  /// 序列化用的稳定标识（禁止本地化）。
+  String get key => name;
+
+  /// 从 [key] 还原；无法识别时回退到 [other]。
+  static CommandCategory fromKey(String? key) =>
+      values.firstWhere((c) => c.key == key, orElse: () => other);
+
+  /// 兼容历史数据：旧版本曾把本地化后的分类名直接写进 category 字段。
+  static CommandCategory fromStored(String? value) {
+    if (value == null) return other;
+    for (final c in values) {
+      if (c.key == value) return c;
     }
+    return switch (value) {
+      'Connexion' || 'Connection' => connection,
+      'Routage' || 'Routing' => routing,
+      'Dépannage' || 'Troubleshooting' => troubleshooting,
+      'Configuration' => configuration,
+      'Surveillance' || 'Monitoring' => monitoring,
+      'Sécurité' || 'Security' => security,
+      'Maintenance' => maintenance,
+      'Spécifique Serveur' || 'Server Specific' => serverSpecific,
+      _ => other,
+    };
   }
+
+  /// 展示文案。
+  String label(bool isFr) => switch (this) {
+        connection => isFr ? 'Connexion' : 'Connection',
+        routing => isFr ? 'Routage' : 'Routing',
+        troubleshooting => isFr ? 'Dépannage' : 'Troubleshooting',
+        configuration => 'Configuration',
+        monitoring => isFr ? 'Surveillance' : 'Monitoring',
+        security => isFr ? 'Sécurité' : 'Security',
+        maintenance => 'Maintenance',
+        serverSpecific => isFr ? 'Spécifique Serveur' : 'Server Specific',
+        other => isFr ? 'Autre' : 'Other',
+      };
 }
 
 // Générateur de commandes dynamiques
@@ -233,7 +262,7 @@ class DynamicCommandGenerator {
             : 'Connect to the Headscale server configured in the application',
         windowsCommand: 'tailscale up --login-server=$serverUrl',
         linuxCommand: 'sudo tailscale up --login-server=$serverUrl',
-        category: CommandCategories.get(CommandCategories.connection, isFr),
+        category: CommandCategory.connection,
         tags: ['connexion', 'serveur', 'up'],
         type: CommandType.serverBased,
         isDynamic: false,
@@ -252,7 +281,7 @@ class DynamicCommandGenerator {
             'tailscale up --login-server=$serverUrl --authkey={authkey}',
         linuxCommand:
             'sudo tailscale up --login-server=$serverUrl --authkey={authkey}',
-        category: CommandCategories.get(CommandCategories.connection, isFr),
+        category: CommandCategory.connection,
         tags: ['connexion', 'authkey', 'up'],
         type: CommandType.dynamic,
         isDynamic: true,
@@ -292,7 +321,7 @@ class DynamicCommandGenerator {
               'tailscale up --login-server={server_url} --exit-node={node_name}',
           linuxCommand:
               'sudo tailscale up --login-server={server_url} --exit-node={node_name}',
-          category: CommandCategories.get(CommandCategories.routing, isFr),
+          category: CommandCategory.routing,
           tags: ['exit-node', 'routing', 'spécifique', 'serveur'],
           type: CommandType.dynamic,
           isDynamic: true,
@@ -333,7 +362,7 @@ class DynamicCommandGenerator {
           windowsCommand: 'tailscale ping {node_ip}',
           linuxCommand: 'tailscale ping {node_ip}',
           category:
-              CommandCategories.get(CommandCategories.troubleshooting, isFr),
+              CommandCategory.troubleshooting,
           tags: ['ping', 'test', 'spécifique'],
           type: CommandType.dynamic,
           isDynamic: true,
@@ -385,7 +414,7 @@ class DynamicCommandGenerator {
               'tailscale up --login-server={server_url} --advertise-routes={routes}',
           linuxCommand:
               'sudo tailscale up --login-server={server_url} --advertise-routes={routes}',
-          category: CommandCategories.get(CommandCategories.routing, isFr),
+          category: CommandCategory.routing,
           tags: ['routes', 'subnet', 'personnalisé', 'serveur'],
           type: CommandType.dynamic,
           isDynamic: true,
@@ -433,7 +462,7 @@ class DynamicCommandGenerator {
             'tailscale up --login-server={server_url} --hostname={hostname} {additional_params}',
         linuxCommand:
             'sudo tailscale up --login-server={server_url} --hostname={hostname} {additional_params}',
-        category: CommandCategories.get(CommandCategories.configuration, isFr),
+        category: CommandCategory.configuration,
         tags: ['configuration', 'personnalisé', 'complet'],
         type: CommandType.interactive,
         isDynamic: true,
@@ -500,7 +529,7 @@ class DynamicCommandGenerator {
             'tailscale up --login-server={server_url} --advertise-routes={routes} {exit_node_param} {accept_routes_param}',
         linuxCommand:
             'sudo tailscale up --login-server={server_url} --advertise-routes={routes} {exit_node_param} {accept_routes_param}',
-        category: CommandCategories.get(CommandCategories.routing, isFr),
+        category: CommandCategory.routing,
         tags: ['routing', 'avancé', 'personnalisé', 'serveur'],
         type: CommandType.interactive,
         isDynamic: true,
@@ -591,7 +620,7 @@ class DynamicCommandGenerator {
             : "Opens the local Tailscale client web interface to view peers and status (if supported by the client).",
         windowsCommand: 'tailscale web',
         linuxCommand: 'tailscale web',
-        category: CommandCategories.get(CommandCategories.monitoring, isFr),
+        category: CommandCategory.monitoring,
         tags: ['web', 'ui', 'interface', 'monitoring'],
         notes: isFr
             ? "Cette commande peut ouvrir un navigateur directement ou afficher une URL à copier."
@@ -607,7 +636,7 @@ class DynamicCommandGenerator {
             : "Shares a local service (e.g., web server) on the Tailscale network.",
         windowsCommand: 'tailscale serve {protocol} /{port}',
         linuxCommand: 'tailscale serve {protocol} /{port}',
-        category: CommandCategories.get(CommandCategories.routing, isFr),
+        category: CommandCategory.routing,
         tags: ['serve', 'proxy', 'https', 'tcp'],
         type: CommandType.interactive,
         isDynamic: true,
@@ -646,7 +675,7 @@ class DynamicCommandGenerator {
             : "Send a file to another of your machines.",
         windowsCommand: 'tailscale file cp {filepath} {target_node}:',
         linuxCommand: 'tailscale file cp {filepath} {target_node}:',
-        category: CommandCategories.get(CommandCategories.maintenance, isFr),
+        category: CommandCategory.maintenance,
         tags: ['file', 'taildrop', 'send', 'cp'],
         type: CommandType.dynamic,
         isDynamic: true,
@@ -682,7 +711,7 @@ class DynamicCommandGenerator {
             : "Check for and receive incoming files.",
         windowsCommand: 'tailscale file get',
         linuxCommand: 'tailscale file get',
-        category: CommandCategories.get(CommandCategories.maintenance, isFr),
+        category: CommandCategory.maintenance,
         tags: ['file', 'taildrop', 'get', 'receive'],
       ),
 
@@ -697,7 +726,7 @@ class DynamicCommandGenerator {
         windowsCommand: 'tailscale debug derp',
         linuxCommand: 'tailscale debug derp',
         category:
-            CommandCategories.get(CommandCategories.troubleshooting, isFr),
+            CommandCategory.troubleshooting,
         tags: ['debug', 'derp', 'relay', 'latency'],
       ),
 
@@ -711,7 +740,7 @@ class DynamicCommandGenerator {
             : "Forces client re-authentication.",
         windowsCommand: 'tailscale up --force-reauth',
         linuxCommand: 'sudo tailscale up --force-reauth',
-        category: CommandCategories.get(CommandCategories.connection, isFr),
+        category: CommandCategory.connection,
         tags: ['up', 'reauth', 'login'],
       ),
       ClientCommand(
@@ -722,7 +751,7 @@ class DynamicCommandGenerator {
             : "Blocks all incoming connections, even from your Tailscale network.",
         windowsCommand: 'tailscale up --shields-up',
         linuxCommand: 'sudo tailscale up --shields-up',
-        category: CommandCategories.get(CommandCategories.security, isFr),
+        category: CommandCategory.security,
         tags: ['up', 'firewall', 'shields', 'security'],
       ),
       ClientCommand(
@@ -735,7 +764,7 @@ class DynamicCommandGenerator {
             : "Allows the machine to access its own physical LAN while using an exit node.",
         windowsCommand: 'tailscale up --exit-node-allow-lan-access=true',
         linuxCommand: 'sudo tailscale up --exit-node-allow-lan-access=true',
-        category: CommandCategories.get(CommandCategories.routing, isFr),
+        category: CommandCategory.routing,
         tags: ['up', 'exit-node', 'lan', 'routing'],
       ),
 
@@ -748,7 +777,7 @@ class DynamicCommandGenerator {
             : 'Connect to Tailscale specifying a Headscale server',
         windowsCommand: 'tailscale up --login-server={server_url}',
         linuxCommand: 'sudo tailscale up --login-server={server_url}',
-        category: CommandCategories.get(CommandCategories.connection, isFr),
+        category: CommandCategory.connection,
         tags: ['connexion', 'up', 'simple', 'serveur'],
         type: CommandType.dynamic,
         isDynamic: true,
@@ -778,7 +807,7 @@ class DynamicCommandGenerator {
             'tailscale up --login-server={server_url} --authkey={authkey}',
         linuxCommand:
             'sudo tailscale up --login-server={server_url} --authkey={authkey}',
-        category: CommandCategories.get(CommandCategories.connection, isFr),
+        category: CommandCategory.connection,
         tags: ['connexion', 'up', 'authkey', 'serveur'],
         type: CommandType.dynamic,
         isDynamic: true,
@@ -818,7 +847,7 @@ class DynamicCommandGenerator {
             'tailscale up --login-server={server_url} --advertise-routes={routes}',
         linuxCommand:
             'sudo tailscale up --login-server={server_url} --advertise-routes={routes}',
-        category: CommandCategories.get(CommandCategories.connection, isFr),
+        category: CommandCategory.connection,
         tags: ['connexion', 'up', 'routes', 'serveur'],
         type: CommandType.dynamic,
         isDynamic: true,
@@ -854,7 +883,7 @@ class DynamicCommandGenerator {
             : 'Disconnect from Headscale network',
         windowsCommand: 'tailscale down',
         linuxCommand: 'sudo tailscale down',
-        category: CommandCategories.get(CommandCategories.connection, isFr),
+        category: CommandCategory.connection,
         tags: ['déconnexion', 'down'],
       ),
 
@@ -866,7 +895,7 @@ class DynamicCommandGenerator {
             : 'Disconnect and remove authentication info',
         windowsCommand: 'tailscale logout',
         linuxCommand: 'sudo tailscale logout',
-        category: CommandCategories.get(CommandCategories.connection, isFr),
+        category: CommandCategory.connection,
         tags: ['logout', 'reset'],
       ),
 
@@ -879,7 +908,7 @@ class DynamicCommandGenerator {
             : 'Show current Tailscale status',
         windowsCommand: 'tailscale status',
         linuxCommand: 'tailscale status',
-        category: CommandCategories.get(CommandCategories.monitoring, isFr),
+        category: CommandCategory.monitoring,
         tags: ['status', 'info'],
       ),
 
@@ -891,7 +920,7 @@ class DynamicCommandGenerator {
             : 'Show Tailscale IP address',
         windowsCommand: 'tailscale ip',
         linuxCommand: 'tailscale ip',
-        category: CommandCategories.get(CommandCategories.monitoring, isFr),
+        category: CommandCategory.monitoring,
         tags: ['ip', 'address'],
       ),
 
@@ -905,7 +934,7 @@ class DynamicCommandGenerator {
         windowsCommand: 'tailscale netcheck',
         linuxCommand: 'tailscale netcheck',
         category:
-            CommandCategories.get(CommandCategories.troubleshooting, isFr),
+            CommandCategory.troubleshooting,
         tags: ['network', 'test', 'connectivity'],
       ),
 
@@ -920,7 +949,7 @@ class DynamicCommandGenerator {
             'tailscale up --login-server={server_url} --accept-routes',
         linuxCommand:
             'sudo tailscale up --login-server={server_url} --accept-routes',
-        category: CommandCategories.get(CommandCategories.configuration, isFr),
+        category: CommandCategory.configuration,
         tags: ['routes', 'accept', 'serveur'],
         type: CommandType.dynamic,
         isDynamic: true,
@@ -947,7 +976,7 @@ class DynamicCommandGenerator {
         windowsCommand: 'tailscale up --login-server={server_url} --timeout=0',
         linuxCommand:
             'sudo tailscale up --login-server={server_url} --timeout=0',
-        category: CommandCategories.get(CommandCategories.configuration, isFr),
+        category: CommandCategory.configuration,
         tags: ['key', 'expiry', 'timeout', 'serveur'],
         type: CommandType.dynamic,
         isDynamic: true,
@@ -974,7 +1003,7 @@ class DynamicCommandGenerator {
             : 'Enable SSH access via Tailscale',
         windowsCommand: 'tailscale up --login-server={server_url} --ssh',
         linuxCommand: 'sudo tailscale up --login-server={server_url} --ssh',
-        category: CommandCategories.get(CommandCategories.security, isFr),
+        category: CommandCategory.security,
         tags: ['ssh', 'remote', 'serveur'],
         requiresElevation: true,
         type: CommandType.dynamic,
@@ -1002,7 +1031,7 @@ class DynamicCommandGenerator {
         windowsCommand: 'tailscale up --login-server={server_url} --ssh=false',
         linuxCommand:
             'sudo tailscale up --login-server={server_url} --ssh=false',
-        category: CommandCategories.get(CommandCategories.security, isFr),
+        category: CommandCategory.security,
         tags: ['ssh', 'disable', 'serveur'],
         type: CommandType.dynamic,
         isDynamic: true,
@@ -1029,7 +1058,7 @@ class DynamicCommandGenerator {
             : 'Update to the latest version',
         windowsCommand: 'tailscale update',
         linuxCommand: 'sudo tailscale update',
-        category: CommandCategories.get(CommandCategories.maintenance, isFr),
+        category: CommandCategory.maintenance,
         tags: ['update', 'upgrade'],
         requiresElevation: true,
       ),
@@ -1041,7 +1070,7 @@ class DynamicCommandGenerator {
             isFr ? 'Afficher la version installée' : 'Show installed version',
         windowsCommand: 'tailscale version',
         linuxCommand: 'tailscale version',
-        category: CommandCategories.get(CommandCategories.maintenance, isFr),
+        category: CommandCategory.maintenance,
         tags: ['version', 'info'],
       ),
 
@@ -1054,7 +1083,7 @@ class DynamicCommandGenerator {
         windowsCommand: 'tailscale bugreport',
         linuxCommand: 'sudo tailscale bugreport',
         category:
-            CommandCategories.get(CommandCategories.troubleshooting, isFr),
+            CommandCategory.troubleshooting,
         tags: ['bug', 'diagnostic', 'support'],
       ),
 
@@ -1068,9 +1097,10 @@ class DynamicCommandGenerator {
             ? 'Activer le transfert IP pour le routage de sous-réseau'
             : 'Enable IP forwarding for subnet routing',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand:
             'echo \'net.ipv4.ip_forward = 1\' | sudo tee -a /etc/sysctl.conf && echo \'net.ipv6.conf.all.forwarding = 1\' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p',
-        category: CommandCategories.get(CommandCategories.configuration, isFr),
+        category: CommandCategory.configuration,
         tags: ['linux', 'forwarding', 'routing'],
         requiresElevation: true,
         notes: isFr
@@ -1087,8 +1117,9 @@ class DynamicCommandGenerator {
             ? 'Installer Tailscale sur les systèmes basés sur Debian'
             : 'Install Tailscale on Debian-based systems',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand: 'curl -fsSL https://tailscale.com/install.sh | sh',
-        category: CommandCategories.get(CommandCategories.maintenance, isFr),
+        category: CommandCategory.maintenance,
         tags: ['linux', 'install', 'debian', 'ubuntu'],
         requiresElevation: true,
         notes: isFr
@@ -1105,9 +1136,10 @@ class DynamicCommandGenerator {
             ? 'Installer Tailscale sur les systèmes Red Hat'
             : 'Install Tailscale on Red Hat systems',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand:
             'sudo dnf config-manager --add-repo https://pkgs.tailscale.com/stable/rhel/8/tailscale.repo && sudo dnf install tailscale',
-        category: CommandCategories.get(CommandCategories.maintenance, isFr),
+        category: CommandCategory.maintenance,
         tags: ['linux', 'install', 'rhel', 'centos', 'fedora'],
         requiresElevation: true,
         notes: isFr
@@ -1124,8 +1156,9 @@ class DynamicCommandGenerator {
             ? 'Installer Tailscale sur Arch Linux'
             : 'Install Tailscale on Arch Linux',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand: 'sudo pacman -S tailscale',
-        category: CommandCategories.get(CommandCategories.maintenance, isFr),
+        category: CommandCategory.maintenance,
         tags: ['linux', 'install', 'arch'],
         requiresElevation: true,
         notes: isFr
@@ -1142,8 +1175,9 @@ class DynamicCommandGenerator {
             ? 'Activer et démarrer le service Tailscale au boot'
             : 'Enable and start Tailscale service at boot',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand: 'sudo systemctl enable --now tailscaled',
-        category: CommandCategories.get(CommandCategories.configuration, isFr),
+        category: CommandCategory.configuration,
         tags: ['linux', 'service', 'systemd'],
         requiresElevation: true,
         notes: isFr
@@ -1160,9 +1194,10 @@ class DynamicCommandGenerator {
             ? 'Vérifier le statut du service Tailscale'
             : 'Check Tailscale service status',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand: 'sudo systemctl status tailscaled',
         category:
-            CommandCategories.get(CommandCategories.troubleshooting, isFr),
+            CommandCategory.troubleshooting,
         tags: ['linux', 'service', 'status'],
         requiresElevation: false,
         notes: isFr
@@ -1178,9 +1213,10 @@ class DynamicCommandGenerator {
         description:
             isFr ? 'Redémarrer le démon Tailscale' : 'Restart Tailscale daemon',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand: 'sudo systemctl restart tailscaled',
         category:
-            CommandCategories.get(CommandCategories.troubleshooting, isFr),
+            CommandCategory.troubleshooting,
         tags: ['linux', 'service', 'restart'],
         requiresElevation: true,
         notes: isFr
@@ -1197,9 +1233,10 @@ class DynamicCommandGenerator {
             ? 'Configurer le pare-feu UFW pour autoriser Tailscale'
             : 'Configure UFW firewall to allow Tailscale',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand:
             'sudo ufw allow in on tailscale0 && sudo ufw allow out on tailscale0',
-        category: CommandCategories.get(CommandCategories.security, isFr),
+        category: CommandCategory.security,
         tags: ['linux', 'firewall', 'ufw'],
         requiresElevation: true,
         notes: isFr
@@ -1216,9 +1253,10 @@ class DynamicCommandGenerator {
             ? 'Configurer iptables pour autoriser Tailscale'
             : 'Configure iptables to allow Tailscale',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand:
             'sudo iptables -I INPUT -i tailscale0 -j ACCEPT && sudo iptables -I FORWARD -i tailscale0 -j ACCEPT && sudo iptables -I FORWARD -o tailscale0 -j ACCEPT',
-        category: CommandCategories.get(CommandCategories.security, isFr),
+        category: CommandCategory.security,
         tags: ['linux', 'firewall', 'iptables'],
         requiresElevation: true,
         notes: isFr
@@ -1235,9 +1273,10 @@ class DynamicCommandGenerator {
             ? 'Configuration complète pour devenir un routeur de sous-réseau'
             : 'Full configuration to become a subnet router',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand:
             'echo \'net.ipv4.ip_forward = 1\' | sudo tee -a /etc/sysctl.conf && echo \'net.ipv6.conf.all.forwarding = 1\' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p && sudo tailscale up --login-server={server_url} --advertise-routes=192.168.1.0/24 --accept-routes',
-        category: CommandCategories.get(CommandCategories.routing, isFr),
+        category: CommandCategory.routing,
         tags: ['linux', 'subnet', 'router', 'forwarding', 'serveur'],
         requiresElevation: true,
         notes: isFr
@@ -1268,9 +1307,10 @@ class DynamicCommandGenerator {
             ? 'Afficher les logs du service Tailscale'
             : 'Show logs of Tailscale service',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand: 'sudo journalctl -u tailscaled -f',
         category:
-            CommandCategories.get(CommandCategories.troubleshooting, isFr),
+            CommandCategory.troubleshooting,
         tags: ['linux', 'logs', 'debug'],
         requiresElevation: false,
         notes: isFr
@@ -1287,8 +1327,9 @@ class DynamicCommandGenerator {
             ? 'Désinstaller complètement Tailscale'
             : 'Uninstall Tailscale completely',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand: 'sudo apt remove tailscale && sudo apt purge tailscale',
-        category: CommandCategories.get(CommandCategories.maintenance, isFr),
+        category: CommandCategory.maintenance,
         tags: ['linux', 'uninstall', 'debian', 'ubuntu'],
         requiresElevation: true,
         notes: isFr
@@ -1305,9 +1346,10 @@ class DynamicCommandGenerator {
             ? 'Sauvegarder les fichiers de configuration Tailscale'
             : 'Backup Tailscale configuration files',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand:
             'sudo tar -czf ~/tailscale-backup-\$(date +%Y%m%d).tar.gz /var/lib/tailscale/',
-        category: CommandCategories.get(CommandCategories.maintenance, isFr),
+        category: CommandCategory.maintenance,
         tags: ['linux', 'backup', 'configuration'],
         requiresElevation: true,
         notes: isFr
@@ -1324,10 +1366,11 @@ class DynamicCommandGenerator {
             ? 'Afficher toutes les interfaces réseau incluant Tailscale'
             : 'Show all network interfaces including Tailscale',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand:
             'ip addr show && echo "--- Routes Tailscale ---" && ip route show table 52',
         category:
-            CommandCategories.get(CommandCategories.troubleshooting, isFr),
+            CommandCategory.troubleshooting,
         tags: ['linux', 'network', 'interfaces'],
         requiresElevation: false,
         notes: isFr
@@ -1344,9 +1387,10 @@ class DynamicCommandGenerator {
             ? 'Configuration complète pour devenir un nœud de sortie'
             : 'Full configuration to become an exit node',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand:
             'echo \'net.ipv4.ip_forward = 1\' | sudo tee -a /etc/sysctl.conf && echo \'net.ipv6.conf.all.forwarding = 1\' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p && sudo tailscale up --login-server={server_url} --advertise-exit-node',
-        category: CommandCategories.get(CommandCategories.routing, isFr),
+        category: CommandCategory.routing,
         tags: ['linux', 'exit-node', 'forwarding', 'serveur'],
         requiresElevation: true,
         notes: isFr
@@ -1377,9 +1421,10 @@ class DynamicCommandGenerator {
             ? 'Configurer la résolution DNS via Tailscale'
             : 'Configure DNS resolution via Tailscale',
         windowsCommand: 'echo "Non applicable sur Windows"',
+        isWindowsSupported: false,
         linuxCommand:
             'sudo tailscale up --login-server={server_url} --accept-dns=true',
-        category: CommandCategories.get(CommandCategories.configuration, isFr),
+        category: CommandCategory.configuration,
         tags: ['linux', 'dns', 'resolution', 'serveur'],
         requiresElevation: true,
         type: CommandType.dynamic,

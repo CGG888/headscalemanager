@@ -19,21 +19,16 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<ClientCommand> _allCommands = [];
   List<ClientCommand> _filteredCommands = [];
-  String _selectedCategory = ''; // Will be initialized in initState
   String _selectedPlatform = 'Windows';
   bool _showOnlyElevated = false;
-  String _allCategoriesString = 'Toutes'; // Default to French
+  // null = 全部分类（不再用本地化字符串 "Toutes"/"All" 当哨兵值）
+  CommandCategory? _selectedCategory;
 
   @override
   void initState() {
     super.initState();
     // Use a post-frame callback to access context safely for locale
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final isFr = context.read<AppProvider>().locale.languageCode == 'fr';
-      setState(() {
-        _allCategoriesString = isFr ? 'Toutes' : 'All';
-        _selectedCategory = _allCategoriesString;
-      });
       _loadCommands();
     });
     _searchController.addListener(_filterCommands);
@@ -95,14 +90,15 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
             command.description.toLowerCase().contains(searchTerm) ||
             command.tags.any((tag) => tag.toLowerCase().contains(searchTerm));
 
-        final matchesCategory = _selectedCategory == _allCategoriesString ||
-            command.category == _selectedCategory;
+        final matchesCategory =
+            _selectedCategory == null || command.category == _selectedCategory;
 
         final matchesElevation =
             !_showOnlyElevated || command.requiresElevation;
 
-        final isLinuxOnly = command.tags.contains('linux') &&
-            command.windowsCommand.contains('Non applicable');
+        // 显式字段，不再嗅探 windowsCommand 里的本地化文案
+        final isLinuxOnly =
+            command.tags.contains('linux') && !command.isWindowsSupported;
         final matchesPlatform =
             !(_selectedPlatform == 'Windows' && isLinuxOnly);
 
@@ -114,15 +110,11 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
     });
   }
 
-  List<String> _getCategories() {
-    final categories = {_allCategoriesString};
-    categories.addAll(_allCommands.map((cmd) => cmd.category));
-    return categories.toList()
-      ..sort((a, b) {
-        if (a == _allCategoriesString) return -1;
-        if (b == _allCategoriesString) return 1;
-        return a.compareTo(b);
-      });
+  /// 返回按当前语言展示名排序的分类列表；"全部" 由 null 表示，不在此列。
+  List<CommandCategory> _getCategories({required bool isFr}) {
+    final categories = _allCommands.map((cmd) => cmd.category).toSet().toList();
+    categories.sort((a, b) => a.label(isFr).compareTo(b.label(isFr)));
+    return categories;
   }
 
   void _copyToClipboard(String command) {
@@ -185,7 +177,7 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
               selectedPlatform: _selectedPlatform,
               selectedCategory: _selectedCategory,
               showOnlyElevated: _showOnlyElevated,
-              categories: _getCategories(),
+              categories: _getCategories(isFr: isFr),
               onPlatformChanged: (value) {
                 if (value != null) {
                   setState(() {
@@ -195,12 +187,11 @@ class _ClientCommandsScreenState extends State<ClientCommandsScreen> {
                 }
               },
               onCategoryChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _selectedCategory = value;
-                    _filterCommands();
-                  });
-                }
+                // null = 全部分类
+                setState(() {
+                  _selectedCategory = value;
+                  _filterCommands();
+                });
               },
               onElevationChanged: (value) {
                 if (value != null) {

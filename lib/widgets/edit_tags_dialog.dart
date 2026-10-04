@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:headscalemanager/api/headscale_api_service.dart';
 import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
@@ -177,9 +178,13 @@ class _EditTagsDialogState extends State<EditTagsDialog> {
       try {
         await apiService.setTags(widget.node.id, _currentTags);
       } catch (tagError) {
-        final errStr = tagError.toString().toLowerCase();
+        // 逻辑判断只依赖服务端原始响应体（rawBody），
+        // 不依赖面向用户的展示文案——后者将来会被本地化。
+        final raw = tagError is HeadscaleApiException
+            ? tagError.rawBody.toLowerCase()
+            : tagError.toString().toLowerCase();
         // Si Headscale rejette car le tag n'est pas encore dans tagOwners de l'ACL active
-        if (errStr.contains('not permitted')) {
+        if (raw.contains('not permitted')) {
           final serverId = appProvider.activeServer?.id;
           if (serverId != null) {
             final allUsers = await apiService.getUsers();

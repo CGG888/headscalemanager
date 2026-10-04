@@ -19,42 +19,43 @@ class CommandCard extends StatelessWidget {
     required this.onConfigure,
   });
 
-  Color _getCategoryColor(String category) {
+  // 依赖枚举而不是本地化后的分类名：此前英文界面下所有分类都会落到 default。
+  Color _getCategoryColor(CommandCategory category) {
     switch (category) {
-      case 'Connexion':
+      case CommandCategory.connection:
         return Colors.green;
-      case 'Routage':
+      case CommandCategory.routing:
         return Colors.blue;
-      case 'Dépannage':
+      case CommandCategory.troubleshooting:
         return Colors.orange;
-      case 'Configuration':
+      case CommandCategory.configuration:
         return Colors.purple;
-      case 'Surveillance':
+      case CommandCategory.monitoring:
         return Colors.teal;
-      case 'Sécurité':
+      case CommandCategory.security:
         return Colors.red;
-      case 'Maintenance':
+      case CommandCategory.maintenance:
         return Colors.brown;
       default:
         return Colors.grey;
     }
   }
 
-  IconData _getCategoryIcon(String category) {
+  IconData _getCategoryIcon(CommandCategory category) {
     switch (category) {
-      case 'Connexion':
+      case CommandCategory.connection:
         return Icons.link;
-      case 'Routage':
+      case CommandCategory.routing:
         return Icons.route;
-      case 'Dépannage':
+      case CommandCategory.troubleshooting:
         return Icons.build;
-      case 'Configuration':
+      case CommandCategory.configuration:
         return Icons.settings;
-      case 'Surveillance':
+      case CommandCategory.monitoring:
         return Icons.monitor;
-      case 'Sécurité':
+      case CommandCategory.security:
         return Icons.security;
-      case 'Maintenance':
+      case CommandCategory.maintenance:
         return Icons.handyman;
       default:
         return Icons.code;
@@ -131,7 +132,7 @@ class CommandCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    command.category,
+                    command.category.label(isFr),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                       fontSize: 11,
