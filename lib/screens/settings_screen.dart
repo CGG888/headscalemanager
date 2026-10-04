@@ -4,7 +4,6 @@ import 'package:headscalemanager/models/acl_engine_mode.dart';
 import 'package:headscalemanager/models/version_info.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/screens/help_screen.dart';
-import 'package:headscalemanager/screens/help_screen_en.dart';
 import 'package:headscalemanager/screens/security_settings_screen.dart';
 import 'package:headscalemanager/services/notification_service.dart';
 import 'package:provider/provider.dart';
@@ -282,12 +281,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 16),
                       TextButton(
                         onPressed: () {
-                          final locale = context.read<AppProvider>().locale;
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => locale.languageCode == 'fr'
-                                  ? const HelpScreen()
-                                  : const HelpScreenEn(),
+                              builder: (context) => const HelpScreen(),
                             ),
                           );
                         },

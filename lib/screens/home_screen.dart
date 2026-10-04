@@ -7,7 +7,6 @@ import 'package:headscalemanager/screens/settings_screen.dart';
 import 'package:headscalemanager/screens/users_screen.dart';
 import 'package:headscalemanager/screens/dns_screen.dart';
 import 'package:headscalemanager/screens/help_screen.dart';
-import 'package:headscalemanager/screens/help_screen_en.dart';
 import 'package:provider/provider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
@@ -179,9 +178,8 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(Icons.help_outline, color: theme.colorScheme.primary),
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) =>
-                      l10n.isFr ? const HelpScreen() : const HelpScreenEn()));
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const HelpScreen()));
             },
           ),
           IconButton(
