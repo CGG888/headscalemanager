@@ -56,21 +56,9 @@ android {
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
-                // 强制 v1(JAR) + v2 + v3 三种签名方案。
-                // AGP 默认在 minSdk >= 24 时只做 v2/v3，而部分安装器（旧系统、某些
-                // 国产 ROM / 定制安装器）只校验 v1，缺失时会报「解析失败，安装包没有
-                // 签名文件」。同时启用三种方案对体积影响很小，兼容性最好。
                 enableV1Signing = true
                 enableV2Signing = true
                 enableV3Signing = true
-            }
-        }
-        // 无密钥库时回退的 debug 签名同样要带上 v1，
-        // 否则 CI 产出的 release APK 在那些安装器上依然装不上。
-        if (signingConfigs.findByName("debug") != null) {
-            getByName("debug") {
-                enableV1Signing = true
-                enableV2Signing = true
             }
         }
     }
@@ -79,11 +67,24 @@ android {
         release {
             isMinifyEnabled = false
             isShrinkResources = false
-            signingConfig = if (hasReleaseKeystore) {
+
+            // 先把实际要用的签名配置解析出来，再设置签名方案。
+            // 注意：不能在 signingConfigs {} 块里给 "debug" 设标志——那时 AGP 还没创建
+            // 它（findByName 返回 null，整块被静默跳过，v1 依然缺失）。
+            val usedSigningConfig = if (hasReleaseKeystore) {
                 signingConfigs.getByName("release")
             } else {
                 signingConfigs.getByName("debug")
             }
+
+            // 强制 v1(JAR) + v2 + v3。
+            // AGP 在 minSdk >= 24 时默认只做 v2/v3，而部分安装器（旧系统、定制 ROM、
+            // MDM 管控设备）只校验 v1，缺失时会报「解析失败，安装包没有签名文件」。
+            usedSigningConfig.enableV1Signing = true
+            usedSigningConfig.enableV2Signing = true
+            usedSigningConfig.enableV3Signing = true
+
+            signingConfig = usedSigningConfig
         }
     }
 }

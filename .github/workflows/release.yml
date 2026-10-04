@@ -101,16 +101,35 @@ jobs:
       - name: flutter build apk --release
         run: flutter build apk --release
 
-      # 签名闸门：缺 v1(JAR) 会让部分安装器报「解析失败，安装包没有签名文件」，
-      # 因此这里硬性要求 v1 + v2/v3 都存在，并打印签名证书指纹（便于确认密钥是否稳定）。
-      - name: 校验 APK 签名（必须含 v1 + v2/v3）
+      # 签名闸门 + 自愈：缺 v1(JAR) 时用 apksigner 补签（v1+v2+v3），再校验。
+      # 这样即使 AGP 因 minSdk>=24 只做了 v2/v3，也不会发出装不上的包。
+      - name: 校验（并必要时补签）APK 签名
         run: |
+          set -o pipefail
           SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
           BT="$(ls -d "$SDK"/build-tools/* | sort -V | tail -1)"
           APK=build/app/outputs/flutter-apk/app-release.apk
           echo "使用 $BT/apksigner"
-          "$BT/apksigner" verify --verbose --print-certs "$APK"
-          OUT="$("$BT/apksigner" verify --verbose "$APK" 2>&1)"
+          OUT="$("$BT/apksigner" verify --verbose --print-certs "$APK" 2>&1 || true)"
+          echo "$OUT"
+          if echo "$OUT" | grep -q "Verified using v1 scheme (JAR signing): true"; then
+            echo "::notice::v1 + v2/v3 签名齐备"
+          else
+            echo "::warning::缺少 v1(JAR) 签名，使用 apksigner 补签"
+            if [ -f android/key.jks ]; then
+              KS=android/key.jks; ALIAS="$KEY_ALIAS"; SP="$KEYSTORE_PASSWORD"; KP="$KEY_PASSWORD"
+            else
+              KS="$HOME/.android/debug.keystore"; ALIAS=androiddebugkey; SP=android; KP=android
+            fi
+            "$BT/zipalign" -f -p 4 "$APK" "$APK.aligned"
+            "$BT/apksigner" sign --ks "$KS" --ks-pass "pass:$SP" --key-pass "pass:$KP" \
+              --ks-key-alias "$ALIAS" \
+              --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
+              --out "$APK" "$APK.aligned"
+            rm -f "$APK.aligned"
+            OUT="$("$BT/apksigner" verify --verbose --print-certs "$APK" 2>&1 || true)"
+            echo "$OUT"
+          fi
           echo "$OUT" | grep -q "Verified using v1 scheme (JAR signing): true" \
             || { echo "::error::APK 缺少 v1(JAR) 签名，部分安装器会报『安装包没有签名文件』"; exit 1; }
           echo "$OUT" | grep -qE "Verified using v(2|3) scheme.*: true" \
