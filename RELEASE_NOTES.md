@@ -50,7 +50,7 @@ address=api.ipify.org, port=43318
 3. 允许「安装未知来源应用」后安装；
 4. 首次启动填写 Headscale 服务器地址与 API 密钥。
 
-Play 商店版本：https://play.google.com/store/apps/details?id=com.dkstudio.headscalemanager
+> 本项目**未在 Google Play 或 App Store 上架**，请只从本仓库的 Releases 获取安装包。
 
 ## English summary
 

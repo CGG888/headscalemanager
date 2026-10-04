@@ -11,13 +11,11 @@ Bienvenue dans le guide d'utilisation de l'application Headscale Manager !
 
 Cette application vous permet de gérer facilement votre serveur Headscale. Ce guide vous aidera à configurer votre serveur et à utiliser l'application.
 
-Telechargement de l'application mobile android : https://play.google.com/store/apps/details?id=com.dkstudio.headscalemanager
-
 Telechargement direct de l'APK (construit automatiquement par GitHub Actions) : https://github.com/CGG888/headscalemanager/releases
 
 Cette application est une application flutter et vous permet de compiler pour IOS,MAC,WEB,Windows au besoin.
 Le code est libre d'utilisation.
-Sachez toutefois que j'ai publié gratuitement l'application sur le playstore et que je ne suis pas responsable d'une version payante sur applestore qu'un utilisateur pourrais publier.
+Ce projet n'est actuellement publié ni sur Google Play ni sur l'App Store. Installez-le uniquement depuis les Releases de ce dépôt ; toute autre source (y compris une version payante portant le même nom dans une boutique) est sans lien avec ce projet et l'auteur n'en est pas responsable.
 
 ![AISelect_20251120_140826](https://github.com/user-attachments/assets/c4026256-2474-4ded-bc26-67302d825d54)
 

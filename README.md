@@ -98,7 +98,7 @@
 
 **解决**：**v2.2.3 已修复**——CI 用 `apksigner` 显式重签并开启 v1 + v2 + v3，且以签名校验作为流水线闸门。
 
-**另外**：如果手机上装过**其他签名密钥**的旧版本（Play 商店版或早期测试版），请**先卸载**再安装。
+**另外**：如果手机上装过**其他签名密钥**的旧版本（其他渠道安装的版本或早期测试版），请**先卸载**再安装。
 </details>
 
 <details>
@@ -150,4 +150,4 @@ flutter build apk --release
 
 - 本项目是 Flutter 应用，按需可编译到 iOS、macOS、Web、Windows（当前自动化构建只覆盖 Android）。
 - 代码可自由使用。
-- 作者已将应用**免费发布在 Play 商店**，**不对他人在 App Store 发布的付费版本负责**。
+- **本项目目前未在 Google Play 或 App Store 上架**。请只从本仓库的 [Releases](https://github.com/CGG888/headscalemanager/releases) 获取安装包；其他渠道（包括应用商店中同名的付费版本）与本项目无关，作者不对此负责。
