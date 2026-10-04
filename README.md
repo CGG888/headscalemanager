@@ -1,413 +1,154 @@
-# Headscale Manager - Aide et Guide d'Utilisation
+# Headscale Manager
 
 [![Android CI](https://github.com/CGG888/headscalemanager/actions/workflows/android.yml/badge.svg)](https://github.com/CGG888/headscalemanager/actions/workflows/android.yml)
 [![Release](https://img.shields.io/github/v/release/CGG888/headscalemanager)](https://github.com/CGG888/headscalemanager/releases)
+[![Flutter](https://img.shields.io/badge/Flutter-3.47.6-02569B?logo=flutter)](https://flutter.dev)
 
-**Français** · [English](README.En.md) · [中文](README.zh-CN.md)
+**中文** · [English](README.En.md) · [Français](README.fr.md)
 
-> Interface disponible en **français / anglais / chinois simplifié** (Paramètres → Langue). L'application suit la langue du système au premier lancement.
+**Headscale Manager** 是一个 **Headscale 服务端管理客户端**（Flutter 编写，可编译到 Android / iOS / Web / Windows / macOS / Linux）。
+它直接调用 Headscale 的 REST API 来管理你的私有 Tailscale 控制面——用户、节点、路由、ACL/Grants、DNS、预认证密钥、Taildrive 等，全部可以在手机上完成。
 
-Bienvenue dans le guide d'utilisation de l'application Headscale Manager !
+![Headscale Manager](https://github.com/user-attachments/assets/c4026256-2474-4ded-bc26-67302d825d54)
 
-Cette application vous permet de gérer facilement votre serveur Headscale. Ce guide vous aidera à configurer votre serveur et à utiliser l'application.
+> **完整的分步使用指南内置在应用里**（安装 Headscale 服务端、生成 API 密钥、配置反向代理，以及逐屏功能说明，共 8 章），入口是 **「设置 → 帮助」**，且**已完整中文化**。本文件只做快速上手与项目说明。
 
-Telechargement de l'application mobile android : https://play.google.com/store/apps/details?id=com.dkstudio.headscalemanager
+## 目录
 
-Telechargement direct de l'APK (construit automatiquement par GitHub Actions) : https://github.com/CGG888/headscalemanager/releases
+- [界面语言](#界面语言)
+- [下载与安装](#下载与安装)
+- [快速上手](#快速上手)
+- [功能一览](#功能一览)
+- [常见问题](#常见问题)
+- [从源码构建](#从源码构建)
+- [签名与发布](#签名与发布)
+- [说明与免责声明](#说明与免责声明)
 
-Cette application est une application flutter et vous permet de compiler pour IOS,MAC,WEB,Windows au besoin.
-Le code est libre d'utilisation.
-Sachez toutefois que j'ai publié gratuitement l'application sur le playstore et que je ne suis pas responsable d'une version payante sur applestore qu'un utilisateur pourrais publier.
+## 界面语言
 
-![AISelect_20251120_140826](https://github.com/user-attachments/assets/c4026256-2474-4ded-bc26-67302d825d54)
+支持 **简体中文 / 英语 / 法语** 三种界面语言：
 
-
-## Fonctionnement : API
-
-L'application utilise des appels directs à l'API de Headscale pour toutes les opérations de gestion.
-
-## Tutoriel : Ajouter un appareil et le configurer (avec un client Tailscale)
-
-Voici les étapes complètes pour ajouter un nouvel appareil (nœud) à votre réseau Headscale.
-
-### Étape 1 : Créer un utilisateur
-
-Si ce n'est pas déjà fait, allez dans l'onglet "Utilisateurs" et créez un nouvel utilisateur (par exemple, "mon-user").
-
-### Étape 2 : Enregistrer l'appareil
-
-Il existe deux méthodes principales :
-
-**A) Avec une clé de pré-authentification**
-
-1. Dans l'onglet "Utilisateurs", cliquez sur l'icône de clé et créez une clé pour votre utilisateur. Même si aucune case n'est cochée, il est nécessaire de mettre 1 jour d'expiration de la clé pour générer une clé valide.
-2. Notez qu'une clé éphémére deconnectera l'utilisateur aprés le délai.
-2. Copiez la commande `tailscale up ...` fournie.
-3. Exécutez cette commande sur l'appareil que vous souhaitez ajouter. Il sera automatiquement enregistré et apparaîtra dans votre tableau de bord.
-
-**B) Enregistrement via l'application (pour les clients mobiles)**
-
-1.  **Sur l'appareil client (iOS/Android) :** Dans l'application Tailscale, allez dans les paramètres, sélectionnez "Use alternate server", et collez l'URL de votre serveur Headscale.
-2.  **Dans l'application Headscale Manager :** Après avoir effectué l'étape 1, le client Tailscale vous fournira une URL d'enregistrement unique ainsi q'une commande contenant une clé d'enregistrement. Dans l'application Headscale Manager, collez l'URL fournie par le client ou la clé d'enregistrement seule. L'appareil sera enregistré directement via l'API.
-
-### Étape 3 (Optionnel) : Renommer le nœud et ajouter des tags
-
-Une fois le nœud apparu dans le tableau de bord, vous pouvez le configurer. C'est une étape cruciale si vous utilisez les ACLs basées sur les tags.
-
-1. Allez dans les détails du nœud en cliquant dessus.
-2. Utilisez le menu pour le **renommer** (par exemple, "mon-telephone").
-3. Cliquez sur l'icône de crayon pour **modifier les tags**. Ajoutez les tags pertinents (par exemple, `tag:user-phone`, `tag:user-laptop`). L'application mettra à jour les tags directement via l'API.
-
-## 1. Prérequis et Installation du Serveur Headscale
-
-Pour utiliser cette application, vous devez disposer d'un serveur Headscale fonctionnel. Voici comment le configurer :
-
-### 1.1. Installation de Headscale avec Docker
-
-Il est recommandé d'installer Headscale via Docker en utilisant l'image officielle `headscale/headscale`. Assurez-vous de configurer la persistance des données en montant les volumes nécessaires.
-
-Exemple de commande Docker (à adapter) :
-```
-docker run -d --name headscale \
-  -v <chemin_local_config>:/etc/headscale \
-  -v <chemin_local_data>:/var/lib/headscale \
-  -p 8080:8080 \
-  headscale/headscale:latest
-```
-
-- `<chemin_local_config>` : Chemin sur votre machine hôte où se trouvera le fichier `config.yaml`.
-- `<chemin_local_data>` : Chemin sur votre machine hôte pour la persistance des données de Headscale (base de données, etc.).
-
-### 1.2. Fichiers de Configuration
-
-Dans le volume de configuration (`<chemin_local_config>`), vous aurez besoin de deux fichiers :
-
-- **`config.yaml`** : Le fichier de configuration principal de Headscale. Voici un exemple de configuration "clé en main" :
-```yaml
-server_url: https://<VOTRE_FQDN_PUBLIC>:8081
-listen_addr: 0.0.0.0:8080
-metrics_listen_addr: 127.0.0.1:9090
-grpc_listen_addr: 127.0.0.1:50443
-grpc_allow_insecure: false
-noise:
-  private_key_path: /var/lib/headscale/noise_private.key
-prefixes:
-  v4: 100.64.0.0/10
-  v6: fd7a:115c:a1e0::/48
-  allocation: sequential
-derp:
-  server:
-    enabled: false
-    region_id: 999
-    region_code: "headscale"
-    region_name: "Headscale Embedded DERP"
-    verify_clients: true
-    stun_listen_addr: "0.0.0.0:3478"
-    private_key_path: /var/lib/headscale/derp_server_private.key
-    automatically_add_embedded_derp_region: true
-    ipv4: 1.2.3.4
-    ipv6: 2001:db8::1
-  urls:
-    - https://controlplane.tailscale.com/derpmap/default
-  paths: []
-  auto_update_enabled: true
-  update_frequency: 24h
-disable_check_updates: false
-ephemeral_node_inactivity_timeout: 30m
-database:
-  type: sqlite
-  debug: false
-  gorm:
-    prepare_stmt: true
-    parameterized_queries: true
-    skip_err_record_not_found: true
-    slow_threshold: 1000
-  sqlite:
-    path: /var/lib/headscale/db.sqlite
-    write_ahead_log: true
-    wal_autocheckpoint: 1000
-acme_url: https://acme-v02.api.letsencrypt.org/directory
-acme_email: ""
-tls_letsencrypt_hostname: ""
-tls_letsencrypt_cache_dir: /var/lib/headscale/cache
-tls_letsencrypt_challenge_type: HTTP-01
-tls_letsencrypt_listen: ":http"
-tls_cert_path: ""
-tls_key_path: ""
-log:
-  level: info
-  format: text
-policy:
-   mode: database
-   path: ""
-dns:
-  magic_dns: true
-  base_domain: <VOTRE_DOMAINE_DE_BASE>.com
-  override_local_dns: false
-  nameservers:
-    global:
-      - 1.1.1.1
-      - 1.0.0.1
-      - 2606:4700:4700::1111
-      - 2606:4700:4700::1001
-    split:
-      {}
-  search_domains: []
-  extra_records: []
-unix_socket: /var/run/headscale/headscale.sock
-unix_socket_permission: "0770"
-logtail:
-  enabled: false
-randomize_client_port: false
-preauthkey_expiry: 5m
-routes:
-   enabled: true
-```
-
-**N'oubliez pas de remplacer `<VOTRE_FQDN_PUBLIC>` par le nom de domaine public que vous utiliserez.**
-
-
-
-### 1.3. Configuration d'un Proxy Inverse (Recommandé)
-
-Pour des raisons de sécurité et d'accessibilité, il est fortement recommandé de placer votre serveur Headscale derrière un proxy inverse (comme Nginx, Caddy, ou Traefik).
-
-Assurez-vous que :
-- Vous avez un **FQDN (Fully Qualified Domain Name) public** (ex: `headscale.mondomaine.com`).
-- Vous avez un **certificat SSL/TLS valide** pour ce FQDN (ex: via Let's Encrypt).
-- Le proxy inverse redirige le **port externe HTTPS (8081)** vers le **port interne HTTP (8080)** de votre conteneur Headscale.
-
-### 1.4. Génération de la Clé API Headscale
-
-Une fois votre serveur Headscale opérationnel et accessible via votre FQDN public, vous devrez générer une clé API pour que l'application puisse s'y connecter.
-
-Connectez-vous à votre serveur Headscale (par exemple, via SSH sur la machine hôte de Docker) et utilisez la commande :
-```
-headscale apikeys create
-```
-
-**Gardez précieusement cette clé API unique dans un gestionnaire de mots de passe.** Elle est essentielle pour l'authentification de l'application.
-
-## 2. Configuration de l'Application
-
-Dans l'application Headscale Manager :
-
-1.  Allez dans l'écran **Paramètres** (icône d'engrenage en haut à droite).
-2.  Entrez l'**adresse publique de votre serveur Headscale** (votre FQDN public, ex: `https://headscale.mondomaine.com`).
-3.  Collez la **clé API** que vous avez générée précédemment. Ce champ est masqué pour des raisons de sécurité.
-4.  Sauvegardez les paramètres. L'application redémarrera pour appliquer les nouveaux paramètres.
-
-## 3. Utilisation de l'Application
-
-L'application est divisée en plusieurs sections accessibles via la barre de navigation inférieure :
-
-### 3.1. Tableau de Bord (Dashboard)
-
-Cet écran affiche un aperçu de l'état de votre réseau Headscale. Vous y trouverez des informations sur le nombre de nœuds en ligne/hors ligne, le nombre d'utilisateurs, etc. Les nœuds sont regroupés par utilisateur et peuvent être développés pour afficher plus de détails. Taper sur un nœud vous mènera à son écran de détails (`Détails du Nœud`).
-
-**Boutons et Fonctionnalités :**
-- **Développer/Réduire les groupes d'utilisateurs :** Tapez sur le nom d'un utilisateur pour afficher ou masquer les nœuds qui lui sont associés.
-- **Afficher les détails du nœud :** Tapez sur n'importe quel nœud dans la liste pour naviguer vers son écran de détails (`Détails du Nœud`).
-- **Gérer les clés d'API (icône 'api') :** Ouvre un écran pour gérer les clés d'API de votre serveur Headscale.
-
-### 3.2. Utilisateurs (Users)
-
-Gérez les utilisateurs de votre serveur Headscale. Vous pouvez voir la liste des utilisateurs existants, en créer de nouveaux et les supprimer.
-
-**Boutons et Fonctionnalités :**
-- **Ajouter Utilisateur (icône '+' en bas à droite) :** Ouvre un dialogue pour créer un nouvel utilisateur. Entrez simplement le nom d'utilisateur souhaité. L'application ajoutera automatiquement `le suffixe de domaine de votre serveur Headscale (par exemple, "@votre_domaine.com")` au nom d'utilisateur si non présent.
-- **Gérer les clés de pré-authentification (icône 'vpn_key' en bas à droite) :** Ouvre un écran pour gérer les clés de pré-authentification de votre serveur Headscale.
-- **Supprimer Utilisateur (icône de poubelle à côté de chaque utilisateur) :** Supprime l'utilisateur sélectionné. Une confirmation vous sera demandée. Notez que la suppression échouera si l'utilisateur possède encore des appareils.
-- **Détails Utilisateur (clic sur un utilisateur) :** Affiche les détails de l'utilisateur, y compris les nœuds qui lui sont associés et les clés de pré-authentification.
-
-### 3.3. ACLs (Access Control Lists)
-
-Cette section vous permet de générer et de gérer la politique de contrôle d'accès de votre réseau.
-
-> **Note Importante :** L'ajout d'un ou plusieurs utilisateurs peut nécessiter une mise à jour de la politique ACL pour que leurs appareils fonctionnent correctement.
-
-**Principe de base : Isolation Stricte par Utilisateur**
-
-Le générateur de politique de cette application est basé sur un principe de sécurité fondamental : **chaque utilisateur est isolé dans sa propre "bulle"**. Par défaut :
-- Les appareils d'un utilisateur ne peuvent communiquer qu'avec les autres appareils de ce même utilisateur.
-- Si un utilisateur possède un **exit node**, seuls ses propres appareils peuvent l'utiliser.
-- Si un utilisateur partage un **sous-réseau local**, seuls ses propres appareils peuvent y accéder.
-- Jean ne peut pas voir ou contacter les appareils, exit nodes ou sous-réseaux de Clarisse, et vice-versa.
-
-**Moteurs ACL (Paramètres → Moteur de génération ACL) :**
-
-| Moteur | Usage |
+| 行为 | 说明 |
 |---|---|
-| **Legacy** | Tags fusionnés (`tag:user-client;exit-node`) — anciennes configs |
-| **Standard** | Tags séparés — Headscale < 0.29 ou préférence explicite |
-| **Grants V29** | Grants Headscale ≥ 0.29 avec routage **`via`** — recommandé si plusieurs utilisateurs partagent le même CIDR LAN |
+| 切换 | **「设置 → 语言」**，三选一 |
+| 首次启动 | **跟随系统语言**：中文系统首次打开即为中文；系统语言不在支持范围内时回退法语 |
+| 回退策略 | 未翻译的条目自动回退英文，不会出现空白或报错 |
+| 桌面应用名 | 中文系统下显示为「Headscale 管理器」 |
 
-L'écran ACL propose trois onglets : **Grants** (règles réseau + via), **ACLs** (exceptions classiques), **JSON** (édition brute). Le Puzzle ACL affiche trois colonnes : Source | Via | Destination.
+## 下载与安装
 
-**Workflow d'utilisation de la page ACL :**
+| 方式 | 说明 |
+|---|---|
+| **GitHub Releases（推荐）** | 到 [Releases](https://github.com/CGG888/headscalemanager/releases) 下载最新版 `headscalemanager-vX.Y.Z.apk`，由 GitHub Actions 自动构建 |
+| **Play 商店** | <https://play.google.com/store/apps/details?id=com.dkstudio.headscalemanager> |
+| **自行构建** | 见 [从源码构建](#从源码构建) |
 
-La page ACL a deux fonctions principales :
+安装时需在手机上允许「安装未知来源应用」。
 
-1.  **Générer la politique de base sécurisée :**
-    - Appuyez sur le bouton **Générer la Politique**.
-    - L'application va analyser tous vos utilisateurs et appareils et créer une politique ACL sécurisée basée sur le principe d'isolation décrit ci-dessus.
-    - La politique générée s'affiche dans le champ de texte pour inspection.
-    - Utilisez le menu (⋮) et sélectionnez **Exporter vers le serveur** pour appliquer les règles.
+> 💡 官方发布的 APK 使用**固定签名密钥**，因此后续版本可以**直接覆盖升级**。
+> 若你自己从源码构建且没有配置正式密钥，产出的 APK 是 debug 签名：能正常安装使用，但**无法覆盖**官方版（签名不同），需先卸载。
 
-2.  **Créer des exceptions pour la maintenance :**
-    - Si vous avez besoin d'autoriser temporairement un appareil de Jean à communiquer avec un appareil de Clarisse, utilisez la section **Autorisations Spécifiques**.
-    - Sélectionnez un tag `Source` et un tag `Destination`.
-    - Cliquez sur **Ajouter et Appliquer**.
-    - La politique sera **automatiquement mise à jour et appliquée** sur le serveur pour autoriser cette communication spécifique.
-    - Pour retirer l'autorisation, cliquez simplement sur la croix (x) de la règle active.
+## 快速上手
 
-### 3.4. Testeur ACL (ACL Tester)
+1. 准备一台运行中的 **Headscale 服务端**（建议 0.26+；Grants V29 相关功能需要 0.29+）。
+2. 在服务端生成一个 **API 密钥**（应用内帮助第 1.4 节有详细步骤）。
+3. 打开应用 → **添加服务器** → 填入服务器地址（例如 `https://headscale.example.com`）与 API 密钥。
+4. 之后即可在「仪表盘 / 用户 / 节点 / ACL / DNS」等页面管理你的网络。
 
-Cette nouvelle page, accessible via un bouton dédié, vous permet de tester et de visualiser l'impact de différentes politiques ACL sans les appliquer directement à votre serveur Headscale. C'est un environnement sûr pour expérimenter.
+## 功能一览
 
-**Fonctionnalités :**
-- **Génération de Politique :** Similaire à la page ACL principale, vous pouvez générer une politique basée sur vos utilisateurs et nœuds existants.
-- **Règles Temporaires :** Ajoutez et supprimez des règles temporaires pour voir comment elles affectent la politique générée.
-- **Visualisation Instantanée :** La politique ACL résultante est affichée en temps réel dans un champ de texte, vous permettant de l'inspecter.
-- **Exportation Optionnelle :** Une fois satisfait du résultat, vous pouvez choisir d'exporter la politique vers votre serveur Headscale.
+| 模块 | 能力 |
+|---|---|
+| **仪表盘** | 节点在线状态、用户与节点统计、OIDC 提醒、服务端版本与兼容性提示 |
+| **用户** | 创建 / 删除 / 重命名、邮箱与备注、OIDC 用户识别、标签初始化 |
+| **节点** | 详情与在线状态、重命名、移动归属用户、设备类型图标、标签编辑、路由与出口节点状态 |
+| **ACL / Grants** | 策略编辑与导入导出、JSON 视图、权限差异对比、**Grants V29**（`via` 路由）编排器、可视化 ACL 关系图、**拼图式（Puzzle）**向导、旧版标签迁移与回滚 |
+| **Taildrive / 共享** | 共享目录管理、共享路由与子网访问权限 |
+| **DNS** | 自定义 DNS 名称、`extra_records` 说明 |
+| **密钥** | 预认证密钥（含二维码）、API 密钥创建与过期时间 |
+| **客户端命令库** | 常用 `tailscale` 命令，带参数配置、按平台/分类筛选、一键复制与分享 |
+| **通知与后台监控** | 待审批请求、孤立路由清理、节点上下线变化的系统通知 |
+| **安全** | 应用锁（PIN / 生物识别）、多服务器管理 |
+| **更新日志** | 升级后展示本版本的新增与修复 |
 
-### 3.5. Détails Utilisateur
+## 常见问题
 
-Cet écran affiche les informations détaillées d'un utilisateur et liste tous les appareils (nœuds) qui lui sont associés.
+<details>
+<summary><b>保存 ACL 策略报 500：<code>username must contain @,got:"xxx"</code></b></summary>
 
-**Boutons et Fonctionnalités :**
-- **Enregistrer un nouvel appareil (bouton central) :** Ouvre un dialogue en deux étapes pour enregistrer un nouvel appareil sous cet utilisateur. La première étape fournit une commande `tailscale up` à exécuter sur l'appareil, et la seconde étape génère la commande `headscale nodes register` à exécuter sur votre serveur Headscale après avoir collé le lien web obtenu.
-- **Gestion des Nœuds (pour chaque appareil listé) :** Chaque nœud est affiché avec son statut en ligne/hors ligne. Taper sur un nœud vous mènera à son écran de détails (`Détails du Nœud`). Un menu contextuel (icône "trois points" ou "plus") offre des actions spécifiques pour chaque nœud.
+**原因**：Headscale 的策略解析器要求每个**用户引用必须含 `@`**（`alice@` = alice 名下的所有设备）。旧版本会把原始用户名直接写进 `groups` 成员，于是对**本地/CLI 创建的用户**（如 `lcmyhome`，没有邮箱）生成 `"groups": {"group:lcmyhome": ["lcmyhome"]}`，服务端解析即失败。
 
-### 3.6. Détails du Nœud
+**解决**：**v2.2.3 已修复**（三处策略生成器统一输出 `用户名@`）。
+若暂时无法升级，可在 **ACL → JSON 页签** 里把成员手动改成 `"lcmyhome@"` 再保存到服务器。
+</details>
 
-Cet écran affiche toutes les informations détaillées d'un nœud spécifique, y compris son FQDN (construit dynamiquement à partir du nom du nœud et du domaine de base de votre serveur Headscale), ses adresses IP, ses routes annoncées et ses tags.
+<details>
+<summary><b>网络页提示「获取公网 IP 出错」</b></summary>
 
-**Boutons et Fonctionnalités :**
-- **Modifier les Tags (icône de crayon dans l'AppBar) :** Ouvre un dialogue pour modifier les tags associés au nœud. Vous entrez les tags sous forme de liste séparée par des virgules. L'application mettra à jour les tags directement via l'API.
-- **Menu d'Actions (icône "trois points" ou "plus" à côté de chaque nœud dans les listes) :** Ce menu contextuel offre plusieurs actions pour le nœud :
-  - **Renommer l'appareil :** Permet de changer le nom affichable du nœud.
-  - **Déplacer l'appareil :** Permet de transférer le nœud vers un autre utilisateur.
-  - **Activer le nœud de sortie :** Affiche une commande `tailscale up --advertise-exit-node` pour configurer le nœud comme nœud de sortie. Cette commande doit être exécutée manuellement sur l'appareil.
-  - **Désactiver le nœud de sortie :** Désactive la fonctionnalité de nœud de sortie via l'API.
-  - **Partager le sous-réseau local :** Ouvre un dialogue pour entrer un sous-réseau CIDR. Affiche une commande `tailscale up --advertise-routes` pour annoncer le sous-réseau. Cette commande doit être exécutée manuellement sur l'appareil.
-  - **Désactiver les routes de sous-réseau :** Désactive les routes de sous-réseau annoncées via l'API.
-  - **Supprimer l'appareil :** Supprime le nœud du serveur Headscale après confirmation.
+**原因**：旧版本只向单一第三方服务 `api.ipify.org` 查询公网 IP，该域名在部分网络（尤其中国大陆）常被 DNS 污染或拒绝连接；且失败还会**连带阻止路由追踪**运行。
 
-**Note Importante sur les Modifications des Nœuds :**
-Toute modification apportée à un nœud (ajout, renommage, déplacement, modification des tags, activation/désactivation de routes) via cette application est enregistrée immédiatement dans la base de données de Headscale. Cependant, pour que ces changements soient réellement pris en compte par les autres nœuds du réseau et que la nouvelle configuration soit propagée, il est souvent nécessaire de redémarrer le service Headscale sur votre serveur. Headscale pousse les informations de sa base de données aux autres nœuds principalement au démarrage du service.
+**解决**：**v2.2.3 已修复**——改为多源依次尝试（每个 4 秒超时）、失败静默降级（标签显示 `—`），并且路由追踪不再依赖公网 IP。
 
-### 3.7. Vue d'ensemble du réseau
+> 该提示不影响节点列表、延迟、图表等主要功能。
+</details>
 
-Cet écran, accessible depuis la barre de navigation, offre une vue dynamique et en temps réel de votre topologie réseau du point de vue de l'appareil actuel. Il est particulièrement utile pour diagnostiquer les connexions et vérifier quel `exit node` est utilisé.
+<details>
+<summary><b>安装报「解析失败，安装包没有签名文件」</b></summary>
 
-**Fonctionnalités principales :**
-- **Sélecteur de Nœud Actuel :** En haut de la page, un menu déroulant vous permet de sélectionner l'appareil que vous considérez comme votre point de départ.
-- **Visualisation du Chemin :** Un graphique simple montre le chemin réseau depuis votre appareil vers Internet. Si le trafic passe par un `exit node` de votre réseau Headscale, celui-ci sera affiché comme intermédiaire.
-- **Détection d'Exit Node :** La page effectue un `traceroute` vers une destination publique (Google DNS) pour cartographier les sauts. Si l'un des sauts correspond à l'adresse IP d'un de vos nœuds, ce dernier est identifié comme l'exit node en cours d'utilisation.
-- **Statut des Pings :** Une liste de tous les autres nœuds de votre réseau s'affiche avec leur statut (en ligne/hors ligne) et la latence moyenne, vous donnant un aperçu rapide de la connectivité globale.
-- **Détails du Traceroute :** Une section dépliable vous montre le résultat brut du `traceroute`, listant chaque saut (adresse IP) entre votre appareil et la destination finale.
+**原因**：旧版本构建出的 APK 只带 v2/v3 签名、缺少 **v1（JAR）签名**，部分安装器（旧系统、定制 ROM、MDM 管控设备）只校验 v1。
 
-### 3.8. Commandes Clients
+**解决**：**v2.2.3 已修复**——CI 用 `apksigner` 显式重签并开启 v1 + v2 + v3，且以签名校验作为流水线闸门。
 
-Cette page fournit une bibliothèque de commandes en ligne de commande (`CLI`) pour le client Tailscale. Elle est conçue pour vous aider à trouver rapidement la commande dont vous avez besoin pour diverses tâches, sans avoir à mémoriser toutes les options.
+**另外**：如果手机上装过**其他签名密钥**的旧版本（Play 商店版或早期测试版），请**先卸载**再安装。
+</details>
 
-**Fonctionnalités :**
-- **Filtres :** Vous pouvez filtrer les commandes par plateforme (Windows/Linux) et par catégorie (Connexion, Routage, Dépannage, etc.).
-- **Commandes dynamiques :** Certaines commandes sont pré-remplies avec les informations de votre serveur (URL, nœuds existants, etc.) pour vous faire gagner du temps.
-- **Configuration et Copie :** Pour les commandes complexes, une boîte de dialogue vous permet de configurer les paramètres avant de copier la commande finale dans votre presse-papiers.
+<details>
+<summary><b>中文界面没生效 / 想改回其他语言</b></summary>
 
-### 3.9. Clés de Pré-authentification
+到 **「设置 → 语言」** 切换即可。首次启动跟随系统语言；系统语言不在支持范围内时回退法语（再回退英文）。
+</details>
 
-Cet écran (accessible via le bouton `vpn_key` sur l'écran Utilisateurs) vous permet de visualiser, créer et expirer des clés de pré-authentification. Ces clés sont utilisées pour enregistrer
-de nouveaux appareils sans intervention manuelle sur le serveur.
+<details>
+<summary><b>连不上服务器</b></summary>
 
-**Boutons et Fonctionnalités :**
-- **Créer Clé (icône '+' en bas à droite) :** Ouvre un dialogue pour créer une nouvelle clé de pré-authentification. Vous pouvez spécifier l'utilisateur, si elle est réutilisable, éphémère
-et sa durée d'expiration en jours. Après création, une commande `tailscale up` est affichée pour enregistrer un client.
-- **Expirer Clé (icône de poubelle à côté de chaque clé) :** Fait expirer une clé de pré-authentification existante après confirmation.
-- **Expirer toutes les clés (icône 'delete_sweep' en bas à droite) :** Fait expirer toutes les clés de pré-authentification existantes après confirmation.
+按顺序检查：① 服务器地址是否可从当前网络访问（含端口/反向代理）；② 证书是否有效（自签名证书需要被信任）；③ API 密钥是否已过期。应用内帮助第 1 章有服务端配置的完整说明。
+</details>
 
-Pour toute question ou problème, veuillez consulter la documentation officielle de Headscale ou les ressources de la communauté.
+## 从源码构建
 
-### 3.10. Paramètres
+需要 **Flutter 3.47.6** 与 **JDK 17**（与 CI 保持一致）：
 
-Cet écran vous permet de configurer l'application pour qu'elle se connecte à votre serveur Headscale.
+```bash
+flutter pub get
+flutter analyze          # 期望输出：No issues found!
+flutter test             # 47 个测试
+flutter build apk --release
+```
 
-**Champs et Fonctionnalités :**
-- **URL du Serveur :** Entrez l'adresse publique (FQDN) de votre serveur Headscale (ex: `https://headscale.mondomaine.com`).
-- **Clé API :** Collez la clé API unique que vous avez générée depuis votre serveur Headscale. Ce champ est masqué pour des raisons de sécurité.
-- **Bouton Enregistrer :** Sauvegarde les identifiants saisis. L'application redémarrera pour appliquer les nouveaux paramètres.
-- **Moteur ACL :** Choix entre Legacy, Standard et Grants V29 (si serveur ≥ 0.29).
-- **Migration Grants V29 :** Wizard guidé dans la zone Danger (ou au premier lancement sur serveur 0.29+).
+仓库已内置 GitHub Actions 工作流：
 
-### 3.11. Gestion des clés API
+| 工作流 | 触发 | 行为 |
+|---|---|---|
+| `.github/workflows/android.yml` | 每次 push / PR（也可手动触发） | 静态分析 + 单元测试 → 构建 APK → 校验签名 → 上传产物 |
+| `.github/workflows/release.yml` | 推送 `v*` 形式的 tag（也可手动指定 tag） | 分析 + 测试 → 构建 APK → **重签为 v1+v2+v3 并校验** → 创建 GitHub Release 并附带 APK，版本说明取自仓库根目录的 `RELEASE_NOTES.md` |
 
-Cet écran (accessible via le bouton `api` sur l'écran du tableau de bord) vous permet de visualiser, créer, et supprimer des clés d'API. Ces clés sont utilisées pour authentifier les requêtes à l'API de Headscale.
+## 签名与发布
 
-**Boutons et Fonctionnalités :**
-- **Créer Clé (icône '+' en bas à droite) :** Ouvre un dialogue pour créer une nouvelle clé d'API. La nouvelle clé sera affichée à l'écran et devra être copiée immédiatement, car elle ne sera plus visible par la suite.
-- **Expirer Clé (icône d'horloge à côté de chaque clé) :** Fait expirer une clé d'API existante après confirmation.
-- **Supprimer Clé (icône de poubelle à côté de chaque clé) :** Supprime une clé d'API existante après confirmation.
+正式签名通过在仓库 **Secrets** 中配置以下四项实现：
 
-## 4. Fonctionnalités Avancées
+| Secret | 内容 |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | 密钥库文件（`.jks` / `.p12`）的 base64 |
+| `ANDROID_KEYSTORE_PASSWORD` | 密钥库口令 |
+| `ANDROID_KEY_ALIAS` | 密钥别名 |
+| `ANDROID_KEY_PASSWORD` | 密钥口令 |
 
-Cette section décrit les fonctionnalités avancées qui simplifient la gestion de la sécurité et la surveillance de votre réseau.
+> ⚠️ **密钥库务必离线备份**。GitHub Secrets 是只写的、读不回来；密钥丢失后将**无法再为同一包名发布可覆盖升级的版本**。
 
-### 4.1. Gestion des Permissions Simplifiée (ACLs)
+未配置 Secrets 时，CI 会临时生成一把密钥并缓存（可构建，但缓存被清理时密钥会变化，届时用户需卸载重装）。
 
-Headscale Manager introduit plusieurs mécanismes pour rendre la gestion des listes de contrôle d'accès (ACLs) plus intuitive et moins sujette aux erreurs.
+## 说明与免责声明
 
-#### A. Automatisation depuis le Tableau de Bord
-
-Le tableau de bord est désormais votre centre de commande pour les permissions courantes. Lorsque des nœuds demandent à partager des sous-réseaux ou à devenir un "Exit Node", des icônes d'avertissement apparaissent.
-
-*   **Approbation en un clic :**
-    *   **Ce que ça fait :** En cliquant sur le bouton d'approbation (icône d'avertissement orange), l'application effectue trois actions automatiquement :
-        1.  **Ajoute les tags pertinents** au nœud (ex: `;lan-sharer` ou `;exit-node` sont ajoutés au tag `*-client` existant).
-        2.  **Approuve les routes** demandées par le nœud.
-        3.  **Régénère et applique la politique ACL complète** sur votre serveur Headscale.
-    *   **Avantage :** Vous n'avez plus besoin de modifier manuellement les tags, puis d'aller sur la page ACL pour régénérer la politique. Tout est fait en une seule étape, garantissant que les permissions sont accordées immédiatement et correctement.
-
-*   **Nettoyage intelligent :**
-    *   **Ce que ça fait :** Si un client désactive le partage de route ou la fonction d'exit node, une icône d'avertissement bleue apparaît. Le bouton de nettoyage permet de :
-        1.  **Retirer les tags** devenus obsolètes.
-        2.  **Supprimer les routes** qui ne sont plus annoncées.
-        3.  **Régénérer et appliquer la politique ACL** pour révoquer les anciennes permissions.
-    *   **Avantage :** Maintient votre configuration ACL propre et synchronisée avec l'état réel de vos clients.
-
-#### B. Autorisations Spécifiques (Exceptions ACL)
-
-La page "ACLs" contient une section puissante : **"Autorisations Spécifiques"**. Son but est de créer des exceptions à la règle d'isolation stricte par utilisateur.
-
-*   **Cas d'usage :** Permettre à un appareil de l'utilisateur "Jean" d'accéder à un service hébergé sur un appareil de l'utilisatrice "Clarisse".
-
-*   **Comment ça marche :**
-    1.  **Sélectionnez la Source et la Destination :** Choisissez le nœud source (celui qui initie la connexion) et le nœud destination. L'application utilise le premier tag de chaque nœud pour créer la règle.
-    2.  **Spécifiez le Port :** Entrez le port ou la plage de ports de destination (ex: `80`, `443`, `1000-2000`).
-    3.  **Ajouter et Appliquer :** En cliquant sur ce bouton, la politique ACL est **immédiatement régénérée et appliquée** au serveur, incluant cette nouvelle règle d'exception.
-
-*   **Cas Spécifique : Accès aux Sous-réseaux Partagés**
-    *   Si le nœud de destination partage un ou plusieurs sous-réseaux (il a le tag `;lan-sharer`), une boîte de dialogue s'ouvrira pour vous demander quel type d'accès donner :
-        *   **Accès Complet :** Autorise le nœud source à accéder à l'intégralité de tous les sous-réseaux partagés par la destination.
-        *   **Accès Personnalisé :** Vous permet de spécifier des adresses IP uniques, des plages d'IP (ex: `192.168.1.10-192.168.1.20`) et des ports spécifiques à l'intérieur de ces sous-réseaux.
-    *   Cela offre un contrôle très fin sur les permissions d'accès aux réseaux locaux partagés.
-
-### 4.2. Notifications et Surveillance
-
-#### A. Notifications en Tâche de Fond
-
-Pour être informé des événements importants sans avoir à ouvrir l'application :
-
-1.  **Activation :** Allez dans **Paramètres** et activez l'interrupteur **"Notifications en arrière-plan"**.
-2.  **Fonctionnement :** L'application vérifiera l'état de votre réseau toutes les 15 minutes (si une connexion réseau est disponible) et vous enverra une notification push si :
-    *   Un nœud nécessite une **approbation** pour de nouvelles routes.
-    *   Un nœud nécessite un **nettoyage** de sa configuration.
-
-#### B. Surveillance du Statut par Nœud
-
-Si vous avez des appareils critiques (un serveur, une passerelle...), vous pouvez être notifié spécifiquement de leurs changements de statut.
-
-1.  **Activation :** Naviguez vers la page de **détails d'un nœud**.
-2.  Activez l'interrupteur **"Surveiller le statut"**.
-3.  **Fonctionnement :** La tâche de fond vous enverra une notification chaque fois que ce nœud passera de "en ligne" à "hors ligne", ou vice-versa.
+- 本项目是 Flutter 应用，按需可编译到 iOS、macOS、Web、Windows（当前自动化构建只覆盖 Android）。
+- 代码可自由使用。
+- 作者已将应用**免费发布在 Play 商店**，**不对他人在 App Store 发布的付费版本负责**。

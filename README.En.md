@@ -3,7 +3,7 @@
 [![Android CI](https://github.com/CGG888/headscalemanager/actions/workflows/android.yml/badge.svg)](https://github.com/CGG888/headscalemanager/actions/workflows/android.yml)
 [![Release](https://img.shields.io/github/v/release/CGG888/headscalemanager)](https://github.com/CGG888/headscalemanager/releases)
 
-[Français](README.md) · **English** · [中文](README.zh-CN.md)
+[中文](README.md) · **English** · [Français](README.fr.md)
 
 > The interface is available in **French / English / Simplified Chinese** (Settings → Language). On first launch the app follows the system language.
 
