@@ -1,10 +1,19 @@
 # Headscale Manager - Help and User Guide
 
+[![Android CI](https://github.com/CGG888/headscalemanager/actions/workflows/android.yml/badge.svg)](https://github.com/CGG888/headscalemanager/actions/workflows/android.yml)
+[![Release](https://img.shields.io/github/v/release/CGG888/headscalemanager)](https://github.com/CGG888/headscalemanager/releases)
+
+[Français](README.md) · **English** · [中文](README.zh-CN.md)
+
+> The interface is available in **French / English / Simplified Chinese** (Settings → Language). On first launch the app follows the system language.
+
 Welcome to the Headscale Manager application user guide!
 
 This application allows you to easily manage your Headscale server. This guide will help you configure your server and use the application.
 
 Download the android mobile application: https://play.google.com/store/apps/details?id=com.dkstudio.headscalemanager
+
+Direct APK download (built automatically by GitHub Actions): https://github.com/CGG888/headscalemanager/releases
 
 This application is a flutter application and allows you to compile for IOS, MAC, WEB, Windows as needed.
 The code is free to use.

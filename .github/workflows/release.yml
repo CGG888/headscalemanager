@@ -1,0 +1,112 @@
+name: Release
+
+# 打 tag（v*）即自动构建 APK 并创建 GitHub Release，APK 直接挂在发行版附件里。
+# 也可以手动触发（workflow_dispatch）并指定一个已存在的 tag。
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要发布/重建的 tag（例如 v2.2.0）'
+        required: true
+        type: string
+
+# 创建 Release 需要写权限
+permissions:
+  contents: write
+
+env:
+  FLUTTER_VERSION: '3.47.6'
+
+jobs:
+  release:
+    name: 构建 APK 并发布 Release
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 解析版本号
+        id: ver
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            V="${{ github.ref_name }}"
+          else
+            V="${{ inputs.tag }}"
+          fi
+          echo "tag=$V" >> "$GITHUB_OUTPUT"
+          echo "发布版本: $V"
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: 接受 SDK 许可并预装组件（失败不阻塞）
+        continue-on-error: true
+        run: |
+          SDKMANAGER="$(command -v sdkmanager || echo "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools/latest/bin/sdkmanager")"
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          yes | "$SDKMANAGER" "platforms;android-36" || true
+
+      - name: 注入正式签名密钥（仅在配置了 Secrets 时）
+        if: ${{ env.KEYSTORE_B64 != '' }}
+        run: |
+          echo "$KEYSTORE_B64" | base64 --decode > android/key.jks
+          printf 'storePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > android/key.properties
+          echo "::notice::已注入正式签名密钥"
+
+      - name: flutter pub get
+        run: flutter pub get
+
+      - name: 校验（analyze + test）
+        run: |
+          flutter analyze
+          flutter test
+
+      - name: flutter build apk --release
+        run: flutter build apk --release
+
+      - name: 整理产物文件名
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk \
+             "dist/headscalemanager-${{ steps.ver.outputs.tag }}.apk"
+          ls -lh dist/
+
+      - name: 创建 Release 并附带 APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: Headscale Manager ${{ steps.ver.outputs.tag }}
+          body_path: RELEASE_NOTES.md
+          files: dist/*.apk
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
