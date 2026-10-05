@@ -5,6 +5,7 @@ import 'package:headscalemanager/models/device_details.dart';
 import 'package:headscalemanager/models/user.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
+import 'package:headscalemanager/services/api_capability_service.dart';
 import 'package:headscalemanager/services/route_conflict_service.dart';
 import 'package:headscalemanager/utils/snack_bar_utils.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
@@ -446,7 +447,38 @@ class _UserNodeCard extends StatelessWidget {
   /// 列表页不预取：几十个节点会打出几十个请求。这里只在用户明确要求时查一次。
   Future<void> _showDeviceInfo(BuildContext context, Node node) async {
     final l10n = context.l10n;
-    final api = context.read<AppProvider>().apiService;
+    final provider = context.read<AppProvider>();
+    final api = provider.apiService;
+
+    // 先探测服务端是否提供 device API。
+    // Headscale 对"路由不存在"与"对象不存在"都返回 404 + {"code":5}，
+    // 只看状态码分不清是"服务端太旧"还是"查不到这台设备"，所以用 OpenAPI 文档判断。
+    final supported = await ApiCapabilityService.supportsDeviceApi(
+      provider.activeServer?.url ?? '',
+      provider.activeServer?.apiKey ?? '',
+    );
+    if (!context.mounted) return;
+
+    if (supported == false) {
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(node.name),
+          content: Text(l10n.t(
+            'Ce serveur n\'expose pas l\'API "device" : les détails réseau (système, version, relais DERP) ne sont pas disponibles.\n\nSur ce serveur, utilisez « tailscale status » sur l\'appareil pour connaître son relais DERP.',
+            'This server does not expose the device API, so the network details (OS, version, DERP relay) are not available.\n\nOn such a server, run "tailscale status" on the device itself to see its DERP relay.',
+            '该服务端没有提供 device API，因此无法读取系统、客户端版本与 DERP 中继等信息。\n\n在这类服务端上，请在该设备本机执行 "tailscale status" 查看它使用的中继。',
+          )),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l10n.t('Fermer', 'Close', '关闭')),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
 
     DeviceDetails? details;
     String? error;
@@ -465,7 +497,7 @@ class _UserNodeCard extends StatelessWidget {
             ? Text(l10n.t(
                 'Cet appareil n\'a pas pu être interrogé (API device indisponible ?) : $error',
                 'Could not query this device (device API unavailable?) : $error',
-                '无法查询该设备（可能服务端不支持 device API）：$error',
+                '未能获取该设备的详情：$error',
               ))
             : _deviceInfoContent(context, l10n, details!),
         actions: [

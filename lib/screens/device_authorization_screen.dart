@@ -4,6 +4,7 @@ import 'package:headscalemanager/models/device_details.dart';
 import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/screens/node_detail_screen.dart';
+import 'package:headscalemanager/services/api_capability_service.dart';
 import 'package:provider/provider.dart';
 
 /// 设备授权视图：列出 **`authorized == false`** 的设备。
@@ -54,7 +55,23 @@ class _DeviceAuthorizationScreenState extends State<DeviceAuthorizationScreen> {
     });
 
     try {
-      final api = context.read<AppProvider>().apiService;
+      final provider = context.read<AppProvider>();
+      final api = provider.apiService;
+
+      // 先探能力：不支持时不必对每个节点各发一次注定 404 的请求。
+      final supported = await ApiCapabilityService.supportsDeviceApi(
+        provider.activeServer?.url ?? '',
+        provider.activeServer?.apiKey ?? '',
+      );
+      if (!mounted) return;
+      if (supported == false) {
+        setState(() {
+          _apiUnsupported = true;
+          _isLoading = false;
+        });
+        return;
+      }
+
       final nodes = await api.getNodes();
 
       var unsupported = 0;
