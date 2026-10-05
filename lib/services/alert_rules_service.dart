@@ -50,6 +50,7 @@ class AlertRulesService {
   static List<Alert> keyAlerts(
     Iterable<Node> nodes, {
     Set<String> alreadyNotified = const {},
+    List<int> alertThresholds = thresholds,
   }) {
     final alerts = <Alert>[];
 
@@ -61,7 +62,7 @@ class AlertRulesService {
       if (days < 0) {
         bucket = 'expired';
       } else {
-        final matched = thresholds.where((t) => days <= t).toList();
+        final matched = alertThresholds.where((t) => days <= t).toList();
         if (matched.isEmpty) continue; // 还早，不打扰
         bucket = 'd${matched.last}'; // 取最紧的一档
       }

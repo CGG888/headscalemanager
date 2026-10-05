@@ -76,6 +76,7 @@ class NetworkHealthService {
     required List<Node> nodes,
     String policyJson = '',
     List<DerpProbe> derpProbes = const [],
+    int offlineDays = offlineDaysThreshold,
   }) {
     final findings = <HealthFinding>[];
 
@@ -123,7 +124,7 @@ class NetworkHealthService {
     // 僵尸节点：**聚合为一条**（而不是每台一句），因为处置方式就是批量清理。
     // detail 的格式固定为 "<总数>|<仍在共享路由的数量>"——后者是删除前的安全提示：
     // 删掉仍在共享子网或作为出口节点的机器会立刻影响网络。
-    final zombies = zombieNodes(nodes);
+    final zombies = zombieNodes(nodes, offlineDays: offlineDays);
     if (zombies.isNotEmpty) {
       final sharingRoutes =
           zombies.where((n) => n.sharedRoutes.isNotEmpty || n.isExitNode).length;

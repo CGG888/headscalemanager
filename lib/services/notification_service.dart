@@ -1,4 +1,5 @@
 import 'package:headscalemanager/services/alert_rules_service.dart';
+import 'package:headscalemanager/services/alert_settings_service.dart';
 import 'dart:ui' show Locale;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -219,10 +220,14 @@ void callbackDispatcher() {
         // 4. 密钥到期提醒：按档位（30/7/3/1 天、已过期）去重，
         //    避免后台任务每次都推送同一条通知。
         final keyAlertNotified = prefs.getStringList('keyAlertNotified') ?? [];
-        final keyAlerts = AlertRulesService.keyAlerts(
-          nodes,
-          alreadyNotified: keyAlertNotified.toSet(),
-        );
+        final alertSettings = await AlertSettingsService.load();
+        final keyAlerts = !alertSettings.notifyKeyExpiry
+            ? const <Alert>[]
+            : AlertRulesService.keyAlerts(
+                nodes,
+                alreadyNotified: keyAlertNotified.toSet(),
+                alertThresholds: alertSettings.effectiveThresholds,
+              );
         for (final alert in keyAlerts) {
           final String title;
           final String body;

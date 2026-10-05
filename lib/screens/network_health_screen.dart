@@ -7,10 +7,12 @@ import 'package:headscalemanager/screens/node_detail_screen.dart';
 import 'package:headscalemanager/screens/acl_reachability_screen.dart';
 import 'package:headscalemanager/screens/audit_log_screen.dart';
 import 'package:headscalemanager/screens/policy_diff_screen.dart';
+import 'package:headscalemanager/screens/alert_settings_screen.dart';
 import 'package:headscalemanager/screens/device_authorization_screen.dart';
 import 'package:headscalemanager/screens/batch_operations_screen.dart';
 import 'package:headscalemanager/services/derp_service.dart';
 import 'package:headscalemanager/services/network_health_service.dart';
+import 'package:headscalemanager/services/alert_settings_service.dart';
 import 'package:provider/provider.dart';
 
 /// 网络体检：把所有异常聚合成一页，并给出可操作的修复入口。
@@ -70,10 +72,12 @@ class _NetworkHealthScreenState extends State<NetworkHealthScreen> {
         }
       }
 
+      final alertSettings = await AlertSettingsService.load();
       final findings = NetworkHealthService.analyze(
         nodes: nodes,
         policyJson: policy,
         derpProbes: probes,
+        offlineDays: alertSettings.offlineDays,
       );
 
       if (!mounted) return;
@@ -132,6 +136,12 @@ class _NetworkHealthScreenState extends State<NetworkHealthScreen> {
             tooltip: l10n.t('Visibilité ACL', 'ACL visibility', 'ACL 可达性'),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const AclReachabilityScreen())),
+          ),
+          IconButton(
+            icon: const Icon(Icons.tune),
+            tooltip: l10n.t('Alertes', 'Alerts', '告警设置'),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const AlertSettingsScreen())),
           ),
           IconButton(
             icon: const Icon(Icons.difference_outlined),
