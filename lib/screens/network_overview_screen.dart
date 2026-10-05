@@ -41,6 +41,17 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
   List<DerpProbe> _derpProbes = const [];
   bool _isProbingDerp = false;
   String? _derpError;
+
+  /// 是否尝试直接探测节点的**内网地址**。
+  ///
+  /// 默认关闭：那些地址（100.64.0.0/10）只有当**手机自己也在同一 tailnet 内**时才
+  /// 可达。此前无条件探测，结果必然是全部失败并被显示成"离线"——既误导又无用。
+  /// 节点状态一律以服务端上报的 `online` 为准。
+  bool _pingNodes = false;
+
+  /// 本机到 Headscale 的往返延迟（公开的 `GET /version`）——这是本机真能测的东西。
+  int? _serverLatencyMs;
+  bool _isMeasuringServer = false;
   List<String> _traceRouteHops = [];
   bool _isTracingRoute = false;
   Node? _exitNodeInUse;
@@ -76,6 +87,8 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
         _fetchPublicIpAndTrace(currentGeneration);
         // Le sondage DERP est indépendant lui aussi : il ne bloque rien.
         unawaited(_probeDerp());
+        // La latence mesurée vers le serveur est, elle, toujours joignable.
+        unawaited(_measureServerLatency());
       }
     } catch (e) {
       if (mounted) {
@@ -91,6 +104,98 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  /// 延迟卡片：本机到服务器的往返延迟（本机真能测的）+ 节点直连探测开关。
+  ///
+  /// 之所以分两层：节点的内网地址（100.64.0.0/10）只有手机自己接入同一 tailnet
+  /// 时才可达，此前无条件 ping 会**把所有节点显示成离线**。默认显示服务端上报的
+  /// 状态，直连探测改为显式开启。
+  Widget _buildLatencyCard() {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      elevation: 0,
+      color: theme.cardColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.speed, size: 20),
+            title: Text(l10n.t('Latence du serveur', 'Server latency', '服务器延迟'),
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            subtitle: Text(l10n.t(
+              'Aller-retour vers Headscale depuis ce téléphone.',
+              'Round trip to Headscale from this phone.',
+              '从本机到 Headscale 的往返延迟。',
+            )),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _isMeasuringServer
+                      ? '…'
+                      : (_serverLatencyMs != null
+                          ? '$_serverLatencyMs ms'
+                          : '—'),
+                  style: theme.textTheme.titleMedium,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh, size: 18),
+                  tooltip: l10n.t('Mesurer', 'Measure', '测量'),
+                  onPressed: _isMeasuringServer ? null : _measureServerLatency,
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          SwitchListTile(
+            value: _pingNodes,
+            onChanged: (value) {
+              setState(() => _pingNodes = value);
+              _startPinging();
+            },
+            title: Text(l10n.t('Sonder les nœuds directement',
+                'Probe nodes directly', '直接探测节点延迟')),
+            subtitle: Text(l10n.t(
+              'Les adresses des nœuds (100.64.x.x) ne sont joignables que si ce téléphone est dans le tailnet ; sinon l\'état affiché provient de Headscale.',
+              'Node addresses (100.64.x.x) are only reachable when this phone is in the tailnet; otherwise the status shown comes from Headscale.',
+              '节点内网地址（100.64.x.x）只有在手机接入同一 tailnet 时才可达；否则显示的状态来自 Headscale。',
+            )),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 测量本机到服务器的往返延迟。
+  ///
+  /// 用公开的 `GET /version`（不需要 API 密钥、开销极小），这才是"从这台手机出发"
+  /// 有意义的延迟指标。
+  Future<void> _measureServerLatency() async {
+    final url = context.read<AppProvider>().activeServer?.url;
+    if (url == null || url.isEmpty || !mounted) return;
+    setState(() => _isMeasuringServer = true);
+    try {
+      final watch = Stopwatch()..start();
+      final response =
+          await http.get(Uri.parse('$url/version')).timeout(const Duration(seconds: 5));
+      watch.stop();
+      if (!mounted) return;
+      setState(() {
+        _serverLatencyMs =
+            response.statusCode == 200 ? watch.elapsedMilliseconds : null;
+        _isMeasuringServer = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _serverLatencyMs = null;
+        _isMeasuringServer = false;
+      });
     }
   }
 
@@ -311,6 +416,13 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
     }
     _pingSubscriptions.clear();
 
+    // 未开启时不做无意义的探测：节点内网地址在手机未接入 tailnet 时不可达，
+    // 之前的实现因此把所有节点都显示成"离线"。
+    if (!_pingNodes) {
+      _pingResults.clear();
+      return;
+    }
+
     for (var node in _nodes) {
       if (node.ipAddresses.isNotEmpty) {
         final ip = node.ipAddresses.first;
@@ -502,6 +614,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
       child: Column(
         children: [
           _buildNodeSelector(),
+          _buildLatencyCard(),
           _buildNetworkVisualizer(),
           _buildDerpCard(),
           ListView.builder(
@@ -511,19 +624,29 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
             itemBuilder: (context, index) {
               final node = nodesToDisplay[index];
               final result = _pingResults[node.id];
-              final isOnline = result?.isOnline ?? false;
               final latency = result?.averageLatency;
+              // 开启了直接探测但没收到回应：多半是因为手机不在 tailnet 内
+              final pingFailed = _pingNodes && result != null && !result.isOnline;
 
               return ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: isOnline ? Colors.green : Colors.red,
+                  // 状态以**服务端上报**为准，而不是本机 ping 的结果
+                  backgroundColor: node.online ? Colors.green : Colors.red,
                   radius: 10,
                 ),
                 title: Text(node.name),
                 subtitle: Text(node.ipAddresses.join(', ')),
                 trailing: latency != null
                     ? Text('${latency.toStringAsFixed(2)} ms')
-                    : null,
+                    : (pingFailed
+                        ? Text(
+                            context.l10n.t('Injoignable d\'ici',
+                                'Unreachable from here', '本机不可达'),
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).disabledColor),
+                          )
+                        : null),
               );
             },
           ),
