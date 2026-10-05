@@ -1,3 +1,4 @@
+import 'package:headscalemanager/services/alert_rules_service.dart';
 import 'dart:ui' show Locale;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -212,6 +213,51 @@ void callbackDispatcher() {
               await prefs.setBool(lastKnownStatusKey, node.online);
             }
           }
+        }
+
+
+        // 4. 密钥到期提醒：按档位（30/7/3/1 天、已过期）去重，
+        //    避免后台任务每次都推送同一条通知。
+        final keyAlertNotified = prefs.getStringList('keyAlertNotified') ?? [];
+        final keyAlerts = AlertRulesService.keyAlerts(
+          nodes,
+          alreadyNotified: keyAlertNotified.toSet(),
+        );
+        for (final alert in keyAlerts) {
+          final String title;
+          final String body;
+          if (alert.rule == AlertRule.keyExpired) {
+            title = switch (lang) {
+              'en' => 'Key expired',
+              'zh' => '密钥已过期',
+              _ => 'Clé expirée',
+            };
+            body = switch (lang) {
+              'en' =>
+                'Node "${alert.nodeName}" can no longer connect. Re-register it.',
+              'zh' => '节点「${alert.nodeName}」已无法连接，需要重新注册。',
+              _ =>
+                'Le nœud « ${alert.nodeName} » ne peut plus se connecter. Réenregistrez-le.',
+            };
+          } else {
+            title = switch (lang) {
+              'en' => 'Key expiring soon',
+              'zh' => '密钥即将到期',
+              _ => 'Clé bientôt expirée',
+            };
+            body = switch (lang) {
+              'en' =>
+                'Node "${alert.nodeName}": key expires in ${alert.days} day(s).',
+              'zh' => '节点「${alert.nodeName}」的密钥将在 ${alert.days} 天后到期。',
+              _ =>
+                'Nœud « ${alert.nodeName} » : clé expire dans ${alert.days} jour(s).',
+            };
+          }
+          await NotificationService.showNotification(title, body);
+        }
+        if (keyAlerts.isNotEmpty) {
+          keyAlertNotified.addAll(AlertRulesService.dedupeKeys(keyAlerts));
+          await prefs.setStringList('keyAlertNotified', keyAlertNotified);
         }
 
         // Save the new state lists back to storage
