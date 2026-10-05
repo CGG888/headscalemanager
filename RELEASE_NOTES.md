@@ -1,36 +1,35 @@
-# Headscale Manager v2.6.0
+# Headscale Manager v2.7.0
 
-本版补上**设备授权可见性**与**本地操作留痕**，并沉淀了 CI 抓到的测试约定。
+本版把**告警交给用户配置**，并补上**变更对比**与**查看设备网络详情**的便捷入口。
 
-## 新增：未授权设备（体检页「盾牌带感叹号」图标）
+## 新增：告警可配置（体检页「滑块」图标）
 
-列出 **`authorized == false`** 的设备——那些**尚未被授权**的机器。
-
-> **为什么不叫"待审批列表"**：Headscale 的审批接口（`AuthApprove/Reject`）用的是注册流程里的 `auth_id`，**没有任何接口能枚举待审批请求**，所以字面意义上的"待审批列表"做不出来。device API 的 `authorized` 字段能回答同一个问题：**哪些设备还没被授权**。
-
-每行显示 **系统 / 客户端版本 / DERP 中继 / 归属用户**，可直接**过期密钥**、**删除**或进入节点详情。
-
-- 逐节点查询 `GET /api/v1/device/{id}`，**按 6 个一组分批并发**，不会一次打出几十个请求；
-- 若**全部查询失败**（服务端早于 0.29）→ 明确提示"该服务端不提供 device API"，而不是给一个空列表误导；
-- 全部已授权时显示「**所有设备均已授权（已检查 N 台）**」——空页面绝不模棱两可。
-
-## 新增：操作记录（体检页「时钟」图标）
-
-Headscale **没有审计 API**，服务端不记录"谁在何时改了什么"，因此由 App 在**破坏性操作**时本地留痕：
-
-| 记录内容 | 说明 |
+| 设置项 | 作用 |
 |---|---|
-| 批量**删除节点 / 过期密钥 / 批准路由** | 含节点清单与**成功/失败数**，"做了一半"也看得见 |
-| **创建预认证密钥** | 用户、可复用/临时、有效期 |
+| **密钥到期提醒** 开关 + **提前多少天**（1–90） | 档位**由提前量推导**：设成 7 天时只保留 7/3/1 档，三周后到期的密钥**不再提醒**（不是只改标签） |
+| **节点上下线变化** 开关 | 针对你监护的节点 |
+| **待批准路由** 开关 | 节点申请新路由时提醒 |
+| **离线多少天算可清理**（3–365） | 网络体检页据此聚合"长期离线"并可一键带去批量清理 |
 
-- 最新在前，上限 **200 条**（超出丢弃最旧的）；本地存储不该无限增长；
-- **记录失败被静默吞掉**，绝不阻断你正在做的操作；单条损坏不会带崩整份历史；
-- 页面可**清空**（带确认），并如实说明：**记录仅在本机、随 App 卸载消失**，用于回溯而非合规审计。
+数值在写入与读取时都会**收敛到合法范围**，读取失败回落默认值（不会因为设置损坏而丢掉功能）。
 
-## 工程改进
+## 新增：策略变更对比（体检页「旗子」图标）
 
-- `AGENTS.md` 新增约定：**时间相关的测试必须避开整天/整点边界**。v2.5.0 的首次发布就是被这类脆弱测试拦下的（`DateTime.now().add(Duration(days: 2))` 在毫秒差下会算成 1 天，档位从 `d3` 变 `d1`：本地绿、CI 红），不得不重打 tag。现在写明应加 12 小时偏移或注入时钟。
-- `AGENTS.md` 同时修正了此前关于「每台机器的 OS / 客户端版本 / 端点 / DERP 中继拿不到」的**错误结论**：它们可从 **device API**（`GET /api/v1/device/{id}`，0.29 起）获得；不要仅凭 `node.proto`（其 `host_info`/`endpoints` 确为 reserved）就下"拿不到"的判断——消息定义在 `device.proto`、服务定义在 `headscale.proto`。
+Headscale 只保留**当前**策略、没有历史，所以基线保存在本机：页面比较**当前策略 vs 基线**，列出**新增 / 删除 / 修改**的规则与组（`acls[]`、`groups.devops`、`tagOwners.server`…）。
+
+- **键顺序不同不算变更**（键排序后再比较）；
+- 超长规则自动截断，保证列表可读；
+- 页面明确标注基线时间，并说明它是"你上次点『设为基线』的时刻"——**不是**服务端历史，避免误解。
+
+## 新增：长按节点查看设备网络详情
+
+仪表盘上**长按任意节点**，直接显示该设备的：**系统、客户端版本（含更新标记）、授权状态、实际使用的 DERP 中继、首选与最快区域（含最快延迟）、公网端点、NAT 形态**。
+
+> 为什么不做成列表常显：几十个节点的网络会在列表渲染时打出几十个请求，而这些信息多数时候没人看。所以做成**按需一次请求**；老服务端不支持时明确提示，而不是弹空框。
+
+## 新增：操作记录可导出
+
+操作记录页新增「**复制全部**」：导出为纯文本（时间 / 结果 / 动作 / 对象 / 详情），方便贴进工单或聊天留档。
 
 ## 安装
 
@@ -38,17 +37,18 @@ Headscale **没有审计 API**，服务端不记录"谁在何时改了什么"，
 
 | 文件 | 适用机型 |
 |---|---|
-| `headscalemanager-v2.6.0-arm64-v8a.apk` | **绝大多数现代手机（推荐）** |
-| `headscalemanager-v2.6.0-armeabi-v7a.apk` | 较老 32 位设备 |
-| `headscalemanager-v2.6.0-x86_64.apk` | 模拟器 / x86 平板 |
-| `headscalemanager-v2.6.0.apk` | 通用包 |
+| `headscalemanager-v2.7.0-arm64-v8a.apk` | **绝大多数现代手机（推荐）** |
+| `headscalemanager-v2.7.0-armeabi-v7a.apk` | 较老 32 位设备 |
+| `headscalemanager-v2.7.0-x86_64.apk` | 模拟器 / x86 平板 |
+| `headscalemanager-v2.7.0.apk` | 通用包 |
 
-安装前**核对自己下载的字节数与下载页一致**；本版与 v2.5.0/v2.4.0 **同一签名密钥**，可直接覆盖升级（v2.2.2 及更早需先卸载）。
+安装前**核对自己下载的字节数与下载页一致**；本版与 v2.4.0/v2.5.0/v2.6.0 **同一签名密钥**，可直接覆盖升级（v2.2.2 及更早需先卸载）。
 
 > 本项目**未在 Google Play 或 App Store 上架**，请只从本仓库 Releases 获取。
 
 ## English summary
 
-- **Unauthorized devices page**: lists devices with `authorized = false` (with OS, client version, DERP relay), letting you expire their key or delete them. Headscale cannot enumerate pending approvals - its approve/reject calls take the registration `auth_id` - so this reports the same thing from the device API's `authorized` field. Lookups run six at a time, and an older server says so explicitly instead of showing an empty list.
-- **Operation history**: destructive actions (batch delete / expire keys / approve routes, pre-auth key creation) are recorded locally with target, time and outcome, newest first, capped at 200 entries. Recording failures never block the operation, and the screen states that the log is device-local.
-- **Engineering**: AGENTS.md now requires time-dependent tests to avoid whole-day boundaries (a flake that this very release cycle hit), and corrects the earlier wrong claim that per-node OS/client version/endpoints/DERP relay were unobtainable - they come from the device API.
+- **Configurable alerts**: choose which notifications fire (key expiry, monitored node status, pending routes), the lead time before key expiry (warning steps are derived from it, so shortening it genuinely silences distant keys) and how many days offline make a node a cleanup candidate. Values are clamped on read and write.
+- **Policy change comparison**: the current ACL policy against a baseline kept on the device, listing added/removed/changed rules and groups. Key order is normalized so reordering is not reported as a change, and the page states that the baseline is a local snapshot, not server history.
+- **Long-press a node** for its OS, client version, DERP relay, preferred/fastest region with latency, public endpoints and NAT shape - on demand, so a large tailnet is not queried on every list render.
+- **Operation history export**: copy the whole local log as plain text.
