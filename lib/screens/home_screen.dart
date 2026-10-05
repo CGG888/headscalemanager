@@ -9,6 +9,7 @@ import 'package:headscalemanager/screens/dns_screen.dart';
 import 'package:headscalemanager/screens/help_screen.dart';
 import 'package:headscalemanager/screens/network_health_screen.dart';
 import 'package:headscalemanager/screens/batch_operations_screen.dart';
+import 'package:headscalemanager/screens/servers_overview_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
@@ -177,6 +178,14 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               tooltip: l10n.t('Changer l\'affichage', 'Change layout', '切换视图'),
             ),
+          IconButton(
+            icon: Icon(Icons.dns_outlined, color: theme.colorScheme.primary),
+            tooltip: l10n.t('Serveurs', 'Servers', '服务器总览'),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const ServersOverviewScreen()));
+            },
+          ),
           IconButton(
             icon: Icon(Icons.checklist, color: theme.colorScheme.primary),
             tooltip: l10n.t('Opérations groupées', 'Batch operations', '批量操作'),
