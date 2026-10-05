@@ -462,6 +462,7 @@ class _UserNodeCard extends StatelessWidget {
               padding: EdgeInsets.only(left: 8.0),
               child: Icon(Icons.exit_to_app, size: 16, color: Colors.orange),
             ),
+          ..._buildKeyExpiryBadge(context, node, l10n),
         ],
       ),
       subtitle: Column(
@@ -481,10 +482,57 @@ class _UserNodeCard extends StatelessWidget {
           Text(
               '${l10n.t('Dernière connexion', 'Last seen', '最后在线')}: ${node.lastSeen.toLocal()}',
               style: Theme.of(context).textTheme.bodySmall),
+          if (node.isExpired || node.isExpirySoon)
+            Text(
+              node.isExpired
+                  ? l10n.t(
+                      'Clé expirée — le nœud ne pourra plus se connecter',
+                      'Key expired — this node can no longer connect',
+                      '密钥已过期——该节点将无法再连接')
+                  : l10n.t(
+                      'Clé expire dans ${node.daysUntilExpiry} j',
+                      'Key expires in ${node.daysUntilExpiry} d',
+                      '密钥 ${node.daysUntilExpiry} 天后到期'),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: node.isExpired
+                      ? Theme.of(context).colorScheme.error
+                      : Colors.orange),
+            ),
         ],
       ),
       trailing: trailingIcon,
     );
+  }
+
+  /// 节点密钥临期/过期的列表标记。
+  ///
+  /// Headscale 的节点密钥默认有有效期（常为 180 天），**过期后节点会掉线**，
+  /// 所以这是列表里少数值得主动提示的信息之一。返回空列表表示无需标记——
+  /// 用列表是为了能在 Row 的 children 里直接用展开语法。
+  List<Widget> _buildKeyExpiryBadge(
+      BuildContext context, Node node, L10n l10n) {
+    if (!node.isExpired && !node.isExpirySoon) return const [];
+    final theme = Theme.of(context);
+    final color = node.isExpired ? theme.colorScheme.error : Colors.orange;
+    final days = node.daysUntilExpiry ?? 0;
+    final label = node.isExpired
+        ? l10n.t('Clé expirée', 'Key expired', '密钥已过期')
+        : l10n.t('Clé expire dans $days j', 'Key expires in $days d',
+            '密钥 $days 天后到期');
+    final date = node.expiry?.toLocal().toString().split(' ').first ?? '';
+    return [
+      Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: Tooltip(
+          message: '$label  ($date)',
+          child: Icon(
+            node.isExpired ? Icons.key_off : Icons.key,
+            size: 16,
+            color: color,
+          ),
+        ),
+      ),
+    ];
   }
 
   Widget? _buildTrailingIcon(

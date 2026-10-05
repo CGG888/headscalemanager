@@ -1,60 +1,59 @@
-# Headscale Manager v2.2.3
+# Headscale Manager v2.3.0
 
-**本版本是第一个使用固定正式签名密钥发布的版本**，从此可以正常覆盖升级。功能内容与 v2.2.2 相同（含下述修复）。
+本次新增**DERP 中继可视化**与**机器网络/密钥详情**，并修复三个此前报告的问题。
 
-> ⚠️ 若你安装过 **v2.2.2 或更早**的测试版，请**先卸载再安装**本版——签名密钥已经变化。装上本版之后，后续版本即可直接覆盖升级。
+## 新增：DERP 中继面板（网络概览）
 
-## 签名与发布方式
+网络概览新增「DERP 中继」卡片：
 
-- CI 使用仓库 Secrets 中配置的**固定密钥**签名（证书 `CN=Headscale Manager, O=CGG888, C=CN`，有效期至 2054 年）；
-- 构建后由 `apksigner` 显式重签，开启 **v1(JAR) + v2 + v3** 三种签名方案，并以「APK 内存在 `META-INF/*.RSA`」+「按 API 21 校验通过」作为流水线闸门；
-- 这样同时解决了两个问题：**「安装包没有签名文件」**，以及**每次构建密钥都不同导致无法覆盖升级**。
+- 列出服务器 DERP map 中的中继节点，显示**从本机测得的延迟**，并**高亮最快的一个**——这正是客户端挑选 home 中继所依据的信息；
+- 单独标出**服务器内嵌 DERP**（Headscale 启用 `derp.server.enabled` 后才可用）；
+- 测量方式与 Tailscale 的 netcheck 相同：先热身一次建立连接，再取 3 次往返的最小值。
 
-## 修复 1：保存 ACL 策略报 500（`username must contain @`）
+**数据来源与边界**（重要）：
 
-**现象**：
+| 信息 | 能否获得 |
+|---|---|
+| 服务器使用的中继列表 + 本机到各中继的延迟 | ✅ 来自 Headscale 的 `/bootstrap-dns` 与 `/derp/probe`、`/derp/latency-check`（在鉴权之外，不需要 API 密钥） |
+| **某台机器当前使用哪个中继** | ❌ **任何服务端都拿不到**：中继由客户端自己测速挑选，Headscale 既不接收也不存储（其 API 连 `host_info`、`endpoints` 都是 `reserved`） |
 
-```
-保存ACL策略失败。状态码:500,响应:{"code":2,"message":"setting policy: parsing policy:
-... json: cannot unmarshal JSON object into Go v2.Group within \"/groups\":
-username must contain @,got:\"lcmyhome\""}
-```
+> 因此节点详情里给出了"在该设备上执行 `tailscale status`"的一键复制，而不是伪造数据。
+> 若 `/bootstrap-dns` 不可达（未启用内嵌 DERP，或反向代理未放行 `/bootstrap-dns` 与 `/derp/*`），卡片会显示明确提示，不会报错。
 
-**原因**：Headscale 的策略解析器要求**用户引用必须含 `@`**（`alice@` 表示「alice 名下的所有设备」）。而策略生成器把**原始用户名**直接写进了 `groups` 成员，于是对**本地/CLI 创建的用户**（如 `lcmyhome`，没有邮箱）会生成 `"groups": {"group:lcmyhome": ["lcmyhome"]}`——服务端解析即失败。只有当服务器上存在这类不含 `@` 的用户时才会触发。
+## 新增：节点「密钥与网络」详情
 
-**修复**：三处策略生成器（Grants V29 / Standard / Legacy 引擎）统一输出合法引用——名字已含 `@` 时原样保留，否则补 `@`；并补上了此前缺失的测试覆盖（仓库原有测试用例的用户名清一色是邮箱形态，恰好都含 `@`，把这个 bug 挡住了）。
+节点详情新增一张卡片，展示 Headscale v1 API **一直提供、此前却被忽略**的字段：
 
-## 修复 2：网络页「获取公网 IP 出错」
+- **密钥到期时间**：剩余天数提示，**临期（30 天内）橙色、已过期红色**；已过期时说明该节点将无法再连接；
+- **注册时间**与**注册方式**（CLI / OIDC / 预认证密钥）；
+- **子网路由**（`subnetRoutes`）；
+- 标识符卡片补充 **节点密钥（nodeKey）** 与 **DISCO 密钥**。
 
-**现象**：
+> 细节：Headscale 用 Go 的零值时间 `0001-01-01T00:00:00Z` 表示"永不过期"，本版按此处理（与 Headplane 的判定一致）。
 
-```
-获取公网 IP 出错: ClientException with SocketException: Connection refused ...,
-address=api.ipify.org, port=43318
-```
+## 新增：机器列表的密钥临期标记
 
-**原因**：只向单一第三方服务 `api.ipify.org` 查询（该域名在部分网络常被 DNS 污染或拒绝连接）。更实质的是代码本身的三处缺陷：**没有超时**、把**可选信息**当致命错误弹红框、以及 **`_startTraceRoute()` 被写在"公网 IP 成功"分支里**——公网 IP 取不到时，路由追踪**永远不会运行**。
+仪表盘的机器列表会为**密钥已过期**或**即将过期（30 天内）**的节点显示钥匙图标（过期红色、临期橙色），并在副标题给出"N 天后到期 / 已过期"的文字说明。密钥过期后节点会掉线，这是列表里少数值得主动提醒的信息。
 
-**修复**：多源（`api.ipify.org` → `api64.ipify.org` → `icanhazip.com` → `ifconfig.me/ip`）+ 每源 4 秒超时 + 失败静默降级（标签显示 `—`）；路由追踪**立即执行**，不再等待公网 IP。
+## 修复（继承 v2.2.3）
 
-## 修复 3：安装报「解析失败，安装包没有签名文件」
-
-**原因**：此前构建出的 APK **只带 v2/v3 签名，没有 v1（JAR）签名**。AGP 在 `minSdk ≥ 24` 时默认只做 v2/v3，而部分安装器（旧系统、定制 ROM、MDM）只校验 v1。
-
-**修复**：不再依赖 AGP 的签名行为——CI 用 `apksigner` 显式重签并开启 v1+v2+v3；CI 增加签名闸门（缺 v1 直接失败）；CI 使用固定密钥（本版本起改用仓库 Secrets 中的正式密钥）。
+1. **保存 ACL 策略报 500**（`username must contain @`）：服务器上存在本地（CLI 创建、无邮箱）用户时，策略中的用户引用现在会写成 Headscale 要求的「用户名@」形式。
+2. **网络页「获取公网 IP 出错」**：改为多源 + 超时 + 静默降级，并且不再连带阻止路由追踪。
+3. **安装报「解析失败，安装包没有签名文件」**：改用 v1(JAR)+v2+v3 三种签名，并加入构建期签名校验闸门。
 
 ## 安装
 
-1. 下载本页附件 `headscalemanager-v2.2.3.apk`；
-2. **若装过 v2.2.2 及更早版本，请先卸载**；
-3. 允许「安装未知来源应用」后安装；
-4. 首次启动填写 Headscale 服务器地址与 API 密钥。
+1. 下载本页附件 `headscalemanager-v2.3.0.apk`；
+2. **若装过 v2.2.2 及更早版本，请先卸载**（签名密钥已变更）；
+3. 允许「安装未知来源应用」后安装。
 
 > 本项目**未在 Google Play 或 App Store 上架**，请只从本仓库的 Releases 获取安装包。
+> 发布的 APK 使用固定签名密钥（`CN=Headscale Manager`），可覆盖升级。
 
 ## English summary
 
-- v2.2.3 is the first release signed with a permanent key (`CN=Headscale Manager, O=CGG888, C=CN`), so future versions install over it. **Uninstall v2.2.2 or earlier first**, since the signing key changed.
-- CI signs with that key from the repository secrets and re-signs with apksigner enabling v1(JAR) + v2 + v3; the pipeline fails unless a `META-INF/*.RSA` entry exists and verification at API 21 passes. This fixes both "package has no signature file" on install and the previously per-run key that made upgrades impossible.
-- Fixes saving an ACL policy on servers with local (non-OIDC) users (HTTP 500, `username must contain @`) by emitting `name@` user references.
-- Fixes the network screen's public IP error: several sources with a timeout, graceful degradation, and the traceroute no longer blocked by it.
+- **DERP relays panel** on the network overview: lists the relays from the server's DERP map with the latency measured from this device, highlights the fastest one, and flags the server's embedded relay. Measured the way Tailscale's netcheck does it (warm-up request, then best of three).
+- **Node key/network details**: key expiry with an approaching/expired highlight, registration date and method, subnet routes, node key and DISCO key - all fields the v1 API already returned but the app ignored. Go's zero time is treated as "never expires".
+- **Machine list**: expired or soon-to-expire node keys are flagged with a key icon and a "N days left / expired" line.
+- Fixes carried over from v2.2.3: ACL policy save returning 500 (`username must contain @`), the public IP lookup error, and the missing v1 signature that some installers rejected.
+- Note: the relay a *specific machine* uses cannot be obtained from any control server - it is chosen client-side, and Headscale neither receives nor stores it. The app measures latency from the phone instead and points to `tailscale status` for the per-machine answer.

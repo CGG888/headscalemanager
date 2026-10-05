@@ -16,6 +16,12 @@ class WhatsNewVersion {
   static List<WhatsNewVersion> getVersions(L10n l10n) {
     return [
       WhatsNewVersion(
+        version: '2.3.0',
+        title: l10n.t('Release 2.3.0 — Relais DERP et détails réseau', 'Release 2.3.0 — DERP relays and network details', 'Release 2.3.0 — DERP 中继与网络详情'),
+        description: l10n.t('La vue d\'ensemble du réseau affiche désormais les relais DERP avec la latence mesurée depuis cet appareil, le plus rapide étant mis en évidence. La fiche d\'un nœud indique l\'expiration de sa clé, sa date et sa méthode d\'enregistrement, ses routes de sous-réseau ainsi que les clés de nœud et DISCO ; la liste des machines signale les clés expirées ou proches de l\'expiration.', 'The network overview now lists DERP relays with the latency measured from this device, highlighting the fastest one. A node\'s page shows its key expiry, registration date and method, subnet routes and the node/DISCO keys; the machine list flags keys that have expired or are about to.', '网络概览现在会列出 DERP 中继以及从本机测得的延迟，并高亮最快的一个。节点页面显示密钥到期时间、注册时间与方式、子网路由以及节点密钥/DISCO 密钥；机器列表会标记密钥已过期或即将到期的节点。'),
+        verification: l10n.t('Vue d\'ensemble du réseau, puis la fiche d\'un nœud', 'Network overview, then a node\'s page', '网络概览，然后进入某个节点详情'),
+      ),
+      WhatsNewVersion(
         version: '2.2.3',
         title: l10n.t('Release 2.2.3 — Signature permanente', 'Release 2.2.3 — Permanent signing key', 'Release 2.2.3 — 使用固定签名密钥'),
         description: l10n.t('Les versions publiées sont désormais signées avec une clé de signature permanente, ce qui permet les mises à jour par-dessus une installation existante. Si vous avez installé une version de test antérieure (v2.2.2 ou avant), désinstallez-la d\'abord : la clé a changé.', 'Published builds are now signed with a permanent signing key, so future updates install over an existing installation. If you installed an earlier test build (v2.2.2 or before), uninstall it first - the key has changed.', '今后发布的安装包使用固定的正式签名密钥，可以直接覆盖升级。如果你装过更早的测试版（v2.2.2 及以前），请先卸载再安装——签名密钥变了。'),
