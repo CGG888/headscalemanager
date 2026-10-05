@@ -50,10 +50,10 @@
 
 | 文件 | 适用机型 |
 |---|---|
-| `headscalemanager-v2.4.0-arm64-v8a.apk` | **绝大多数现代手机（推荐）** |
-| `headscalemanager-v2.4.0-armeabi-v7a.apk` | 较老 32 位设备 |
-| `headscalemanager-v2.4.0-x86_64.apk` | 模拟器 / x86 平板 |
-| `headscalemanager-v2.4.0.apk` | 通用包（约 69 MB） |
+| `headscalemanager-v2.4.0-arm64-v8a.apk` | **绝大多数现代手机（推荐）** | **30.5 MB**（31,982,401 字节） |
+| `headscalemanager-v2.4.0-armeabi-v7a.apk` | 较老 32 位设备 | **28.4 MB**（29,733,705 字节） |
+| `headscalemanager-v2.4.0-x86_64.apk` | 模拟器 / x86 平板 | **32.0 MB**（33,530,677 字节） |
+| `headscalemanager-v2.4.0.apk` | 通用包 | **69.6 MB**（72,951,199 字节） |
 
 安装步骤：
 
