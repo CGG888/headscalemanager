@@ -47,10 +47,10 @@
 
 | 文件 | 适用机型 | 体积 |
 |---|---|---|
-| `headscalemanager-v2.3.0-arm64-v8a.apk` | **绝大多数现代手机（推荐）** | 约 24 MB |
-| `headscalemanager-v2.3.0-armeabi-v7a.apk` | 较老的 32 位设备 | 约 23 MB |
-| `headscalemanager-v2.3.0-x86_64.apk` | 模拟器 / x86 平板 | 约 25 MB |
-| `headscalemanager-v2.3.0.apk` | 通用包（不确定架构时用） | 约 69 MB |
+| `headscalemanager-v2.3.0-arm64-v8a.apk` | **绝大多数现代手机（推荐）** | **30.4 MB**（31,916,865 字节） |
+| `headscalemanager-v2.3.0-armeabi-v7a.apk` | 较老的 32 位设备 | **28.3 MB**（29,651,785 字节） |
+| `headscalemanager-v2.3.0-x86_64.apk` | 模拟器 / x86 平板 | **31.9 MB**（33,399,605 字节） |
+| `headscalemanager-v2.3.0.apk` | 通用包（不确定架构时用） | **69.3 MB**（72,672,671 字节） |
 
 安装步骤：
 
