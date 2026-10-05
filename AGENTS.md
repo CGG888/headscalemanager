@@ -101,15 +101,23 @@ Verified against Headscale **v0.29.4** (proto RPCs + `hscontrol/app.go` routes).
   `extra_records`): they live in Headscale's `config.yaml`; there is **no DNS
   endpoint**. Headplane can edit them only because it writes that file directly.
   The app should offer a manual base-domain setting instead.
-* **Per-node OS / client version / endpoints / DERP relay**: available, but from
-  the **device API**, not the node API. `GET /api/v1/device/{id}` returns `os`,
-  `clientVersion`, `authorized` and a `client_connectivity` block carrying
-  `endpoints`, `derp` (the relay in use) and `latency` (per-region, measured by
-  the client itself). This has existed since 0.29 - do not repeat the earlier
-  mistake of concluding "unobtainable" from `node.proto` alone: `host_info` and
-  `endpoints` really are `reserved` there, but `device.proto` defines the richer
-  messages while `headscale.proto` defines the service. Hide the UI when the
-  endpoint 404s, i.e. on older servers.
+* **Per-node OS / client version / endpoints / DERP relay**: **not obtainable from
+  any released Headscale.** `device.proto` does define the fields (`os`,
+  `client_version`, `authorized`, and a `client_connectivity` block with
+  `endpoints`, `derp` and per-region `latency`), but in upstream 0.28.0, 0.29.0 and
+  0.29.4 the whole block - the RPC and its `option (google.api.http)` annotation
+  alike - is **commented out**, so grpc-gateway registers no route and the server's
+  own `/swagger/v1/openapiv2.json` lists no `/api/v1/device/`. Verified by reading
+  the raw proto, not by grepping for the string: an earlier version of this file
+  claimed "available since 0.29" because the names were present while the
+  annotation was commented out. Two lessons, both already learned here once:
+  read the actual source, and let the server's generated OpenAPI document - not
+  the proto - decide what exists at runtime.
+  The app keeps the code and hides it when the route is absent; if a future
+  Headscale enables it, `ApiCapabilityService` starts reporting it and the UI
+  appears by itself. Per-node relay information is otherwise only available from
+  `tailscale status` on the device itself, or from an agent that joins the tailnet
+  (which is how Headplane gets it).
 * `POST /api/v1/policy/check` returns an **empty body**: the HTTP status carries
   the verdict and the parse error text is in the response body.
 * Do **not** ping node Tailscale addresses (`100.64.0.0/10`) from the app — the
