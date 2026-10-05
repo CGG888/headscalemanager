@@ -1,72 +1,72 @@
-# Headscale Manager v2.3.0
+# Headscale Manager v2.4.0
 
-本次新增**DERP 中继可视化**与**机器网络/密钥详情**，并修复三个此前报告的问题。
+本次是**运维效率**版本：保存 ACL 前先校验、一页看完所有异常、一次操作多个节点，并修掉了网络页"所有节点都显示离线"的问题。
 
-## 新增：DERP 中继面板（网络概览）
+## 新增 1：ACL 策略保存前校验 + 一键修复
 
-网络概览新增「DERP 中继」卡片：
+- 保存前先调用服务端 `POST /api/v1/policy/check` 做权威校验，**把"保存后才报 500"变成"保存前明确报错"**；
+- 同时做**离线本地检查**：组员不是含 `@` 的用户引用、组名缺少 `group:` 前缀、内容不是合法 JSON；
+- 发现问题会列出**具体位置与取值**，并提供「**修复并保存**」——例如把 `"lcmyhome"` 自动改成 `"lcmyhome@"`（正是此前让 ACL 保存报 500 的那类问题）；
+- 覆盖全部 14 处保存策略的代码路径；服务端不支持该端点时自动跳过，不影响旧版本服务器。
 
-- 列出服务器 DERP map 中的中继节点，显示**从本机测得的延迟**，并**高亮最快的一个**——这正是客户端挑选 home 中继所依据的信息；
-- 单独标出**服务器内嵌 DERP**（Headscale 启用 `derp.server.enabled` 后才可用）；
-- 测量方式与 Tailscale 的 netcheck 相同：先热身一次建立连接，再取 3 次往返的最小值。
+## 新增 2：网络体检（顶部盾牌图标）
 
-**数据来源与边界**（重要）：
+一页聚合所有可发现的异常，每条都带对应操作：
 
-| 信息 | 能否获得 |
+| 检查项 | 操作 |
 |---|---|
-| 服务器使用的中继列表 + 本机到各中继的延迟 | ✅ 来自 Headscale 的 `/bootstrap-dns` 与 `/derp/probe`、`/derp/latency-check`（在鉴权之外，不需要 API 密钥） |
-| **某台机器当前使用哪个中继** | ❌ **任何服务端都拿不到**：中继由客户端自己测速挑选，Headscale 既不接收也不存储（其 API 连 `host_info`、`endpoints` 都是 `reserved`） |
+| 密钥**已过期**（严重）/ **30 天内到期** | 查看节点 |
+| 长期离线（≥30 天） | 查看节点 |
+| **申请但未批准的路由**（列出具体网段） | 查看节点 |
+| **节点没有 IP 地址** | **一键补全**（`backfillips`） |
+| **同一网段被多台节点批准**（路由冲突） | — |
+| 策略不是合法 JSON / 组员缺少 `@` | 打开 ACL |
+| **标签未在 `tagOwners` 声明** | — |
+| 所有 DERP 中继不可达 | — |
 
-> 因此节点详情里给出了"在该设备上执行 `tailscale status`"的一键复制，而不是伪造数据。
-> 若 `/bootstrap-dns` 不可达（未启用内嵌 DERP，或反向代理未放行 `/bootstrap-dns` 与 `/derp/*`），卡片会显示明确提示，不会报错。
+## 新增 3：批量操作（顶部清单图标）
 
-## 新增：节点「密钥与网络」详情
+扁平可搜索的节点列表 + 多选，一次执行：
 
-节点详情新增一张卡片，展示 Headscale v1 API **一直提供、此前却被忽略**的字段：
+- **批准待批路由**（只会作用于真的有待批路由的节点）
+- **过期密钥**（把设备踢下线，比删除安全：保留记录、需重新认证）
+- **删除节点**
 
-- **密钥到期时间**：剩余天数提示，**临期（30 天内）橙色、已过期红色**；已过期时说明该节点将无法再连接；
-- **注册时间**与**注册方式**（CLI / OIDC / 预认证密钥）；
-- **子网路由**（`subnetRoutes`）；
-- 标识符卡片补充 **节点密钥（nodeKey）** 与 **DISCO 密钥**。
+每个动作**先确认、执行中显示进度、结束给出汇总**，并**逐条列出失败原因**——批量操作最容易"做一半失败"，必须如实回报。
 
-> 细节：Headscale 用 Go 的零值时间 `0001-01-01T00:00:00Z` 表示"永不过期"，本版按此处理（与 Headplane 的判定一致）。
+## 修复：网络页把所有节点显示成"离线"
 
-## 新增：机器列表的密钥临期标记
+原因：该页 ping 的是节点的 **Tailscale 内网地址（100.64.0.0/10）**，而本 App 是远程管理客户端，**手机不在 tailnet 内**，因此探测必然失败、所有节点都被画成红色离线。
 
-仪表盘的机器列表会为**密钥已过期**或**即将过期（30 天内）**的节点显示钥匙图标（过期红色、临期橙色），并在副标题给出"N 天后到期 / 已过期"的文字说明。密钥过期后节点会掉线，这是列表里少数值得主动提醒的信息。
+现在：
 
-## 修复（继承 v2.2.3）
-
-1. **保存 ACL 策略报 500**（`username must contain @`）：服务器上存在本地（CLI 创建、无邮箱）用户时，策略中的用户引用现在会写成 Headscale 要求的「用户名@」形式。
-2. **网络页「获取公网 IP 出错」**：改为多源 + 超时 + 静默降级，并且不再连带阻止路由追踪。
-3. **安装报「解析失败，安装包没有签名文件」**：改用 v1(JAR)+v2+v3 三种签名，并加入构建期签名校验闸门。
+- **状态以服务端上报的 `online` 为准**；
+- **直接探测默认关闭**，改为显式开关，并说明"只有手机接入同一 tailnet 时才可达"；开启后未响应的节点显示「**本机不可达**」，而不是假装离线；
+- 新增「**服务器延迟**」：本机到 Headscale 的往返延迟（`GET /version`），这是这台手机真能观测到的指标。
 
 ## 安装
 
-> 💡 **本版提供按 CPU 架构拆分的安装包**（内容相同）。通用包接近 70 MB，网络不佳时容易被下载截断——而**被截断的 APK 会丢失文件末尾的签名块**，安装时报的正是「解析失败，安装包没有签名文件」，和"签名漏做"的症状一模一样。所以请优先下载拆分包：
+> 💡 优先下载**按 CPU 架构拆分**的包：通用包约 69 MB，网络不佳时容易被截断，而**截断的 APK 会丢失文件末尾的签名块**，安装时报的正是「安装包没有签名文件」——与"签名缺失"症状完全相同。
 
-| 文件 | 适用机型 | 体积 |
-|---|---|---|
-| `headscalemanager-v2.3.0-arm64-v8a.apk` | **绝大多数现代手机（推荐）** | **30.4 MB**（31,916,865 字节） |
-| `headscalemanager-v2.3.0-armeabi-v7a.apk` | 较老的 32 位设备 | **28.3 MB**（29,651,785 字节） |
-| `headscalemanager-v2.3.0-x86_64.apk` | 模拟器 / x86 平板 | **31.9 MB**（33,399,605 字节） |
-| `headscalemanager-v2.3.0.apk` | 通用包（不确定架构时用） | **69.3 MB**（72,672,671 字节） |
+| 文件 | 适用机型 |
+|---|---|
+| `headscalemanager-v2.4.0-arm64-v8a.apk` | **绝大多数现代手机（推荐）** |
+| `headscalemanager-v2.4.0-armeabi-v7a.apk` | 较老 32 位设备 |
+| `headscalemanager-v2.4.0-x86_64.apk` | 模拟器 / x86 平板 |
+| `headscalemanager-v2.4.0.apk` | 通用包（约 69 MB） |
 
 安装步骤：
 
-1. 下载上表中最适合的一个；
-2. **安装前核对文件大小**（下载页会显示精确字节数，明显偏小说明被截断，重新下载即可）；
-3. **若装过 v2.2.2 及更早版本，请先卸载**（签名密钥已变更）；
-4. 允许「安装未知来源应用」后安装。
+1. 下载适合的一个，**安装前核对下载页显示的精确字节数**（明显偏小说明被截断，重新下载）；
+2. 本版与 v2.3.0 **同一签名密钥**，可直接覆盖升级（若装的是 v2.2.2 及更早版本，需先卸载）；
+3. 允许「安装未知来源应用」后安装。
 
-> 本项目**未在 Google Play 或 App Store 上架**，请只从本仓库的 Releases 获取安装包。
-> 发布的 APK 使用固定签名密钥（`CN=Headscale Manager`），可覆盖升级；每个包都经过
-> v1(JAR) + v2 + v3 三重签名校验，签名不完整会直接让流水线失败。
+> 本项目**未在 Google Play 或 App Store 上架**，请只从本仓库 Releases 获取。
 
 ## English summary
 
-- **DERP relays panel** on the network overview: lists the relays from the server's DERP map with the latency measured from this device, highlights the fastest one, and flags the server's embedded relay. Measured the way Tailscale's netcheck does it (warm-up request, then best of three).
-- **Node key/network details**: key expiry with an approaching/expired highlight, registration date and method, subnet routes, node key and DISCO key - all fields the v1 API already returned but the app ignored. Go's zero time is treated as "never expires".
-- **Machine list**: expired or soon-to-expire node keys are flagged with a key icon and a "N days left / expired" line.
-- Fixes carried over from v2.2.3: ACL policy save returning 500 (`username must contain @`), the public IP lookup error, and the missing v1 signature that some installers rejected.
-- Note: the relay a *specific machine* uses cannot be obtained from any control server - it is chosen client-side, and Headscale neither receives nor stores it. The app measures latency from the phone instead and points to `tailscale status` for the per-machine answer.
+- **ACL policy is validated before saving** (server-side `policy/check` plus local checks) with one-click repair of user references missing "@", turning a save-time 500 into a pre-save message.
+- **Network health page** (shield icon): expired/expiring keys, long-offline nodes, routes awaiting approval, nodes without IP (with one-click backfill), route conflicts, undeclared tags, policy problems, unreachable DERP relays - each with the matching action.
+- **Batch operations page** (checklist icon): approve pending routes, expire keys or delete several nodes at once, with confirmation, progress and a per-node failure report.
+- **Fixed the network view showing every node as offline**: it pinged tailnet addresses, which a remote admin client cannot reach. Status now comes from the server, direct probing is opt-in, and a server round-trip latency is shown instead.
+- Includes the v2.3.0 work (DERP relays, key/network details, expiry flags) and the earlier fixes.
