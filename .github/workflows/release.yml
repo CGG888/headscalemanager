@@ -118,39 +118,43 @@ jobs:
           flutter analyze
           flutter test
 
-      - name: flutter build apk --release
-        run: flutter build apk --release
+      - name: flutter build apk --release（通用包 + 按 ABI 拆包）
+        run: |
+          flutter build apk --release
+          flutter build apk --release --split-per-abi
 
-      # 统一重签为 v1+v2+v3 并校验。
+      # 统一重签为 v1+v2+v3 并校验（通用包与每个按 ABI 拆分的包都处理）。
       # 不依赖 AGP 的签名方案行为：AGP 在 minSdk>=24 时会自行决定只做 v2/v3
       # （实测即使设置 enableV1Signing=true 仍不产出 v1），因此这里用 apksigner
       # 显式重签，v1/v2/v3 由工具保证。缺 v1 会让部分安装器报
-      # 「解析失败，安装包没有签名文件」。
+      # 「解析失败，安装包没有签名文件」；下载被截断时也会因为文件末尾的签名块
+      # 缺失而报同一句话，所以同时提供按 ABI 拆分的小包（arm64 约 1/3 体积）。
       - name: 重签为 v1+v2+v3 并校验
         run: |
           set -o pipefail
           BT="$(ls -d "${ANDROID_HOME:-/usr/local/lib/android/sdk}"/build-tools/* | sort -V | tail -1)"
-          APK=build/app/outputs/flutter-apk/app-release.apk
           echo "使用 $BT/apksigner，密钥 $SIGN_KS"
-          "$BT/zipalign" -f -p 4 "$APK" "$APK.aligned"
-          "$BT/apksigner" sign \
-            --ks "$SIGN_KS" --ks-pass "pass:$SIGN_STORE_PASS" \
-            --key-pass "pass:$SIGN_KEY_PASS" --ks-key-alias "$SIGN_ALIAS" \
-            --min-sdk-version 21 \
-            --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
-            --out "$APK" "$APK.aligned"
-          rm -f "$APK.aligned"
+          for APK in build/app/outputs/flutter-apk/*.apk; do
+            echo "=========== $APK ==========="
+            "$BT/zipalign" -f -p 4 "$APK" "$APK.aligned"
+            "$BT/apksigner" sign \
+              --ks "$SIGN_KS" --ks-pass "pass:$SIGN_STORE_PASS" \
+              --key-pass "pass:$SIGN_KEY_PASS" --ks-key-alias "$SIGN_ALIAS" \
+              --min-sdk-version 21 \
+              --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
+              --out "$APK" "$APK.aligned"
+            rm -f "$APK.aligned"
 
-          # 硬判据：APK 里到底有没有 v1(JAR) 签名文件。
-          # 安装器报「安装包没有签名文件」找的就是 META-INF/*.RSA 这类文件。
-          echo "--- APK 内 META-INF 内容 ---"
-          unzip -l "$APK" | grep -iE 'META-INF/' || echo "(无 META-INF 条目)"
-          V1_FILES="$(unzip -l "$APK" | grep -icE 'META-INF/.*\.(RSA|DSA|EC)' || true)"
-          echo "v1 签名文件数: $V1_FILES"
+            # 硬判据：APK 里到底有没有 v1(JAR) 签名文件。
+            # 安装器报「安装包没有签名文件」找的就是 META-INF/*.RSA 这类文件。
+            echo "--- APK 内 META-INF 内容 ---"
+            unzip -l "$APK" | grep -iE 'META-INF/' || echo "(无 META-INF 条目)"
+            V1_FILES="$(unzip -l "$APK" | grep -icE 'META-INF/.*\.(RSA|DSA|EC)' || true)"
+            echo "v1 签名文件数: $V1_FILES"
 
-          # 注意：apksigner verify 默认按 APK 自身的 minSdkVersion 校验，minSdk>=24 时
-          # 它不会检查 v1，一律显示 v1=false —— 那不是「缺 v1」。这里强制按 API 21 校验。
-          OUT="$("$BT/apksigner" verify --verbose --print-certs --min-sdk-version 21 "$APK" 2>&1 || true)"
+            # 注意：apksigner verify 默认按 APK 自身的 minSdkVersion 校验，minSdk>=24 时
+            # 它不会检查 v1，一律显示 v1=false —— 那不是「缺 v1」。这里强制按 API 21 校验。
+            OUT="$("$BT/apksigner" verify --verbose --print-certs --min-sdk-version 21 "$APK" 2>&1 || true)"
           echo "$OUT"
 
           [ "$V1_FILES" -ge 1 ] \
@@ -159,12 +163,19 @@ jobs:
             || { echo "::error::v1 签名文件存在但按 API 21 校验未通过"; exit 1; }
           echo "$OUT" | grep -qE "Verified using v(2|3) scheme.*: true" \
             || { echo "::error::重签后仍缺 v2/v3 签名"; exit 1; }
+          done
 
       - name: 整理产物文件名
         run: |
+          set -euo pipefail
           mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-release.apk \
-             "dist/headscalemanager-${{ steps.ver.outputs.tag }}.apk"
+          TAG="${{ steps.ver.outputs.tag }}"
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/headscalemanager-$TAG.apk"
+          for f in build/app/outputs/flutter-apk/app-*-release.apk; do
+            [ -e "$f" ] || continue
+            abi="$(basename "$f" | sed -E 's/^app-(.*)-release\.apk$/\1/')"
+            cp "$f" "dist/headscalemanager-$TAG-$abi.apk"
+          done
           ls -lh dist/
 
       - name: 创建 Release 并附带 APK
