@@ -49,7 +49,46 @@ class Node {
   final String baseDomain;
 
   /// L'endpoint public du nœud (IP:port).
+  ///
+  /// ⚠️ Headscale **ne fournit pas** cette information : dans le proto v1 les
+  /// champs `endpoints` et `host_info` sont réservés (`reserved 14 to 20`), et
+  /// l'API v2 non plus. Elle n'est disponible qu'en interrogeant le nœud
+  /// lui-même (`tailscale status`). Conservé volontairement vide pour ne pas
+  /// casser les appels existants.
   final String endpoint;
+
+  /// Date d'expiration de la clé du nœud (`expiry`).
+  ///
+  /// `null` signifie « pas d'expiration » : Headscale renvoie soit `null`, soit
+  /// l'instant zéro de Go (`0001-01-01T00:00:00Z`).
+  final DateTime? expiry;
+
+  /// Date d'enregistrement du nœud (`createdAt`).
+  final DateTime? createdAt;
+
+  /// Méthode d'enregistrement (`registerMethod`) : CLI, OIDC ou clé d'auth.
+  final String registerMethod;
+
+  /// Clé DISCO (`discoKey`), utilisée pour la négociation de connexion directe.
+  final String discoKey;
+
+  /// Clé de nœud (`nodeKey`).
+  final String nodeKey;
+
+  /// Routes de sous-réseau (`subnetRoutes`).
+  final List<String> subnetRoutes;
+
+  /// Vrai si la clé du nœud a expiré.
+  bool get isExpired => expiry != null && expiry!.isBefore(DateTime.now());
+
+  /// Nombre de jours restants avant expiration (négatif si déjà expiré).
+  int? get daysUntilExpiry => expiry?.difference(DateTime.now()).inDays;
+
+  /// Vrai si l'expiration approche (30 jours ou moins) et n'est pas dépassée.
+  bool get isExpirySoon {
+    final days = daysUntilExpiry;
+    return days != null && days >= 0 && days <= 30;
+  }
 
   /// Constructeur de la classe Node.
   ///
@@ -71,6 +110,12 @@ class Node {
     required this.tags,
     required this.baseDomain,
     required this.endpoint,
+    this.expiry,
+    this.createdAt,
+    this.registerMethod = '',
+    this.discoKey = '',
+    this.nodeKey = '',
+    this.subnetRoutes = const [],
   });
 
   /// Constructeur d'usine (factory constructor) pour créer une instance de Node à partir d'un Map JSON.
@@ -137,7 +182,29 @@ class Node {
       // L'endpoint public du nœud (IP:port). Peut être vide si le nœud est hors ligne
       // ou si l'information n'est pas disponible.
       endpoint: json['endpoint'] as String? ?? '',
+      // Champs réseau supplémentaires fournis par l'API v1 mais jusqu'ici ignorés.
+      expiry: _parseTimestamp(json['expiry']),
+      createdAt: _parseTimestamp(json['createdAt']),
+      registerMethod: json['registerMethod'] as String? ?? '',
+      discoKey: json['discoKey'] as String? ?? '',
+      nodeKey: json['nodeKey'] as String? ?? '',
+      subnetRoutes: List<String>.from(json['subnetRoutes'] ?? []),
     );
+  }
+
+  /// Convertit un horodatage Headscale en [DateTime].
+  ///
+  /// Renvoie `null` pour `null` **et** pour l'instant zéro de Go
+  /// (`0001-01-01T00:00:00Z`), qu'Headscale utilise pour dire « pas d'expiration ».
+  /// Une date illisible ne doit jamais faire échouer le chargement de la liste.
+  static DateTime? _parseTimestamp(Object? value) {
+    if (value is! String || value.isEmpty) return null;
+    if (value.startsWith('0001-01-01')) return null;
+    try {
+      return DateTime.parse(value);
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Getter pour le Fully Qualified Domain Name (FQDN) du nœud.

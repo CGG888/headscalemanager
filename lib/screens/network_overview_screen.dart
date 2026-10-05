@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:headscalemanager/l10n/l10n.dart';
+import 'package:headscalemanager/services/derp_service.dart';
 
 class NetworkOverviewScreen extends StatefulWidget {
   const NetworkOverviewScreen({super.key});
@@ -31,6 +32,15 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
   String? _publicIp;
   /// 公网 IP 取不到时用于把标签显示成 "—"，而不是一直显示 "..."（加载中）。
   bool _publicIpUnavailable = false;
+
+  /// DERP 中继探测结果（延迟升序）与状态。
+  ///
+  /// Headscale 的 API 不提供 DERP 信息，节点走哪个中继只有该设备自己知道；
+  /// 但"中继列表 + 从本机到各中继的延迟"可以像 Tailscale 的 netcheck 那样探测
+  /// （Headplane 就是把 netcheck 编译成 WASM 在浏览器里做同样的事）。
+  List<DerpProbe> _derpProbes = const [];
+  bool _isProbingDerp = false;
+  String? _derpError;
   List<String> _traceRouteHops = [];
   bool _isTracingRoute = false;
   Node? _exitNodeInUse;
@@ -64,6 +74,8 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
         // Étape 2: lancer le traceroute et, en parallèle, compléter l'IP publique
         // (cette dernière est optionnelle et ne doit rien bloquer).
         _fetchPublicIpAndTrace(currentGeneration);
+        // Le sondage DERP est indépendant lui aussi : il ne bloque rien.
+        unawaited(_probeDerp());
       }
     } catch (e) {
       if (mounted) {
@@ -175,6 +187,39 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
       _publicIp = ip;
       _publicIpUnavailable = ip == null;
     });
+  }
+
+  /// 探测各 DERP 中继的延迟。
+  ///
+  /// 数据来源与 Headplane 相同：服务器需要启用内嵌 DERP（此时 Headscale 才注册
+  /// `/bootstrap-dns` 与 `/derp/*`），否则这些路径不存在 —— 此时不报错，只提示。
+  Future<void> _probeDerp() async {
+    final serverUrl = context.read<AppProvider>().activeServer?.url;
+    if (serverUrl == null || serverUrl.isEmpty) return;
+    if (!mounted) return;
+    setState(() {
+      _isProbingDerp = true;
+      _derpError = null;
+    });
+
+    final service = DerpService(baseUrl: serverUrl);
+    try {
+      final probes = await service.probeAll();
+      if (!mounted) return;
+      setState(() {
+        _derpProbes = probes;
+        _isProbingDerp = false;
+        _derpError = probes.isEmpty ? 'empty' : null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _derpError = e.toString();
+        _isProbingDerp = false;
+      });
+    } finally {
+      service.close();
+    }
   }
 
   void _startTraceRoute(int generation) async {
@@ -328,8 +373,128 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
     );
   }
 
-  Widget _buildContent() {
-    // Exclut le nœud sélectionné de la liste à afficher pour le ping.
+  /// DERP 中继卡片：中继列表 + 从**本机**测得的延迟（最快的高亮）。
+  ///
+  /// 说明写清楚边界：Headscale API 不提供"某台机器用哪个中继"，所以这里给的是
+  /// 中继列表与本机延迟——这恰好也是客户端挑选 home 中继所依据的信息。
+  Widget _buildDerpCard() {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+    );
+    final fastest = _derpProbes.isNotEmpty && _derpProbes.first.reachable
+        ? _derpProbes.first
+        : null;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      elevation: 0,
+      color: theme.cardColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.hub, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.t('Relais DERP', 'DERP relays', 'DERP 中继'),
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                if (_isProbingDerp)
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  IconButton(
+                    icon: const Icon(Icons.refresh, size: 18),
+                    tooltip: l10n.t('Mesurer à nouveau', 'Measure again', '重新测量'),
+                    onPressed: _probeDerp,
+                  ),
+              ],
+            ),
+            if (muted != null)
+              Text(
+                l10n.t(
+                  'Latence mesurée depuis cet appareil. Le relais réellement utilisé par une machine ne se voit que sur cette machine (commande « tailscale status »).',
+                  'Latency measured from this device. The relay a given machine actually uses is only visible on that machine (run “tailscale status”).',
+                  '延迟从本机测得。某台机器实际使用的中继只能在该机器上查看（执行 `tailscale status`）。',
+                ),
+                style: muted,
+              ),
+            if (_derpProbes.isNotEmpty) const SizedBox(height: 8),
+            for (final probe in _derpProbes)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        probe.isServer
+                            ? l10n.t('Serveur (DERP intégré)', 'Server (embedded DERP)',
+                                '服务器内嵌 DERP')
+                            : probe.host,
+                        style: TextStyle(
+                          fontWeight: identical(probe, fastest)
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (identical(probe, fastest))
+                      Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          l10n.t('Le plus rapide', 'Fastest', '最快'),
+                          style: const TextStyle(fontSize: 11, color: Colors.green),
+                        ),
+                      ),
+                    Text(
+                      probe.reachable
+                          ? '${probe.latencyMs} ms'
+                          : l10n.t('Inaccessible', 'Unreachable', '不可达'),
+                      style: TextStyle(
+                        color: probe.reachable ? null : theme.disabledColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (_derpError != null && _derpProbes.isEmpty && !_isProbingDerp)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  l10n.t(
+                    'Aucun relais DERP détecté. Le DERP intégré est-il activé côté Headscale, et /bootstrap-dns ainsi que /derp/* sont-ils autorisés par le proxy inverse ?',
+                    'No DERP relay detected. Is embedded DERP enabled on Headscale, and are /bootstrap-dns and /derp/* allowed through your reverse proxy?',
+                    '未检测到 DERP 中继。请确认 Headscale 已启用内嵌 DERP，且反向代理放行了 /bootstrap-dns 与 /derp/*。',
+                  ),
+                  style: muted,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {    // Exclut le nœud sélectionné de la liste à afficher pour le ping.
     final nodesToDisplay =
         _nodes.where((node) => node.id != _selectedNode?.id).toList();
 
@@ -338,6 +503,7 @@ class _NetworkOverviewScreenState extends State<NetworkOverviewScreen> {
         children: [
           _buildNodeSelector(),
           _buildNetworkVisualizer(),
+          _buildDerpCard(),
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

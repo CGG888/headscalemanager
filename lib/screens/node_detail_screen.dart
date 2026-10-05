@@ -218,6 +218,8 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
             const SizedBox(height: 16),
             _buildIdentifiersCard(context),
             const SizedBox(height: 16),
+            _buildKeyAndNetworkCard(context),
+            const SizedBox(height: 16),
             _buildRoutesCard(context),
             const SizedBox(height: 16),
             _buildTagsAndRoutesCard(context),
@@ -500,10 +502,118 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
           _DetailRowWithCopy(
               label: l10n.t('Clé Machine', 'Machine Key', '设备密钥'),
               value: _currentNode.machineKey),
+          _DetailRowWithCopy(
+              label: l10n.t('Clé de nœud', 'Node Key', '节点密钥'),
+              value: _currentNode.nodeKey),
+          _DetailRowWithCopy(
+              label: l10n.t('Clé DISCO', 'DISCO Key', 'DISCO 密钥'),
+              value: _currentNode.discoKey),
           _DetailRowWithCopy(label: 'FQDN', value: _currentNode.fqdn),
         ],
       ),
     );
+  }
+
+  /// 密钥与网络信息：这些字段 Headscale v1 API 一直都有，但此前 App 全部忽略。
+  ///
+  /// 边界说明：**某台机器当前使用哪个 DERP 中继无法从服务端得知**——中继由客户端
+  /// 自己测速挑选，Headscale 既不接收也不存储该信息（API 里连 `endpoints` 与
+  /// `host_info` 都是 reserved）。所以这里只给出查看指引，不伪造数据。
+  Widget _buildKeyAndNetworkCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final locale = context.watch<AppProvider>().locale;
+    final l10n = L10n(locale);
+    final node = _currentNode;
+
+    final expiryColor = node.isExpired
+        ? theme.colorScheme.error
+        : (node.isExpirySoon ? Colors.orange : null);
+    final expiryValue = node.expiry == null
+        ? l10n.t('Jamais', 'Never', '永不过期')
+        : '${_formatDateTime(node.expiry!)}  ·  ${_expiryHint(l10n, node)}';
+
+    final registerMethod = switch (node.registerMethod) {
+      'REGISTER_METHOD_CLI' => l10n.t('CLI', 'CLI', 'CLI 命令行'),
+      'REGISTER_METHOD_OIDC' => l10n.t('OIDC', 'OIDC', 'OIDC'),
+      'REGISTER_METHOD_AUTH_KEY' =>
+        l10n.t('Clé de pré-auth', 'Pre-auth key', '预认证密钥'),
+      _ => l10n.t('Inconnu', 'Unknown', '未知'),
+    };
+
+    return _SectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.t('Clé et réseau', 'Key and network', '密钥与网络'),
+              style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onPrimary)),
+          Divider(
+              height: 20,
+              color: theme.colorScheme.onPrimary.withValues(alpha: 0.5)),
+          _DetailRowWithCopy(
+              label: l10n.t('Expiration de la clé', 'Key expiry', '密钥到期'),
+              value: expiryValue,
+              valueColor: expiryColor),
+          _DetailRowWithCopy(
+              label: l10n.t('Enregistré le', 'Registered on', '注册时间'),
+              value: node.createdAt == null
+                  ? '—'
+                  : _formatDateTime(node.createdAt!)),
+          _DetailRowWithCopy(
+              label: l10n.t('Méthode d\'enregistrement', 'Register method', '注册方式'),
+              value: registerMethod),
+          _DetailRowWithCopy(
+              label: l10n.t('Routes de sous-réseau', 'Subnet routes', '子网路由'),
+              value: node.subnetRoutes.isEmpty
+                  ? l10n.t('Aucune', 'None', '无')
+                  : node.subnetRoutes.join(', ')),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.t(
+                    'Le relais DERP utilisé par ce nœud ne peut être vu que sur ce nœud : exécutez « tailscale status » dessus.',
+                    'The DERP relay this node uses can only be seen on that node: run “tailscale status” on it.',
+                    '此节点使用的中继只能在该节点上查看：在其上执行 `tailscale status`。',
+                  ),
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.copy, size: 18),
+                tooltip: l10n.t('Copier la commande', 'Copy command', '复制命令'),
+                onPressed: () {
+                  Clipboard.setData(const ClipboardData(text: 'tailscale status'));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(l10n.t('Commande copiée',
+                          'Command copied', '命令已复制'))));
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 简单的日期时间格式（不引入 intl，与项目现状一致）。
+  String _formatDateTime(DateTime value) {
+    final local = value.toLocal();
+    String two(int v) => v.toString().padLeft(2, '0');
+    return '${local.year}-${two(local.month)}-${two(local.day)} '
+        '${two(local.hour)}:${two(local.minute)}';
+  }
+
+  String _expiryHint(L10n l10n, Node node) {
+    final days = node.daysUntilExpiry;
+    if (days == null) return l10n.t('Jamais', 'Never', '永不过期');
+    if (days < 0) {
+      return l10n.t('expiré depuis ${-days} j', 'expired ${-days} d ago',
+          '已过期 ${-days} 天');
+    }
+    return l10n.t('dans $days j', 'in $days d', '$days 天后');
   }
 
   Widget _buildRoutesCard(BuildContext context) {
@@ -1083,7 +1193,11 @@ class _DetailRowWithCopy extends StatelessWidget {
   final String label;
   final String value;
 
-  const _DetailRowWithCopy({required this.label, required this.value});
+  /// 可选：值的颜色（例如密钥临期用橙色、已过期用错误色）。
+  final Color? valueColor;
+
+  const _DetailRowWithCopy(
+      {required this.label, required this.value, this.valueColor});
 
   @override
   Widget build(BuildContext context) {
@@ -1106,7 +1220,7 @@ class _DetailRowWithCopy extends StatelessWidget {
             child: SelectableText(value,
                 style: theme.textTheme.bodyMedium?.copyWith(
                     fontFamily: 'monospace',
-                    color: theme.colorScheme.onPrimary)),
+                    color: valueColor ?? theme.colorScheme.onPrimary)),
           ),
           IconButton(
             icon:
