@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:headscalemanager/models/node.dart';
+import 'package:headscalemanager/models/device_details.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
 import 'package:headscalemanager/services/route_conflict_service.dart';
@@ -219,6 +220,7 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
             _buildIdentifiersCard(context),
             const SizedBox(height: 16),
             _buildKeyAndNetworkCard(context),
+            _buildDeviceNetworkCard(context),
             const SizedBox(height: 16),
             _buildRoutesCard(context),
             const SizedBox(height: 16),
@@ -519,6 +521,147 @@ class _NodeDetailScreenState extends State<NodeDetailScreen> {
   /// 边界说明：**某台机器当前使用哪个 DERP 中继无法从服务端得知**——中继由客户端
   /// 自己测速挑选，Headscale 既不接收也不存储该信息（API 里连 `endpoints` 与
   /// `host_info` 都是 reserved）。所以这里只给出查看指引，不伪造数据。
+  /// 缓存设备详情请求：避免每次 setState 都重新请求。
+  Future<DeviceDetails>? _deviceDetailsFuture;
+
+  Future<DeviceDetails> _deviceDetails() => _deviceDetailsFuture ??=
+      context.read<AppProvider>().apiService.getDeviceDetails(_currentNode.id);
+
+  /// 「设备网络详情」卡片 —— 数据来自 **device API**（`GET /api/v1/device/{id}`）。
+  ///
+  /// v1 的 Node **没有**这些字段，所以单独取：
+  ///  * OS、Tailscale 客户端版本（有更新会标记）
+  ///  * **当前使用的 DERP 中继**与**客户端自测的各区域延迟**（这才是"中继信息"）
+  ///  * 公网端点、NAT 形态（映射是否随目标变化）
+  ///  * 授权状态 / 密钥过期是否禁用 / 是否阻止入站
+  ///
+  /// 老服务端没有该接口（404）或请求失败时**整块隐藏**，不影响页面其它内容。
+  Widget _buildDeviceNetworkCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final locale = context.watch<AppProvider>().locale;
+    final l10n = L10n(locale);
+
+    return FutureBuilder<DeviceDetails>(
+      future: _deviceDetails(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const _SectionCard(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: LinearProgressIndicator(),
+            ),
+          );
+        }
+        final details = snapshot.data;
+        if (details == null) return const SizedBox.shrink();
+
+        final conn = details.connectivity;
+        final regions = conn?.latency.entries.toList()
+          ?..sort((a, b) => a.value.latencyMs.compareTo(b.value.latencyMs));
+
+        return _SectionCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                  l10n.t('Réseau de l\'appareil', 'Device network', '设备网络详情'),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onPrimary)),
+              Divider(
+                  height: 20,
+                  color: theme.colorScheme.onPrimary.withValues(alpha: 0.5)),
+              if (details.os.isNotEmpty)
+                _DetailRowWithCopy(
+                    label: l10n.t('Système', 'OS', '操作系统'),
+                    value: details.os),
+              if (details.clientVersion.isNotEmpty)
+                _DetailRowWithCopy(
+                  label:
+                      l10n.t('Version du client', 'Client version', '客户端版本'),
+                  value: details.updateAvailable
+                      ? '${details.clientVersion}  (${l10n.t('mise à jour disponible', 'update available', '有可用更新')})'
+                      : details.clientVersion,
+                ),
+              _DetailRowWithCopy(
+                  label: l10n.t('Autorisé', 'Authorized', '已授权'),
+                  value: details.authorized
+                      ? l10n.t('Oui', 'Yes', '是')
+                      : l10n.t('Non', 'No', '否'),
+                  valueColor: details.authorized ? null : Colors.orange),
+              if (conn != null && conn.derp.isNotEmpty)
+                _DetailRowWithCopy(
+                    label: l10n.t('Relais DERP', 'DERP relay', 'DERP 中继'),
+                    value: 'derp${conn.derp}'),
+              if (conn != null && conn.preferredRegion != null)
+                _DetailRowWithCopy(
+                    label:
+                        l10n.t('Région préférée', 'Preferred region', '首选区域'),
+                    value: 'derp${conn.preferredRegion}'),
+              if (conn != null && conn.endpoints.isNotEmpty)
+                _DetailRowWithCopy(
+                  label: l10n.t('Points de terminaison', 'Endpoints', '公网端点'),
+                  value: conn.endpoints.take(3).join(', '),
+                ),
+              if (conn != null)
+                _DetailRowWithCopy(
+                  label: l10n.t('Type de NAT', 'NAT type', 'NAT 形态'),
+                  value: conn.mappingVariesByDestIp
+                      ? l10n.t('mapping variable (NAT symétrique probable)',
+                          'varying mapping (likely symmetric NAT)',
+                          '映射随目标变化（可能为对称型 NAT）')
+                      : l10n.t('mapping stable', 'stable mapping', '映射稳定'),
+                ),
+              if (regions != null && regions.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                    l10n.t('Latence mesurée par le client',
+                        'Latency measured by the client', '客户端实测延迟'),
+                    style: theme.textTheme.titleSmall?.copyWith(
+                        color: theme.colorScheme.onPrimary)),
+                const SizedBox(height: 4),
+                for (final entry in regions.take(6))
+                  Text(
+                    'derp${entry.key}: ${entry.value.latencyMs.toStringAsFixed(0)} ms'
+                    '${entry.value.preferred ? '  *' : ''}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                        fontFamily: 'monospace',
+                        color: theme.colorScheme.onPrimary),
+                  ),
+              ],
+              if (details.keyExpiryDisabled ||
+                  details.blocksIncomingConnections ||
+                  details.isExternal)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Wrap(
+                    spacing: 8,
+                    children: [
+                      if (details.keyExpiryDisabled)
+                        Chip(
+                            label: Text(l10n.t('Expiration de clé désactivée',
+                                'Key expiry disabled', '已禁用密钥过期')),
+                            visualDensity: VisualDensity.compact),
+                      if (details.blocksIncomingConnections)
+                        Chip(
+                            label: Text(l10n.t('Connexions entrantes bloquées',
+                                'Incoming connections blocked', '阻止入站连接')),
+                            visualDensity: VisualDensity.compact),
+                      if (details.isExternal)
+                        Chip(
+                            label: Text(
+                                l10n.t('Externe', 'External', '外部设备')),
+                            visualDensity: VisualDensity.compact),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildKeyAndNetworkCard(BuildContext context) {
     final theme = Theme.of(context);
     final locale = context.watch<AppProvider>().locale;

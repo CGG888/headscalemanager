@@ -4,6 +4,7 @@ import 'package:headscalemanager/l10n/l10n.dart';
 import 'package:headscalemanager/utils/string_utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:headscalemanager/models/node.dart';
+import 'package:headscalemanager/models/device_details.dart';
 import 'package:headscalemanager/models/user.dart';
 import 'package:headscalemanager/models/pre_auth_key.dart';
 import 'package:headscalemanager/models/api_key.dart';
@@ -25,6 +26,7 @@ enum ApiOperation {
   checkAclPolicy,
   backfillIps,
   expireNode,
+  loadDeviceDetails,
   deleteUser,
   deleteNode,
   setNodeRoutes,
@@ -65,6 +67,8 @@ enum ApiOperation {
             'backfill node IP addresses', '补全节点 IP 地址'),
         ApiOperation.expireNode => l.t('expirer la clé du nœud',
             'expire the node key', '使节点密钥过期'),
+        ApiOperation.loadDeviceDetails => l.t('charger les détails réseau de l\'appareil',
+            'load the device network details', '加载设备的网络详情'),
         ApiOperation.deleteUser =>
           l.t('supprimer l\'utilisateur', 'delete the user', '删除用户'),
         ApiOperation.deleteNode =>
@@ -380,6 +384,23 @@ class HeadscaleApiService {
     if (response.statusCode != 200) {
       throw _handleError(ApiOperation.expireNode, response);
     }
+  }
+
+  /// 设备详情：`GET /api/v1/device/{id}`。
+  ///
+  /// v1 的 `Node` **不包含** OS、客户端版本、DERP 中继、各区域延迟、公网端点等；
+  /// 这些只在 **device API** 里（`client_connectivity`）。Headscale 0.29.x 起提供，
+  /// 老服务端会返回 404 —— 调用方应据此隐藏界面而不是报错。
+  Future<DeviceDetails> getDeviceDetails(String deviceId) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/v1/device/$deviceId'),
+      headers: _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return DeviceDetails.fromJson(json.decode(response.body));
+    }
+    throw _handleError(ApiOperation.loadDeviceDetails, response);
   }
 
   Future<void> deleteUser(String userId) async {
