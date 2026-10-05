@@ -5,6 +5,7 @@ import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/screens/acl_screen.dart';
 import 'package:headscalemanager/screens/node_detail_screen.dart';
 import 'package:headscalemanager/screens/acl_reachability_screen.dart';
+import 'package:headscalemanager/screens/device_authorization_screen.dart';
 import 'package:headscalemanager/screens/batch_operations_screen.dart';
 import 'package:headscalemanager/services/derp_service.dart';
 import 'package:headscalemanager/services/network_health_service.dart';
@@ -118,6 +119,12 @@ class _NetworkHealthScreenState extends State<NetworkHealthScreen> {
       appBar: AppBar(
         title: Text(l10n.t('Bilan du réseau', 'Network health', '网络体检')),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.gpp_maybe_outlined),
+            tooltip: l10n.t('Appareils non autorisés', 'Unauthorized devices', '未授权设备'),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const DeviceAuthorizationScreen())),
+          ),
           IconButton(
             icon: const Icon(Icons.visibility_outlined),
             tooltip: l10n.t('Visibilité ACL', 'ACL visibility', 'ACL 可达性'),

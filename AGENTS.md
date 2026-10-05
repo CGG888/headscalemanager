@@ -121,6 +121,12 @@ Verified against Headscale **v0.29.4** (proto RPCs + `hscontrol/app.go` routes).
 * Prefer the smallest change that solves the problem; keep unrelated churn out.
 * Add a test for any new pure logic, and run `dart analyze` + `flutter test`
   before committing.
+* **Time-dependent tests must avoid whole-day and whole-hour boundaries.** A test
+  built as `DateTime.now().add(Duration(days: 2))` asserts on a truncated day
+  count, and the milliseconds between building the value and computing
+  `difference(...).inDays` can shift it by one: green locally, red on the runner
+  (exactly that flake reached the v2.5.0 tag and forced a re-tag). Add an offset
+  such as 12 hours, or inject the clock.
 * When a claim can be checked against the server or the upstream source, check
   it instead of guessing — several bugs in this repository's history came from
   assumptions about the API (see `../headscalemanager-中文本地化分析.md`).
