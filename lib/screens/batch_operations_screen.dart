@@ -17,7 +17,10 @@ import 'package:provider/provider.dart';
 enum _BatchAction { approveRoutes, expireKeys, delete }
 
 class BatchOperationsScreen extends StatefulWidget {
-  const BatchOperationsScreen({super.key});
+  const BatchOperationsScreen({super.key, this.initialSelection = const []});
+
+  /// 进入时预选的节点 id（例如从"网络体检"的僵尸节点一键带过来）。
+  final List<String> initialSelection;
 
   @override
   State<BatchOperationsScreen> createState() => _BatchOperationsScreenState();
@@ -34,6 +37,8 @@ class _BatchOperationsScreenState extends State<BatchOperationsScreen> {
   @override
   void initState() {
     super.initState();
+    // 预选（来自体检页的"清理"入口）
+    _selected.addAll(widget.initialSelection);
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
@@ -95,7 +100,7 @@ class _BatchOperationsScreenState extends State<BatchOperationsScreen> {
       return;
     }
 
-    final confirmed = await _confirm(action, targets.length);
+    final confirmed = await _confirm(action, targets);
     if (confirmed != true) return;
 
     final api = _api;
@@ -121,8 +126,13 @@ class _BatchOperationsScreenState extends State<BatchOperationsScreen> {
     }
   }
 
-  Future<bool?> _confirm(_BatchAction action, int count) {
+  Future<bool?> _confirm(_BatchAction action, List<Node> targets) {
     final l10n = context.l10n;
+    final count = targets.length;
+    // 安全提示：这些机器仍在为网络提供服务，删掉/过期会立刻影响流量。
+    final risky = targets
+        .where((n) => n.sharedRoutes.isNotEmpty || n.isExitNode)
+        .length;
     final (title, body) = switch (action) {
       _BatchAction.approveRoutes => (
           l10n.t('Approuver les routes', 'Approve routes', '批准路由'),
@@ -154,7 +164,26 @@ class _BatchOperationsScreenState extends State<BatchOperationsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(title),
-        content: Text(body),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(body),
+            if (risky > 0 && action != _BatchAction.approveRoutes) ...[
+              const SizedBox(height: 12),
+              Text(
+                l10n.t(
+                  'Attention : $risky de ces nœuds partagent des routes ou sont des nœuds de sortie.',
+                  'Warning: $risky of these nodes share routes or act as exit nodes.',
+                  '注意：其中 $risky 台正在共享路由或作为出口节点。',
+                ),
+                style: TextStyle(
+                    color: Theme.of(ctx).colorScheme.error,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),

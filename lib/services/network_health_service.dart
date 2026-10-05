@@ -23,7 +23,9 @@ enum HealthSeverity {
 enum HealthCode {
   nodeKeyExpired,
   nodeKeyExpiringSoon,
-  nodeLongOffline,
+
+  /// 长期离线的节点**聚合为一条**：它们通常是要批量清理的对象。
+  zombieNodes,
   routesPendingApproval,
   nodeWithoutIp,
   routeConflict,
@@ -41,6 +43,7 @@ class HealthFinding {
     this.nodeId,
     this.nodeName,
     this.detail,
+    this.relatedNodeIds = const [],
   });
 
   final HealthCode code;
@@ -50,8 +53,11 @@ class HealthFinding {
   final String? nodeId;
   final String? nodeName;
 
-  /// 具体值：路由、标签、错误位置等。
+  /// 具体值：路由、标签、错误位置、数量等。
   final String? detail;
+
+  /// 聚合类问题涉及的节点（例如僵尸节点清单），供"批量操作"预选。
+  final List<String> relatedNodeIds;
 
   @override
   String toString() => '${severity.name}/${code.name}'
@@ -91,20 +97,6 @@ class NetworkHealthService {
         ));
       }
 
-      // 长期离线：离线本身是正常的，但超过阈值通常意味着设备已废弃。
-      if (!node.online) {
-        final days = DateTime.now().difference(node.lastSeen).inDays;
-        if (days >= offlineDaysThreshold) {
-          findings.add(HealthFinding(
-            code: HealthCode.nodeLongOffline,
-            severity: HealthSeverity.info,
-            nodeId: node.id,
-            nodeName: node.name,
-            detail: '$days',
-          ));
-        }
-      }
-
       final pending = node.availableRoutes
           .where((r) => !node.sharedRoutes.contains(r))
           .toList();
@@ -126,6 +118,21 @@ class NetworkHealthService {
           nodeName: node.name,
         ));
       }
+    }
+
+    // 僵尸节点：**聚合为一条**（而不是每台一句），因为处置方式就是批量清理。
+    // detail 的格式固定为 "<总数>|<仍在共享路由的数量>"——后者是删除前的安全提示：
+    // 删掉仍在共享子网或作为出口节点的机器会立刻影响网络。
+    final zombies = zombieNodes(nodes);
+    if (zombies.isNotEmpty) {
+      final sharingRoutes =
+          zombies.where((n) => n.sharedRoutes.isNotEmpty || n.isExitNode).length;
+      findings.add(HealthFinding(
+        code: HealthCode.zombieNodes,
+        severity: HealthSeverity.info,
+        detail: '${zombies.length}|$sharingRoutes',
+        relatedNodeIds: zombies.map((n) => n.id).toList(),
+      ));
     }
 
     // 同一子网被多个节点批准：路由冲突，流量走向不确定。
@@ -158,6 +165,23 @@ class NetworkHealthService {
 
     findings.sort((a, b) => a.severity.index.compareTo(b.severity.index));
     return findings;
+  }
+
+  /// 僵尸节点：离线超过 [offlineDays] 天，按"最久没上线"排在前面。
+  ///
+  /// 离线本身是正常的，但长期离线通常意味着设备已废弃——Headscale 的节点密钥默认
+  /// 180 天到期，这些记录会一直堆着。返回结果可直接交给"批量操作"做清理。
+  static List<Node> zombieNodes(
+    List<Node> nodes, {
+    int offlineDays = offlineDaysThreshold,
+  }) {
+    final list = nodes
+        .where((n) =>
+            !n.online &&
+            DateTime.now().difference(n.lastSeen).inDays >= offlineDays)
+        .toList();
+    list.sort((a, b) => a.lastSeen.compareTo(b.lastSeen));
+    return list;
   }
 
   static List<HealthFinding> _policyFindings(String policyJson, List<Node> nodes) {

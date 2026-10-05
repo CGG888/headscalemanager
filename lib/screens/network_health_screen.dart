@@ -4,6 +4,7 @@ import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/screens/acl_screen.dart';
 import 'package:headscalemanager/screens/node_detail_screen.dart';
+import 'package:headscalemanager/screens/batch_operations_screen.dart';
 import 'package:headscalemanager/services/derp_service.dart';
 import 'package:headscalemanager/services/network_health_service.dart';
 import 'package:provider/provider.dart';
@@ -221,6 +222,14 @@ class _NetworkHealthScreenState extends State<NetworkHealthScreen> {
       }
     }
     switch (finding.code) {
+      case HealthCode.zombieNodes:
+        // 聚合类问题：带着这批节点直接进入批量操作页预选，一键清理。
+        return TextButton(
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => BatchOperationsScreen(
+                  initialSelection: finding.relatedNodeIds))),
+          child: Text(l10n.t('Nettoyer', 'Clean up', '清理')),
+        );
       case HealthCode.nodeWithoutIp:
         return TextButton(
           onPressed: _backfillIps,
@@ -237,7 +246,6 @@ class _NetworkHealthScreenState extends State<NetworkHealthScreen> {
       case HealthCode.derpAllUnreachable:
       case HealthCode.nodeKeyExpired:
       case HealthCode.nodeKeyExpiringSoon:
-      case HealthCode.nodeLongOffline:
       case HealthCode.routesPendingApproval:
       case HealthCode.routeConflict:
       case HealthCode.tagWithoutOwner:
@@ -262,14 +270,21 @@ class _NetworkHealthScreenState extends State<NetworkHealthScreen> {
           detail: l10n.t('Dans ${finding.detail} jours.',
               'In ${finding.detail} days.', '${finding.detail} 天后到期。'),
         );
-      case HealthCode.nodeLongOffline:
+      case HealthCode.zombieNodes:
+        final parts = (finding.detail ?? '0|0').split('|');
+        final total = parts.isNotEmpty ? parts[0] : '0';
+        final sharing = parts.length > 1 ? parts[1] : '0';
         return (
-          title: l10n.t('Hors ligne depuis longtemps : ${finding.nodeName}',
-              'Offline for a long time: ${finding.nodeName}',
-              '长期离线：${finding.nodeName}'),
-          detail: l10n.t('${finding.detail} jours sans connexion — à nettoyer ?',
-              '${finding.detail} days without connecting — clean up?',
-              '已 ${finding.detail} 天未连接——可考虑清理。'),
+          title: l10n.t('$total nœuds hors ligne depuis longtemps',
+              '$total nodes offline for a long time',
+              '$total 台节点长期离线'),
+          detail: sharing == '0'
+              ? l10n.t('Candidats au nettoyage — ils ne se sont pas connectés depuis plus de ${NetworkHealthService.offlineDaysThreshold} jours.',
+                  'Cleanup candidates — they have not connected for over ${NetworkHealthService.offlineDaysThreshold} days.',
+                  '可考虑清理——已超过 ${NetworkHealthService.offlineDaysThreshold} 天未连接。')
+              : l10n.t('$sharing d\'entre eux partagent encore des routes ou sont des nœuds de sortie : à vérifier avant de supprimer.',
+                  '$sharing of them still share routes or act as exit nodes: check before deleting.',
+                  '其中 $sharing 台仍在共享路由或作为出口节点，删除前请确认。'),
         );
       case HealthCode.routesPendingApproval:
         return (

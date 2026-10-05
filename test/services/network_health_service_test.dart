@@ -60,19 +60,50 @@ void main() {
       expect(int.parse(finding.detail!), inInclusiveRange(9, 11));
     });
 
-    test('长期离线（>=30 天）提示为 info；刚离线不报', () {
+    test('长期离线聚合为一条僵尸节点提示；刚离线不报', () {
       final old = DateTime.now().subtract(const Duration(days: 45));
       final recent = DateTime.now().subtract(const Duration(days: 2));
-      expect(
-        codes(NetworkHealthService.analyze(
-            nodes: [node(online: false, lastSeen: old)])),
-        contains(HealthCode.nodeLongOffline),
-      );
+      final withZombie = NetworkHealthService.analyze(
+          nodes: [node(id: 'z', online: false, lastSeen: old)]);
+      final finding =
+          withZombie.firstWhere((e) => e.code == HealthCode.zombieNodes);
+      expect(finding.detail, '1|0');
+      expect(finding.relatedNodeIds, ['z']);
       expect(
         codes(NetworkHealthService.analyze(
             nodes: [node(online: false, lastSeen: recent)])),
-        isNot(contains(HealthCode.nodeLongOffline)),
+        isNot(contains(HealthCode.zombieNodes)),
       );
+    });
+
+    test('僵尸节点同时给出"仍在共享路由"的数量（删除前的安全提示）', () {
+      final old = DateTime.now().subtract(const Duration(days: 60));
+      final f = NetworkHealthService.analyze(nodes: [
+        node(
+            id: '1',
+            name: 'a',
+            online: false,
+            lastSeen: old,
+            approved: const ['192.168.1.0/24']),
+        node(id: '2', name: 'b', online: false, lastSeen: old),
+      ]);
+      final finding = f.firstWhere((e) => e.code == HealthCode.zombieNodes);
+      expect(finding.detail, '2|1');
+      expect(finding.relatedNodeIds, hasLength(2));
+    });
+
+    test('zombieNodes 按最久未上线排序', () {
+      final z = NetworkHealthService.zombieNodes([
+        node(
+            id: '1',
+            online: false,
+            lastSeen: DateTime.now().subtract(const Duration(days: 40))),
+        node(
+            id: '2',
+            online: false,
+            lastSeen: DateTime.now().subtract(const Duration(days: 90))),
+      ]);
+      expect(z.map((n) => n.id).toList(), ['2', '1']);
     });
   });
 
