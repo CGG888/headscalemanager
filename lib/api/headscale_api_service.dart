@@ -22,6 +22,7 @@ enum ApiOperation {
   createPreAuthKey,
   loadAclPolicy,
   saveAclPolicy,
+  checkAclPolicy,
   deleteUser,
   deleteNode,
   setNodeRoutes,
@@ -56,6 +57,8 @@ enum ApiOperation {
           l.t('charger la politique ACL', 'load the ACL policy', '加载 ACL 策略'),
         ApiOperation.saveAclPolicy =>
           l.t('sauvegarder la politique ACL', 'save the ACL policy', '保存 ACL 策略'),
+        ApiOperation.checkAclPolicy => l.t(
+            'vérifier la politique ACL', 'validate the ACL policy', '校验 ACL 策略'),
         ApiOperation.deleteUser =>
           l.t('supprimer l\'utilisateur', 'delete the user', '删除用户'),
         ApiOperation.deleteNode =>
@@ -299,7 +302,41 @@ class HeadscaleApiService {
     }
   }
 
+  /// 保存**之前**校验策略：`POST /api/v1/policy/check`。
+  ///
+  /// 该端点返回**空响应体**：合法与否只看 HTTP 状态码，不合法时错误原文在 body 里
+  /// （例如 `username must contain @,got:"lcmyhome"`）。
+  ///
+  /// 两个刻意的设计：
+  ///  * 预检是**尽力而为**的——网络异常不阻断保存；
+  ///  * 旧版服务端若没有该端点（404/405/501），同样跳过，交给保存时的校验，
+  ///    因此不会让老服务器上的保存功能回归。
+  Future<void> checkAclPolicy(String aclPolicy) async {
+    http.Response response;
+    try {
+      response = await http.post(
+        Uri.parse('$_baseUrl/api/v1/policy/check'),
+        headers: _getHeaders(),
+        body: jsonEncode({'policy': aclPolicy}),
+      );
+    } catch (_) {
+      return; // 网络问题：不因预检失败而阻断保存
+    }
+
+    if (response.statusCode == 200) return;
+    if (response.statusCode == 404 ||
+        response.statusCode == 405 ||
+        response.statusCode == 501) {
+      return; // 服务端不支持预检
+    }
+    throw _handleError(ApiOperation.checkAclPolicy, response);
+  }
+
   Future<void> setAclPolicy(String aclPolicy) async {
+    // 先预检：把"保存后才报 500"提前成"保存前明确报错"。
+    // 这里覆盖全部调用点（ACL 编辑页以及十余处自动改写策略的对话框）。
+    await checkAclPolicy(aclPolicy);
+
     final body = jsonEncode({'policy': aclPolicy});
 
     final response = await http.put(

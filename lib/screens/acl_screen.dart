@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
+import 'package:headscalemanager/services/acl/acl_policy_check.dart';
 import 'package:headscalemanager/widgets/shared_routes_access_dialog.dart';
 import 'package:headscalemanager/utils/ip_utils.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -1286,6 +1287,14 @@ class _AclScreenState extends State<AclScreen> {
 
     setState(() => _isLoading = true);
     try {
+      // 保存前**本地**预检：把已知会导致服务端拒绝的问题（最典型的是 groups
+      // 成员缺少 `@`）提前暴露，并提供一键修复。服务端的权威校验
+      // （POST /policy/check）由 API 层的 setAclPolicy 负责。
+      final localIssues = AclPolicyCheck.localIssues(_aclController.text);
+      if (localIssues.isNotEmpty) {
+        final proceed = await _offerAclAutoFix(l10n, localIssues);
+        if (!proceed) return;
+      }
       await apiService.setAclPolicy(_aclController.text);
       if (mounted) {
         setState(() => _isLocalDraft = false);
@@ -1316,6 +1325,115 @@ class _AclScreenState extends State<AclScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  /// ACL 预检发现问题时的对话框：列出问题并提供"一键修复"。
+  ///
+  /// 返回 true 表示调用方应带着（可能已修复的）策略继续保存；false 表示用户取消。
+  Future<bool> _offerAclAutoFix(
+    L10n l10n,
+    List<AclIssue> issues, {
+    String? serverMessage,
+  }) async {
+    final fixed = AclPolicyCheck.autoFix(_aclController.text);
+    final theme = Theme.of(context);
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.t('La politique ACL a été refusée',
+            'The ACL policy was rejected', 'ACL 策略未通过校验')),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (serverMessage != null) ...[
+                Text(
+                    l10n.t('Réponse du serveur', 'Server response', '服务端返回'),
+                    style: theme.textTheme.titleSmall),
+                const SizedBox(height: 4),
+                SelectableText(serverMessage,
+                    style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+                const SizedBox(height: 12),
+              ],
+              if (issues.isNotEmpty) ...[
+                Text(
+                    l10n.t('Problèmes détectés localement',
+                        'Issues found locally', '本地发现的问题'),
+                    style: theme.textTheme.titleSmall),
+                const SizedBox(height: 4),
+                for (final issue in issues.take(8))
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text('• ${_describeAclIssue(l10n, issue)}'),
+                  ),
+              ],
+              if (fixed != null) ...[
+                const SizedBox(height: 10),
+                Text(
+                  l10n.t(
+                    'La réparation normalise le format JSON (les commentaires sont perdus).',
+                    'Fixing normalizes the JSON formatting (comments are lost).',
+                    '自动修复会规范化 JSON 格式（注释会丢失）。',
+                  ),
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.t('Annuler', 'Cancel', '取消')),
+          ),
+          if (fixed == null)
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l10n.t('Sauvegarder quand même', 'Save anyway', '仍然保存')),
+            ),
+          if (fixed != null)
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child:
+                  Text(l10n.t('Réparer et sauvegarder', 'Fix and save', '修复并保存')),
+            ),
+        ],
+      ),
+    );
+
+    if (result != true) return false;
+    if (fixed != null) {
+      _aclController.text = fixed;
+      try {
+        _currentAclPolicy = json.decode(fixed) as Map<String, dynamic>;
+      } catch (_) {
+        // 修复后的内容一定是合法 JSON；这里只是防御性处理。
+      }
+      setState(() => _isLocalDraft = true);
+    }
+    return true;
+  }
+
+  String _describeAclIssue(L10n l10n, AclIssue issue) {
+    switch (issue.code) {
+      case AclIssueCode.notJson:
+        return l10n.t('Le contenu n\'est pas un JSON valide.',
+            'The content is not valid JSON.', '内容不是合法的 JSON。');
+      case AclIssueCode.groupMemberNeedsAt:
+        return l10n.t(
+          '« ${issue.value} » doit être une référence utilisateur contenant « @ » (ex. ${issue.value}@).',
+          '"${issue.value}" must be a user reference containing "@" (e.g. ${issue.value}@).',
+          '「${issue.value}」必须是含 @ 的用户引用（例如 ${issue.value}@）。',
+        );
+      case AclIssueCode.invalidGroupName:
+        return l10n.t(
+          'Le groupe « ${issue.value} » doit être préfixé par « group: ».',
+          'Group "${issue.value}" must be prefixed with "group:".',
+          '分组「${issue.value}」必须以 group: 为前缀。',
+        );
     }
   }
 
