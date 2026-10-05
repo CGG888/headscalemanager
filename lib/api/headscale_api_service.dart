@@ -24,6 +24,7 @@ enum ApiOperation {
   saveAclPolicy,
   checkAclPolicy,
   backfillIps,
+  expireNode,
   deleteUser,
   deleteNode,
   setNodeRoutes,
@@ -62,6 +63,8 @@ enum ApiOperation {
             'vérifier la politique ACL', 'validate the ACL policy', '校验 ACL 策略'),
         ApiOperation.backfillIps => l.t('compléter les adresses IP des nœuds',
             'backfill node IP addresses', '补全节点 IP 地址'),
+        ApiOperation.expireNode => l.t('expirer la clé du nœud',
+            'expire the node key', '使节点密钥过期'),
         ApiOperation.deleteUser =>
           l.t('supprimer l\'utilisateur', 'delete the user', '删除用户'),
         ApiOperation.deleteNode =>
@@ -361,6 +364,21 @@ class HeadscaleApiService {
 
     if (response.statusCode != 200) {
       throw _handleError(ApiOperation.backfillIps, response);
+    }
+  }
+
+  /// 让节点的密钥立即过期：`POST /api/v1/node/{id}/expire`。
+  ///
+  /// 这是"把设备踢下线"的正确做法——节点需要重新认证才能回来，
+  /// 比直接删除更安全（保留记录、可追溯）。
+  Future<void> expireNode(String nodeId) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/v1/node/$nodeId/expire'),
+      headers: _getHeaders(),
+    );
+
+    if (response.statusCode != 200) {
+      throw _handleError(ApiOperation.expireNode, response);
     }
   }
 
