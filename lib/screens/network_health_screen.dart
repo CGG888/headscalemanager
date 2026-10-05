@@ -6,6 +6,7 @@ import 'package:headscalemanager/screens/acl_screen.dart';
 import 'package:headscalemanager/screens/node_detail_screen.dart';
 import 'package:headscalemanager/screens/acl_reachability_screen.dart';
 import 'package:headscalemanager/screens/audit_log_screen.dart';
+import 'package:headscalemanager/screens/policy_diff_screen.dart';
 import 'package:headscalemanager/screens/device_authorization_screen.dart';
 import 'package:headscalemanager/screens/batch_operations_screen.dart';
 import 'package:headscalemanager/services/derp_service.dart';
@@ -131,6 +132,12 @@ class _NetworkHealthScreenState extends State<NetworkHealthScreen> {
             tooltip: l10n.t('Visibilité ACL', 'ACL visibility', 'ACL 可达性'),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const AclReachabilityScreen())),
+          ),
+          IconButton(
+            icon: const Icon(Icons.difference_outlined),
+            tooltip: l10n.t('Changements de politique', 'Policy changes', '策略变更对比'),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const PolicyDiffScreen())),
           ),
           IconButton(
             icon: const Icon(Icons.history),

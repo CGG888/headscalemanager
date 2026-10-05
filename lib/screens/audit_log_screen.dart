@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:headscalemanager/l10n/l10n.dart';
 import 'package:headscalemanager/services/audit_log_service.dart';
 
@@ -77,6 +78,33 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
       '${t.year}-${t.month.toString().padLeft(2, '0')}-${t.day.toString().padLeft(2, '0')} '
       '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
+  /// 导出为纯文本（复制到剪贴板）：便于贴到工单/聊天里留档。
+  String _exportText(L10n l10n) {
+    final buffer = StringBuffer()
+      ..writeln(l10n.t('Historique des opérations — Headscale Manager',
+          'Operation history — Headscale Manager', '操作记录 — Headscale Manager'))
+      ..writeln(_formatTime(DateTime.now()))
+      ..writeln();
+    for (final entry in _entries) {
+      buffer.writeln(
+          '${_formatTime(entry.timestamp)}  ${entry.success ? 'OK ' : 'FAIL'}  '
+          '${_describe(l10n, entry.action)}  ${entry.target}'
+          '${entry.detail == null ? '' : '  (${entry.detail})'}');
+    }
+    return buffer.toString();
+  }
+
+  Future<void> _export() async {
+    final l10n = context.l10n;
+    await Clipboard.setData(ClipboardData(text: _exportText(l10n)));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(l10n.t('Historique copié (${_entries.length} entrées)',
+          'History copied (${_entries.length} entries)',
+          '已复制 ${_entries.length} 条记录')),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -85,6 +113,12 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
         title: Text(l10n.t('Historique des opérations',
             'Operation history', '操作记录')),
         actions: [
+          if (_entries.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.copy_all),
+              tooltip: l10n.t('Copier tout', 'Copy all', '复制全部'),
+              onPressed: _export,
+            ),
           IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: _isLoading ? null : _load),
