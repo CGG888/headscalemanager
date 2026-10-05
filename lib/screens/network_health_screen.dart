@@ -4,6 +4,7 @@ import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/screens/acl_screen.dart';
 import 'package:headscalemanager/screens/node_detail_screen.dart';
+import 'package:headscalemanager/screens/acl_reachability_screen.dart';
 import 'package:headscalemanager/screens/batch_operations_screen.dart';
 import 'package:headscalemanager/services/derp_service.dart';
 import 'package:headscalemanager/services/network_health_service.dart';
@@ -117,6 +118,12 @@ class _NetworkHealthScreenState extends State<NetworkHealthScreen> {
       appBar: AppBar(
         title: Text(l10n.t('Bilan du réseau', 'Network health', '网络体检')),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.visibility_outlined),
+            tooltip: l10n.t('Visibilité ACL', 'ACL visibility', 'ACL 可达性'),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const AclReachabilityScreen())),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _isLoading ? null : _run,
