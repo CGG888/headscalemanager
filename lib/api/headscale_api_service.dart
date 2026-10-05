@@ -23,6 +23,7 @@ enum ApiOperation {
   loadAclPolicy,
   saveAclPolicy,
   checkAclPolicy,
+  backfillIps,
   deleteUser,
   deleteNode,
   setNodeRoutes,
@@ -59,6 +60,8 @@ enum ApiOperation {
           l.t('sauvegarder la politique ACL', 'save the ACL policy', '保存 ACL 策略'),
         ApiOperation.checkAclPolicy => l.t(
             'vérifier la politique ACL', 'validate the ACL policy', '校验 ACL 策略'),
+        ApiOperation.backfillIps => l.t('compléter les adresses IP des nœuds',
+            'backfill node IP addresses', '补全节点 IP 地址'),
         ApiOperation.deleteUser =>
           l.t('supprimer l\'utilisateur', 'delete the user', '删除用户'),
         ApiOperation.deleteNode =>
@@ -347,6 +350,17 @@ class HeadscaleApiService {
 
     if (response.statusCode != 200) {
       throw _handleError(ApiOperation.saveAclPolicy, response);
+    }
+  }
+
+  Future<void> backfillIps() async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/v1/node/backfillips'),
+      headers: _getHeaders(),
+    );
+
+    if (response.statusCode != 200) {
+      throw _handleError(ApiOperation.backfillIps, response);
     }
   }
 
