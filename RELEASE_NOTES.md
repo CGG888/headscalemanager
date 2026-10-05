@@ -1,45 +1,36 @@
-# Headscale Manager v2.5.0
+# Headscale Manager v2.6.0
 
-本版把 App 从"能管理"推向"能运维"：**每台设备的真实网络状态（含 DERP 中继）**、一页体检、批量操作、ACL 风险审计、接入向导、多服务器总览。
+本版补上**设备授权可见性**与**本地操作留痕**，并沉淀了 CI 抓到的测试约定。
 
-## 新增：设备网络详情（含 DERP 中继）
+## 新增：未授权设备（体检页「盾牌带感叹号」图标）
 
-节点页面新增「设备网络详情」，数据来自 **device API**（`GET /api/v1/device/{id}`）——v1 的 `Node` 里没有这些字段：
+列出 **`authorized == false`** 的设备——那些**尚未被授权**的机器。
 
-| 字段 | 说明 |
+> **为什么不叫"待审批列表"**：Headscale 的审批接口（`AuthApprove/Reject`）用的是注册流程里的 `auth_id`，**没有任何接口能枚举待审批请求**，所以字面意义上的"待审批列表"做不出来。device API 的 `authorized` 字段能回答同一个问题：**哪些设备还没被授权**。
+
+每行显示 **系统 / 客户端版本 / DERP 中继 / 归属用户**，可直接**过期密钥**、**删除**或进入节点详情。
+
+- 逐节点查询 `GET /api/v1/device/{id}`，**按 6 个一组分批并发**，不会一次打出几十个请求；
+- 若**全部查询失败**（服务端早于 0.29）→ 明确提示"该服务端不提供 device API"，而不是给一个空列表误导；
+- 全部已授权时显示「**所有设备均已授权（已检查 N 台）**」——空页面绝不模棱两可。
+
+## 新增：操作记录（体检页「时钟」图标）
+
+Headscale **没有审计 API**，服务端不记录"谁在何时改了什么"，因此由 App 在**破坏性操作**时本地留痕：
+
+| 记录内容 | 说明 |
 |---|---|
-| `os` / `clientVersion` | 操作系统与 Tailscale 客户端版本（有更新会标注） |
-| **`client_connectivity.derp`** | **该设备当前实际使用的 DERP 中继** |
-| `latency` | **客户端自己测得的各区域延迟**（按快慢排序，首选区域标 `*`） |
-| `endpoints` | 公网端点 |
-| `mappingVariesByDestIp` | NAT 形态（映射随目标变化 → 可能为对称型 NAT） |
-| `authorized` / `keyExpiryDisabled` / `blocksIncomingConnections` / `isExternal` | 授权与防护状态标签 |
+| 批量**删除节点 / 过期密钥 / 批准路由** | 含节点清单与**成功/失败数**，"做了一半"也看得见 |
+| **创建预认证密钥** | 用户、可复用/临时、有效期 |
 
-> 老服务端没有该接口（404）或请求失败时，**整块隐藏**，不影响页面其它内容。
+- 最新在前，上限 **200 条**（超出丢弃最旧的）；本地存储不该无限增长；
+- **记录失败被静默吞掉**，绝不阻断你正在做的操作；单条损坏不会带崩整份历史；
+- 页面可**清空**（带确认），并如实说明：**记录仅在本机、随 App 卸载消失**，用于回溯而非合规审计。
 
-## 新增：网络体检（顶部盾牌图标）
+## 工程改进
 
-一页聚合所有可发现的异常，每条带对应操作：密钥已过期 / 30 天内到期、**长期离线节点（聚合成一条，可一键带去批量清理）**、待批路由、无 IP 节点（**一键补全**）、路由冲突、策略问题、标签未在 `tagOwners` 声明、DERP 全不可达。
-
-## 新增：批量操作（顶部清单图标）
-
-可搜索的多选列表，批量**批准路由 / 过期密钥 / 删除节点**；每个动作先确认、显示进度、结束给出**成功/失败清单**。删除或过期仍在共享路由/出口节点的机器时**红字警告**。
-
-## 新增：ACL 可达性 + 风险审计（体检页「眼睛」图标）
-
-把策略折算成"谁能访问谁（含端口）"，并标出风险：全通规则（critical）、互联网出口/SSH 对所有人开放、放行 `0.0.0.0/0`、通配目标、策略无规则。同时支持经典 `acls` 与 v0.29 `grants`。
-
-## 新增：接入向导 / 多服务器总览 / 规则化告警
-
-- **接入向导**（预认证密钥页二维码图标）：选用户与属性 → 生成密钥 → **大二维码（内容即命令）** + `tailscale up --login-server=… --authkey=…`，可复制。
-- **多服务器总览**（顶部服务器图标）：并行拉取所有服务器，按问题数排序，显示节点/在线数与四类问题标记，点一下切换。
-- **规则化告警**：密钥到期按 **30/7/3/1 天各提醒一次**（跨档才再提醒，不重复骚扰），与既有的待审批、孤立路由、监护节点状态通知并列。
-
-## 修复与改进
-
-- **ACL 保存前预检**：服务端 `policy/check` + 离线检查，**缺 `@` 可一键修复**（此前表现为保存后 500）。
-- **网络页不再把所有节点显示成离线**：状态以服务端 `online` 为准；节点直连探测改为**可选开关**（手机不在 tailnet 时无意义）；新增**服务器往返延迟**。
-- 节点详情补充**密钥到期**（临期橙/过期红）、注册时间与方式、子网路由、节点密钥与 DISCO 密钥；机器列表标记密钥临期/过期。
+- `AGENTS.md` 新增约定：**时间相关的测试必须避开整天/整点边界**。v2.5.0 的首次发布就是被这类脆弱测试拦下的（`DateTime.now().add(Duration(days: 2))` 在毫秒差下会算成 1 天，档位从 `d3` 变 `d1`：本地绿、CI 红），不得不重打 tag。现在写明应加 12 小时偏移或注入时钟。
+- `AGENTS.md` 同时修正了此前关于「每台机器的 OS / 客户端版本 / 端点 / DERP 中继拿不到」的**错误结论**：它们可从 **device API**（`GET /api/v1/device/{id}`，0.29 起）获得；不要仅凭 `node.proto`（其 `host_info`/`endpoints` 确为 reserved）就下"拿不到"的判断——消息定义在 `device.proto`、服务定义在 `headscale.proto`。
 
 ## 安装
 
@@ -47,19 +38,17 @@
 
 | 文件 | 适用机型 |
 |---|---|
-| `headscalemanager-v2.5.0-arm64-v8a.apk` | **绝大多数现代手机（推荐）** |
-| `headscalemanager-v2.5.0-armeabi-v7a.apk` | 较老 32 位设备 |
-| `headscalemanager-v2.5.0-x86_64.apk` | 模拟器 / x86 平板 |
-| `headscalemanager-v2.5.0.apk` | 通用包 |
+| `headscalemanager-v2.6.0-arm64-v8a.apk` | **绝大多数现代手机（推荐）** |
+| `headscalemanager-v2.6.0-armeabi-v7a.apk` | 较老 32 位设备 |
+| `headscalemanager-v2.6.0-x86_64.apk` | 模拟器 / x86 平板 |
+| `headscalemanager-v2.6.0.apk` | 通用包 |
 
-安装前**核对自己下载的字节数与下载页一致**；本版与 v2.4.0 **同一签名密钥**，可直接覆盖升级（v2.2.2 及更早需先卸载）。
+安装前**核对自己下载的字节数与下载页一致**；本版与 v2.5.0/v2.4.0 **同一签名密钥**，可直接覆盖升级（v2.2.2 及更早需先卸载）。
 
 > 本项目**未在 Google Play 或 App Store 上架**，请只从本仓库 Releases 获取。
 
 ## English summary
 
-- **Per-device network details** from the device API: OS, client version, the DERP relay actually in use, the client's own latency measurements per region, public endpoints, NAT shape, authorization and protection flags (hidden automatically on servers without the endpoint).
-- **Network health page** aggregating every detectable anomaly with the matching action, including grouped cleanup of long-offline nodes.
-- **Batch operations** (approve routes / expire keys / delete nodes) with per-node results and a safety warning for nodes still serving routes.
-- **ACL visibility and risk audit**, **add-a-device wizard** (QR + command), **multi-server overview**, and **tiered key-expiry reminders** (30/7/3/1 days, no repeats).
-- Fixes: ACL policy is validated before saving with one-click repair; the network view no longer reports every node as offline; server round-trip latency added.
+- **Unauthorized devices page**: lists devices with `authorized = false` (with OS, client version, DERP relay), letting you expire their key or delete them. Headscale cannot enumerate pending approvals - its approve/reject calls take the registration `auth_id` - so this reports the same thing from the device API's `authorized` field. Lookups run six at a time, and an older server says so explicitly instead of showing an empty list.
+- **Operation history**: destructive actions (batch delete / expire keys / approve routes, pre-auth key creation) are recorded locally with target, time and outcome, newest first, capped at 200 entries. Recording failures never block the operation, and the screen states that the log is device-local.
+- **Engineering**: AGENTS.md now requires time-dependent tests to avoid whole-day boundaries (a flake that this very release cycle hit), and corrects the earlier wrong claim that per-node OS/client version/endpoints/DERP relay were unobtainable - they come from the device API.
