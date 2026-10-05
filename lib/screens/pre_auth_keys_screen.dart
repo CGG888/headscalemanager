@@ -1,3 +1,4 @@
+import 'package:headscalemanager/screens/device_onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:headscalemanager/models/pre_auth_key.dart';
@@ -48,6 +49,14 @@ class _PreAuthKeysScreenState extends State<PreAuthKeysScreen> {
             style: theme.appBarTheme.titleTextStyle),
         backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.qr_code_2),
+            tooltip: l10n.t('Ajouter un appareil', 'Add a device', '接入新设备'),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const DeviceOnboardingScreen())),
+          ),
+        ],
         iconTheme: theme.appBarTheme.iconTheme,
       ),
       body: FutureBuilder<List<PreAuthKey>>(
