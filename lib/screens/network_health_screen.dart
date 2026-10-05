@@ -5,6 +5,7 @@ import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/screens/acl_screen.dart';
 import 'package:headscalemanager/screens/node_detail_screen.dart';
 import 'package:headscalemanager/screens/acl_reachability_screen.dart';
+import 'package:headscalemanager/screens/audit_log_screen.dart';
 import 'package:headscalemanager/screens/device_authorization_screen.dart';
 import 'package:headscalemanager/screens/batch_operations_screen.dart';
 import 'package:headscalemanager/services/derp_service.dart';
@@ -130,6 +131,12 @@ class _NetworkHealthScreenState extends State<NetworkHealthScreen> {
             tooltip: l10n.t('Visibilité ACL', 'ACL visibility', 'ACL 可达性'),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const AclReachabilityScreen())),
+          ),
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: l10n.t('Historique des opérations', 'Operation history', '操作记录'),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const AuditLogScreen())),
           ),
           IconButton(
             icon: const Icon(Icons.refresh),

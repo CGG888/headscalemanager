@@ -3,6 +3,7 @@ import 'package:headscalemanager/api/headscale_api_service.dart';
 import 'package:headscalemanager/l10n/l10n.dart';
 import 'package:headscalemanager/models/node.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
+import 'package:headscalemanager/services/audit_log_service.dart';
 import 'package:headscalemanager/services/batch_operation_service.dart';
 import 'package:provider/provider.dart';
 
@@ -118,6 +119,21 @@ class _BatchOperationsScreenState extends State<BatchOperationsScreen> {
         },
       );
       if (!mounted) return;
+      // 本地留痕：Headscale 没有审计 API，破坏性批量操作必须自己记一笔。
+      await AuditLogService.record(
+        switch (action) {
+          _BatchAction.approveRoutes => 'batchApproveRoutes',
+          _BatchAction.expireKeys => 'batchExpireKeys',
+          _BatchAction.delete => 'batchDeleteNodes',
+        },
+        targets.map((n) => n.name).join(', '),
+        detail: l10n.t(
+          '${result.succeeded.length} réussis, ${result.failures.length} échoués',
+          '${result.succeeded.length} succeeded, ${result.failures.length} failed',
+          '成功 ${result.succeeded.length} 个，失败 ${result.failures.length} 个',
+        ),
+        success: result.failures.isEmpty,
+      );
       await _showSummary(action, result);
       setState(() => _selected.clear());
       await _load();

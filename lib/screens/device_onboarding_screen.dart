@@ -4,6 +4,7 @@ import 'package:headscalemanager/l10n/l10n.dart';
 import 'package:headscalemanager/models/pre_auth_key.dart';
 import 'package:headscalemanager/models/user.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
+import 'package:headscalemanager/services/audit_log_service.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -86,6 +87,13 @@ class _DeviceOnboardingScreenState extends State<DeviceOnboardingScreen> {
             expiration: _expiry == null ? null : DateTime.now().add(_expiry!),
           );
       if (!mounted) return;
+      // 本地留痕：密钥创建是接入新设备的起点，值得记录。
+      await AuditLogService.record(
+        'createPreAuthKey',
+        user.name,
+        detail:
+            'reusable=$_reusable ephemeral=$_ephemeral expiry=${_expiry ?? 'never'}',
+      );
       setState(() {
         _created = key;
         _command =
