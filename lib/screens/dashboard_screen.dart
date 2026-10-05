@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:headscalemanager/models/node.dart';
+import 'package:headscalemanager/models/device_details.dart';
 import 'package:headscalemanager/models/user.dart';
 import 'package:headscalemanager/providers/app_provider.dart';
 import 'package:headscalemanager/services/acl/acl_policy_orchestrator.dart';
@@ -440,6 +441,114 @@ class _UserNodeCard extends StatelessWidget {
     );
   }
 
+  /// 长按磁贴时的设备网络详情（来自 device API，按需加载）。
+  ///
+  /// 列表页不预取：几十个节点会打出几十个请求。这里只在用户明确要求时查一次。
+  Future<void> _showDeviceInfo(BuildContext context, Node node) async {
+    final l10n = context.l10n;
+    final api = context.read<AppProvider>().apiService;
+
+    DeviceDetails? details;
+    String? error;
+    try {
+      details = await api.getDeviceDetails(node.id);
+    } catch (e) {
+      error = e.toString();
+    }
+    if (!context.mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(node.name),
+        content: error != null
+            ? Text(l10n.t(
+                'Cet appareil n\'a pas pu être interrogé (API device indisponible ?) : $error',
+                'Could not query this device (device API unavailable?) : $error',
+                '无法查询该设备（可能服务端不支持 device API）：$error',
+              ))
+            : _deviceInfoContent(context, l10n, details!),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.t('Fermer', 'Close', '关闭')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _deviceInfoContent(
+      BuildContext context, L10n l10n, DeviceDetails details) {
+    final conn = details.connectivity;
+    final rows = <List<String>>[
+      if (details.os.isNotEmpty)
+        [l10n.t('Système', 'OS', '系统'), details.os],
+      if (details.clientVersion.isNotEmpty)
+        [
+          l10n.t('Version du client', 'Client version', '客户端版本'),
+          details.updateAvailable
+              ? '${details.clientVersion} (${l10n.t('mise à jour dispo.', 'update available', '有更新')})'
+              : details.clientVersion,
+        ],
+      [
+        l10n.t('Autorisé', 'Authorized', '已授权'),
+        details.authorized
+            ? l10n.t('Oui', 'Yes', '是')
+            : l10n.t('Non', 'No', '否'),
+      ],
+      if (conn != null && conn.derp.isNotEmpty)
+        [l10n.t('Relais DERP', 'DERP relay', 'DERP 中继'), 'derp${conn.derp}'],
+      if (conn?.preferredRegion != null)
+        [
+          l10n.t('Région préférée', 'Preferred region', '首选区域'),
+          'derp${conn!.preferredRegion}'
+        ],
+      if (conn != null && conn.fastestRegion != null)
+        [
+          l10n.t('Région la plus rapide', 'Fastest region', '最快区域'),
+          'derp${conn.fastestRegion} '
+              '(${conn.latency[conn.fastestRegion]!.latencyMs.toStringAsFixed(0)} ms)'
+        ],
+      if (conn != null && conn.endpoints.isNotEmpty)
+        [
+          l10n.t('Points de terminaison', 'Endpoints', '公网端点'),
+          conn.endpoints.take(2).join(', ')
+        ],
+      if (conn != null)
+        [
+          l10n.t('Type de NAT', 'NAT type', 'NAT 形态'),
+          conn.mappingVariesByDestIp
+              ? l10n.t('mapping variable', 'varying mapping', '映射随目标变化')
+              : l10n.t('mapping stable', 'stable mapping', '映射稳定'),
+        ],
+    ];
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final row in rows)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: RichText(
+                text: TextSpan(
+                  style: DefaultTextStyle.of(context).style,
+                  children: [
+                    TextSpan(
+                        text: '${row[0]}: ',
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: row[1]),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildNodeTile(BuildContext context, Node node, List<Node> allNodes) {
     final locale = context.watch<AppProvider>().locale;
     final l10n = L10n(locale);
@@ -448,6 +557,9 @@ class _UserNodeCard extends StatelessWidget {
     return ListTile(
       onTap: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => NodeDetailScreen(node: node))),
+      // 长按：按需查询 device API，显示该系统与**实际使用的 DERP 中继**。
+      // 刻意不在列表加载时就逐节点请求——几十个节点会打出几十个请求。
+      onLongPress: () => _showDeviceInfo(context, node),
       leading: Icon(Icons.circle,
           color: node.online ? Colors.green : Theme.of(context).disabledColor,
           size: 12),
