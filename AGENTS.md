@@ -101,12 +101,15 @@ Verified against Headscale **v0.29.4** (proto RPCs + `hscontrol/app.go` routes).
   `extra_records`): they live in Headscale's `config.yaml`; there is **no DNS
   endpoint**. Headplane can edit them only because it writes that file directly.
   The app should offer a manual base-domain setting instead.
-* **Per-node OS / client version / endpoints**: `host_info` and `endpoints` are
-  `reserved` in the v1 proto (present in the database, not exposed). Headplane
-  gets them from an agent that joins the tailnet with `tsnet`.
-* **A node's current DERP relay**: chosen client-side by latency; no server
-  records it, and the unreleased v2 `Device` model has no such field either.
-  Only `tailscale status` / `tailscale debug derp` on that node knows.
+* **Per-node OS / client version / endpoints / DERP relay**: available, but from
+  the **device API**, not the node API. `GET /api/v1/device/{id}` returns `os`,
+  `clientVersion`, `authorized` and a `client_connectivity` block carrying
+  `endpoints`, `derp` (the relay in use) and `latency` (per-region, measured by
+  the client itself). This has existed since 0.29 - do not repeat the earlier
+  mistake of concluding "unobtainable" from `node.proto` alone: `host_info` and
+  `endpoints` really are `reserved` there, but `device.proto` defines the richer
+  messages while `headscale.proto` defines the service. Hide the UI when the
+  endpoint 404s, i.e. on older servers.
 * `POST /api/v1/policy/check` returns an **empty body**: the HTTP status carries
   the verdict and the parse error text is in the response body.
 * Do **not** ping node Tailscale addresses (`100.64.0.0/10`) from the app — the
