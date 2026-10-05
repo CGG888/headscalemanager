@@ -25,7 +25,12 @@ void main() {
         expiry: expiry,
       );
 
-  DateTime inDays(int days) => DateTime.now().add(Duration(days: days));
+  // 关键：必须避开"整天边界"。`DateTime.now()` 与计算时刻之间会差几毫秒，
+  // 若到期时间正好是 N 天整，`difference(...).inDays` 可能是 N-1，导致档位
+  // 从 d3 变成 d1 —— 本地通过、CI 失败（本仓库真发生过）。
+  // 因此统一加 12 小时偏移，让天数取整稳定。
+  DateTime inDays(int days) =>
+      DateTime.now().add(Duration(days: days, hours: 12));
 
   group('keyAlerts', () {
     test('永不过期的节点不告警', () {
